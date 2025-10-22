@@ -1,0 +1,10 @@
+pyTelegramBotAPI==4.23.0
+openai>=1.47.0,<2.0.0
+redis==5.0.8
+supabase==2.6.0
+python-dotenv==1.0.1
+pydantic==2.9.2
+pendulum==3.0.0
+uvloop==0.21.0; platform_system != 'Windows'
+httpx==0.27.2
+orjson==3.10.7
