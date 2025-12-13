@@ -23,9 +23,6 @@ dist/
 
 # Env & secrets
 .env
-.env.*
-!*.example
-*.env.local
 
 # Logs
 *.log

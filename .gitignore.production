@@ -1,0 +1,20 @@
+# .gitignore additions for production
+
+# Environment files
+.env
+.env.local
+.env.production
+*.env
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+
+# Database backups
+*.sql.gz
+backup*.sql
+
+# Docker volumes
+postgres_data/
