@@ -10,6 +10,10 @@ class BalanceResponse(BaseModel):
     total_expense: Decimal
     currency: str = "uzs"
     period_label: str
+    # Trend metrics (percentage changes from previous period)
+    income_change: Optional[float] = None
+    expense_change: Optional[float] = None
+    balance_change: Optional[float] = None
 
 
 class CategoryBreakdownItem(BaseModel):
@@ -18,7 +22,7 @@ class CategoryBreakdownItem(BaseModel):
     category_name: str
     category_slug: str
     amount: Decimal
-    percentage: float
+    percentage: str  # Changed from float to str for frontend compatibility
     transaction_count: int
     color: Optional[str] = None
 

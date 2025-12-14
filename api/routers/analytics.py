@@ -56,7 +56,7 @@ async def get_balance(
         else:  # all
             start_date = datetime(2020, 1, 1)
     
-    # Get income and expense totals
+    # Get income and expense totals for current period
     result = await db.execute(
         select(
             func.sum(case((Transaction.type == 'income', Transaction.amount), else_=0)).label('income'),
@@ -75,6 +75,43 @@ async def get_balance(
     total_expense = Decimal(row.expense or 0)
     balance = total_income - total_expense
     
+    # Calculate previous period for trend metrics
+    period_duration = end_date - start_date
+    prev_start_date = start_date - period_duration
+    prev_end_date = start_date
+    
+    # Get previous period totals
+    prev_result = await db.execute(
+        select(
+            func.sum(case((Transaction.type == 'income', Transaction.amount), else_=0)).label('income'),
+            func.sum(case((Transaction.type == 'expense', Transaction.amount), else_=0)).label('expense')
+        ).where(
+            and_(
+                Transaction.user_id == current_user.id,
+                Transaction.transaction_date >= prev_start_date,
+                Transaction.transaction_date < prev_end_date
+            )
+        )
+    )
+    prev_row = prev_result.one()
+    
+    prev_income = Decimal(prev_row.income or 0)
+    prev_expense = Decimal(prev_row.expense or 0)
+    prev_balance = prev_income - prev_expense
+    
+    # Calculate percentage changes
+    income_change = None
+    if prev_income > 0:
+        income_change = float((total_income - prev_income) / prev_income * 100)
+    
+    expense_change = None
+    if prev_expense > 0:
+        expense_change = float((total_expense - prev_expense) / prev_expense * 100)
+    
+    balance_change = None
+    if prev_balance != 0:
+        balance_change = float((balance - prev_balance) / abs(prev_balance) * 100)
+    
     period_label = f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
     
     return BalanceResponse(
@@ -82,7 +119,10 @@ async def get_balance(
         total_income=total_income,
         total_expense=total_expense,
         currency=current_user.default_currency,
-        period_label=period_label
+        period_label=period_label,
+        income_change=income_change,
+        expense_change=expense_change,
+        balance_change=balance_change
     )
 
 
@@ -147,7 +187,7 @@ async def get_category_breakdown(
             category_name=row.name or "Без категории",
             category_slug=row.slug or "uncategorized",
             amount=amount,
-            percentage=round(percentage, 1),
+            percentage=f"{round(percentage, 1)}",  # Format as string for frontend
             transaction_count=row.count,
             color=row.color
         ))
