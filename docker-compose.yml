@@ -57,7 +57,7 @@ services:
     container_name: midas_bot
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      API_BASE_URL: http://api:8000
+      API_BASE_URL: http://95.111.250.65:8001
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       api:
