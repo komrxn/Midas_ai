@@ -1,0 +1,19 @@
+$small: 420px;
+$mobile: 600px;
+$tablet-s: 768px;
+$tablet: 1024px;
+$laptop-l: 1200px;
+$laptop: 1440px;
+$desktop: 1920px;
+
+@mixin media-max($bp) {
+  @media all and (max-width: #{$bp}) {
+    @content
+  }
+}
+
+@mixin media-min($bp) {
+  @media all and (min-width: #{($bp+1px)}) {
+    @content
+  }
+}

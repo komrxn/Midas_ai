@@ -1,0 +1,132 @@
+body {
+  .p-dialog-mask {
+    backdrop-filter: blur(3px);
+  }
+
+  .confirmation-dialog {
+    max-width: 36rem;
+    width: 100%;
+
+    .p-dialog-content {
+      padding: 0;
+    }
+  }
+
+  /* Утилитарные классы для премиальных кнопок */
+  .p-button.button-premium-text {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 215, 0, 0.05) !important;
+      transform: none;
+    }
+
+    &:active {
+      background: rgba(255, 215, 0, 0.08) !important;
+      transform: scale(0.98);
+    }
+  }
+
+  .p-button.button-premium-primary {
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: none;
+      opacity: 0.9;
+    }
+
+    &:active {
+      transform: scale(0.98);
+      opacity: 0.85;
+    }
+  }
+
+  .p-button.button-premium-secondary {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--card-hover) !important;
+      transform: none;
+    }
+
+    &:active {
+      background: var(--card-accent) !important;
+      transform: scale(0.98);
+    }
+  }
+
+  .p-button-icon-svg {
+    font-size: 0 !important;
+
+    svg {
+      width: auto;
+      max-width: 100%;
+      max-height: 100%;
+      transition: var(--transition-fast);
+
+      &[fill]:not([fill='none']) {
+        fill: currentColor;
+      }
+    }
+
+    &:not(.no-fill) {
+      svg {
+        [fill]:not([fill='none']) {
+          fill: currentColor;
+        }
+
+        [stroke]:not([stroke='none']) {
+          stroke: currentColor;
+        }
+      }
+    }
+  }
+
+  .p-badge {
+    padding: var(--p-badge-padding) !important;
+    border-radius: var(--p-badge-border-radius) !important;
+  }
+
+  .p-toast-message-icon {
+    margin-top: -0.1rem;
+  }
+
+  .p-select {
+    --p-select-dropdown-width: 5rem;
+
+    --p-select-lg-font-size: 3rem;
+    --p-icon-size: 2.5rem;
+    --p-select-sm-font-size: 1.5rem;
+
+    &.p-select-sm {
+      --p-select-dropdown-width: 3.6rem;
+    }
+
+    &.p-select-lg {
+      --p-select-dropdown-width: 6rem;
+    }
+
+    .p-select-dropdown {
+      margin: -1px -1px -1px 0;
+      background: var(--primary-500);
+      color: var(--primary-surface-color);
+    }
+  }
+
+  .p-inputotp-input {
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .p-invalid {
+    color: var(--p-red-600);
+  }
+
+  .size-4 {
+    min-width: 4rem;
+    min-height: 4rem;
+    width: 4rem;
+    height: 4rem;
+  }
+}

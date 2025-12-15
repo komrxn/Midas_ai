@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+
+:root {
+    --p-scrollbar-width: 5px;
+
+    /* ================== fonts ================== */
+    --primary-font-r: 'Onest', sans-serif;
+    --primary-font-b: 'Onest', sans-serif;
+
+    /* --font-{size}-{weight} */
+    --font-10-r: normal 500 1.0rem/1 var(--primary-font-r);
+    --font-12-r: normal 500 1.2rem/1 var(--primary-font-r);
+    --font-14-r: normal 500 1.4rem/1 var(--primary-font-r);
+    --font-16-r: normal 500 1.6rem/1 var(--primary-font-r);
+    --font-18-r: normal 500 1.8rem/1 var(--primary-font-r);
+    --font-20-r: normal 500 2.0rem/1 var(--primary-font-r);
+    --font-22-r: normal 500 2.2rem/1 var(--primary-font-r);
+    --font-24-r: normal 500 2.4rem/1 var(--primary-font-r);
+    --font-26-r: normal 500 2.6rem/1 var(--primary-font-r);
+    --font-28-r: normal 500 2.8rem/1 var(--primary-font-r);
+    --font-30-r: normal 500 3.0rem/1 var(--primary-font-r);
+
+    --font-10-b: normal 600 1.0rem/1 var(--primary-font-b);
+    --font-12-b: normal 600 1.2rem/1 var(--primary-font-b);
+    --font-14-b: normal 600 1.4rem/1 var(--primary-font-b);
+    --font-16-b: normal 600 1.6rem/1 var(--primary-font-b);
+    --font-18-b: normal 600 1.8rem/1 var(--primary-font-b);
+    --font-20-b: normal 600 2.0rem/1 var(--primary-font-b);
+    --font-22-b: normal 600 2.2rem/1 var(--primary-font-b);
+    --font-24-b: normal 600 2.4rem/1 var(--primary-font-b);
+    --font-26-b: normal 600 2.6rem/1 var(--primary-font-b);
+    --font-28-b: normal 600 2.8rem/1 var(--primary-font-b);
+    --font-30-b: normal 600 3.0rem/1 var(--primary-font-b);
+    --font-34-b: normal 600 3.4rem/1 var(--primary-font-b);
+
+
+    /* ================== other ================== */
+    --radius-s: .3rem;
+    --radius-m: .5rem;
+    --radius-l: 1rem;
+    --radius-xl: 5rem;
+    --radius-round: 50%;
+
+    --transition-fast: all 0.3s;
+    --transition-slow: all 0.4s;
+
+    --page-transition-time: all 0.5s;
+
+    /* ================== other ================== */
+}
+
+html {
+    --tg-viewport-height: 100dvh;
+    --tg-viewport-stable-height: 100dvh;
+}
+.font-none {
+    font-size: 0 !important;
+}
+.font-10-r {
+    font: var(--font-10-r) !important;
+}
+.font-12-r {
+    font: var(--font-12-r) !important;
+}
+.font-14-r {
+    font: var(--font-14-r) !important;
+}
+.font-16-r {
+    font: var(--font-16-r) !important;
+}
+.font-18-r {
+    font: var(--font-18-r) !important;
+}
+.font-20-r {
+    font: var(--font-20-r) !important;
+}
+.font-22-r {
+    font: var(--font-22-r) !important;
+}
+.font-24-r {
+    font: var(--font-24-r) !important;
+}
+.font-26-r {
+    font: var(--font-26-r) !important;
+}
+.font-28-r {
+    font: var(--font-28-r) !important;
+}
+.font-30-r {
+    font: var(--font-30-r) !important;
+}
+
+.font-10-b {
+    font: var(--font-10-b) !important;
+}
+.font-12-b {
+    font: var(--font-12-b) !important;
+}
+.font-14-b {
+    font: var(--font-14-b) !important;
+}
+.font-16-b {
+    font: var(--font-16-b) !important;
+}
+.font-18-b {
+    font: var(--font-18-b) !important;
+}
+.font-20-b {
+    font: var(--font-20-b) !important;
+}
+.font-22-b {
+    font: var(--font-22-b) !important;
+}
+.font-24-b {
+    font: var(--font-24-b) !important;
+}
+.font-26-b {
+    font: var(--font-26-b) !important;
+}
+.font-28-b {
+    font: var(--font-28-b) !important;
+}
+
+.font-30-b {
+    font: var(--font-30-b) !important;
+}
+
+.font-34-b {
+    font: var(--font-34-b) !important;
+}
+
+
+.text-left {
+    text-align: left;
+}
+.text-center {
+    text-align: center;
+}
+.text-right {
+    text-align: right;
+}
+
+.w-full {
+    width: 100%;
+    max-width: 100%;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.my-auto {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.colspan-2 {
+    grid-column: span 2;
+}

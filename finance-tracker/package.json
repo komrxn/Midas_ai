@@ -1,0 +1,48 @@
+{
+  "name": "vue-starter-pack",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host",
+    "lint": "eslint . --fix",
+    "build:dev": "vue-tsc && vite build --mode=development",
+    "build:prod": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "browserslist": {
+    "production": [
+      "cover 99%"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  },
+  "dependencies": {
+    "@primeuix/themes": "^1.2.1",
+    "@vueuse/core": "^13.8.0",
+    "@vueuse/integrations": "^13.9.0",
+    "axios": "^1.7.2",
+    "echarts": "^6.0.0",
+    "maska": "^3.2.0",
+    "pinia": "^2.1.7",
+    "primevue": "^4.3.6",
+    "universal-cookie": "^8.0.1",
+    "vue": "^3.4.21",
+    "vue-echarts": "^8.0.1",
+    "vue-i18n": "^11.1.10",
+    "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.7.3",
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.12.0",
+    "sass": "^1.79.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-mkcert": "^1.17.8",
+    "vue-tsc": "^2.0.6"
+  }
+}
