@@ -16,10 +16,17 @@ $axios.interceptors.request.use(
   (config) => {
     if (config.loading) config.loading.value = true;
 
-    const { get: getToken } = useCookies();
-    if (getToken('token')) {
-      config.headers.Authorization = `Bearer ${getToken('token')}`;
+    // Check localStorage first (for Telegram auth), then cookies
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      const { get: getToken } = useCookies();
+      if (getToken('token')) {
+        config.headers.Authorization = `Bearer ${getToken('token')}`;
+      }
     }
+
     return config;
   },
 );
