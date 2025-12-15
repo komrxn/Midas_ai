@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # OpenAI
     openai_api_key: str
     
+    # Telegram
+    telegram_bot_token: str
+    
     # API
     api_host: str = "0.0.0.0"
     api_port: int = 8000
