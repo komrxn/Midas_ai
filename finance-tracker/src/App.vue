@@ -16,13 +16,19 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <AppLayout>
-    <router-view v-slot="{ Component, route }">
-      <!-- <transition :name="pageTransition.transitionName"> -->
-        <component :is="Component" :key="route.path" />
-      <!-- </transition> -->
-    </router-view>
-  </AppLayout>
+  <div id="app">
+    <!-- Show Telegram required message if not in Telegram -->
+    <TelegramRequired v-if="!isTelegramMode && !hasToken" />
+    
+    <!-- Main app if in Telegram or has token -->
+    <AppLayout v-else>
+      <router-view v-slot="{ Component, route }">
+        <!-- <transition :name="pageTransition.transitionName"> -->
+          <component :is="Component" :key="route.path" />
+        <!-- </transition> -->
+      </router-view>
+    </AppLayout>
+  </div>
 </template>
 
 <style scoped lang="scss"></style>
