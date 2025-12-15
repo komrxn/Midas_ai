@@ -33,7 +33,40 @@ app
   .use(pinia)
   .use(router)
   .use(PrimeVue, options)
-  .use(ToastService)
-  .mount('#app');
+  .use(ToastService);
 
 app.config.globalProperties.$formRules = formRules(i18n.global.t);
+
+// Telegram Web App automatic authentication
+async function initApp() {
+  const { authenticateViaTelegram, isTelegramWebApp } = await import('@/telegramAuth');
+
+  if (isTelegramWebApp()) {
+    console.log('[App] Running in Telegram WebApp, attempting authentication...');
+
+    try {
+      const token = await authenticateViaTelegram();
+
+      if (token) {
+        // Store token (you might already have a token service)
+        localStorage.setItem('access_token', token);
+        console.log('[App] ✅ Telegram authentication successful');
+      }
+      else {
+        console.warn('[App] No initData from Telegram');
+      }
+    }
+    catch (error) {
+      console.error('[App] Telegram authentication failed:', error);
+      // Fallback: user will see auth required screen
+    }
+  }
+  else {
+    console.log('[App] Not in Telegram WebApp');
+  }
+
+  // Mount app
+  app.mount('#app');
+}
+
+initApp();
