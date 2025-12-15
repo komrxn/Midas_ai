@@ -5,6 +5,7 @@ from sqlalchemy import select
 from ..database import get_db
 from ..models.user import User
 from ..schemas.auth import UserCreate, UserLogin, UserResponse, TokenResponse
+from ..schemas.telegram import TelegramAuthRequest
 from ..auth.jwt import get_password_hash, verify_password, create_access_token, get_current_user
 
 
@@ -83,7 +84,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
 
 @router.post("/telegram-auth", response_model=TokenResponse)
 async def telegram_auth(
-    telegram_data: "TelegramAuthRequest",
+    telegram_data: TelegramAuthRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -112,7 +113,6 @@ async def telegram_auth(
         ExpiredInitDataError,
         MalformedInitDataError
     )
-    from ..schemas.telegram import TelegramAuthRequest
     
     settings = get_settings()
     
