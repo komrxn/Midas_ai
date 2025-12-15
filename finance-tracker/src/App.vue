@@ -1,15 +1,24 @@
 <script lang="ts" setup>
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useThemeMode } from '@/composables/UI/';
 import AppLayout from '@/layouts/AppLayout.vue';
+import TelegramRequired from '@/components/TelegramRequired.vue';
 import { getCurrentLocale, setCurrentLocale } from '@/plugins/i18n/models';
+import { isTelegramWebApp } from '@/telegramAuth';
 // import { usePageTransitionStore } from '@/store/pageTransitionStore.ts';
 
 const { setTheme } = useThemeMode();
 
+const isTelegramMode = ref(false);
+const hasToken = ref(false);
+
 onBeforeMount(() => {
   setCurrentLocale(getCurrentLocale());
   setTheme();
+  
+  // Check if in Telegram WebApp
+  isTelegramMode.value = isTelegramWebApp();
+  hasToken.value = !!localStorage.getItem('access_token');
 });
 
 // const pageTransition = usePageTransitionStore();
