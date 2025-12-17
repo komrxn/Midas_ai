@@ -364,7 +364,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         audio_file.name = "voice.ogg"
         
         async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
+            stt_response = await client.post(
                 config.UZAI_STT_URL,
                 headers={
                     "Authorization": config.UZAI_API_KEY
@@ -373,18 +373,30 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "file": ("voice.ogg", audio_file, "audio/ogg")
                 },
                 data={
-                    "language": "ru-uz",  # Смешанный русский-узбекский
-                    "blocking": "true",   # Синхронный ответ
+                    "language": "ru-uz",
+                    "blocking": "true",
                     "return_offsets": "false",
                     "run_diarization": "false"
                 }
             )
-            response.raise_for_status()
-            stt_result = response.json()
+            stt_response.raise_for_status()
+            stt_result = stt_response.json()
         
-        transcribed_text = stt_result.get("text", "")
+        # Debug logging
+        logger.info(f"UzbekVoice.AI full response: {stt_result}")
+        
+        # Try different possible keys for text
+        transcribed_text = (
+            stt_result.get("text") or
+            stt_result.get("transcript") or
+            stt_result.get("transcription") or
+            stt_result.get("data", {}).get("text") or
+            ""
+        )
+        
         if not transcribed_text:
-            raise ValueError("Empty transcription from UzbekVoice.AI")
+            logger.error(f"Empty transcription from UzbekVoice.AI. Response: {stt_result}")
+            raise ValueError(f"No text in response: {stt_result}")
         
         logger.info(f"Transcribed (UzbekVoice.AI): {transcribed_text}")
         
