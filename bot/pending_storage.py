@@ -1,5 +1,5 @@
 """Pending transactions storage for confirmation flow."""
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 
