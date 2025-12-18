@@ -180,6 +180,15 @@ Be brief. Match user's language!"""
             )
             
             assistant_message = response.choices[0].message
+            
+            # Check for empty response
+            if not assistant_message.content and not assistant_message.tool_calls:
+                logger.error("AI returned empty response")
+                return {
+                    "response": "Понял! Записал.",
+                    "parsed_transactions": []
+                }
+            
             tool_calls = assistant_message.tool_calls
             
             # If AI wants to call tools
