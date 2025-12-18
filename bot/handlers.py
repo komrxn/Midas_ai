@@ -387,9 +387,13 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
             agent = AIAgent(api)
             return await agent.process_message(user_id, transcribed_text)
         
-        response = await with_auth_check(update, user_id, _process_transcribed)
-        if response is None:
+        result = await with_auth_check(update, user_id, _process_transcribed)
+        if result is None:
             return  # Auth failed, user prompted to /start
+        
+        # Extract response and transactions
+        response_text = result.get("response", "")
+        parsed_transactions = result.get("parsed_transactions", [])
         
         # Try Markdown, fallback to plain text
         try:
@@ -404,6 +408,11 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=get_main_keyboard()
             )
         
+        # Show confirmation for parsed transactions
+        if parsed_transactions:
+            from .confirmation_handlers import show_transaction_confirmation
+            for tx_data in parsed_transactions:
+                await show_transaction_confirmation(update, user_id, tx_data)
     except Exception as e:
         logger.exception(f"Voice processing error: {e}")
         await update.message.reply_text(
