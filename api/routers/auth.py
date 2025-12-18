@@ -35,13 +35,25 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     # Normalize phone number (998XXXXXXXXX format)
     normalized_phone = normalize_phone(user_data.phone_number)
     
-    # Check if user already exists
+    # Check if user with this telegram_id already exists
+    result = await db.execute(
+        select(User).where(User.telegram_id == user_data.telegram_id)
+    )
+    existing_by_telegram = result.scalar_one_or_none()
+    
+    if existing_by_telegram:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this Telegram account already registered"
+        )
+    
+    # Check if phone number already exists
     result = await db.execute(
         select(User).where(User.phone_number == normalized_phone)
     )
-    existing_user = result.scalar_one_or_none()
+    existing_by_phone = result.scalar_one_or_none()
     
-    if existing_user:
+    if existing_by_phone:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Phone number already registered"
