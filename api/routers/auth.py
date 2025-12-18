@@ -5,9 +5,9 @@ import logging
 
 from ..database import get_db
 from ..models.user import User
-from ..schemas.auth import UserCreate, UserLogin, UserResponse, TokenResponse
+from ..schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse
 from ..schemas.telegram import TelegramAuthRequest
-from .security import create_access_token, get_password_hash, verify_password, get_current_user
+from ..auth.jwt import create_access_token, get_password_hash, verify_password, get_current_user
 
 logger = logging.getLogger(__name__)
 
