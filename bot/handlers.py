@@ -294,9 +294,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         agent = AIAgent(api)
         return await agent.process_message(user_id, text)
     
-    response = await with_auth_check(update, user_id, _process_with_ai)
-    if response is None:
+    result = await with_auth_check(update, user_id, _process_with_ai)
+    if result is None:
         return  # Auth failed, user prompted to /start
+    
+    # Extract response and transactions from AI result
+    response = result.get("response", "")
+    parsed_transactions = result.get("parsed_transactions", [])
     
     # Try to send with Markdown, fallback to plain text if fails
     try:
@@ -313,6 +317,11 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=get_main_keyboard()
         )
     
+    # Show confirmation for each parsed transaction
+    if parsed_transactions:
+        from .confirmation_handlers import show_transaction_confirmation
+        for tx_data in parsed_transactions:
+            await show_transaction_confirmation(update, user_id, tx_data)
 
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle voice messages."""
