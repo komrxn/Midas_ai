@@ -22,7 +22,7 @@ class Config:
     UZAI_STT_URL = "https://uzbekvoice.ai/api/v1/stt"
     
     # Web App
-    WEB_APP_URL = os.getenv("WEB_APP_URL", "http://localhost:3001/midas/")
+    WEB_APP_URL = os.getenv("WEB_APP_URL", "https://midas-ai.org")
     
     @classmethod
     def validate(cls):

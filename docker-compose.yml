@@ -72,7 +72,7 @@ services:
       context: ./finance-tracker
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /midas-api # API через nginx proxy на сервере
+        VITE_API_URL: https://midas-ai.org/midas-api
         BASE_URL: /midas/ # Base path для assets
     container_name: midas_frontend
     ports:
