@@ -351,3 +351,36 @@ alias midas-bot-logs='docker compose logs -f bot --tail=50'
 ```
 
 Затем: `source ~/.bashrc` и используй короткие команды!
+
+
+### Добавить категории
+```bash
+docker compose exec -T db psql -U postgres -d midas_db << 'EOF'
+INSERT INTO categories (id, name, slug, type, icon, color, is_default) VALUES
+(gen_random_uuid(), 'Еда', 'food', 'expense', '🍔', '#FF6B6B', true),
+(gen_random_uuid(), 'Транспорт', 'transport', 'expense', '🚗', '#4ECDC4', true),
+(gen_random_uuid(), 'Жильё', 'housing', 'expense', '🏠', '#95E1D3', true),
+(gen_random_uuid(), 'Развлечения', 'entertainment', 'expense', '🎮', '#F38181', true),
+(gen_random_uuid(), 'Здоровье', 'health', 'expense', '💊', '#AA96DA', true),
+(gen_random_uuid(), 'Образование', 'education', 'expense', '📚', '#FCBAD3', true),
+(gen_random_uuid(), 'Одежда', 'clothing', 'expense', '👔', '#A8D8EA', true),
+(gen_random_uuid(), 'Связь', 'communication', 'expense', '📱', '#FFD93D', true),
+(gen_random_uuid(), 'Подарки', 'gifts', 'expense', '🎁', '#6BCB77', true),
+(gen_random_uuid(), 'Спорт', 'sports', 'expense', '⚽', '#4D96FF', true),
+(gen_random_uuid(), 'Красота', 'beauty', 'expense', '💄', '#FDA7DF', true),
+(gen_random_uuid(), 'Путешествия', 'travel', 'expense', '✈️', '#F6A5C0', true),
+(gen_random_uuid(), 'Кафе', 'cafes', 'expense', '☕', '#F3D250', true),
+(gen_random_uuid(), 'Продукты', 'groceries', 'expense', '🛒', '#90CCF4', true),
+(gen_random_uuid(), 'Такси', 'taxi', 'expense', '🚕', '#F78888', true),
+(gen_random_uuid(), 'Коммуналка', 'utilities', 'expense', '💡', '#5EAAA8', true),
+(gen_random_uuid(), 'Другое', 'other_expense', 'expense', '💰', '#B8B5FF', true),
+(gen_random_uuid(), 'Зарплата', 'salary', 'income', '💵', '#26de81', true),
+(gen_random_uuid(), 'Фриланс', 'freelance', 'income', '💻', '#45aaf2', true),
+(gen_random_uuid(), 'Инвестиции', 'investments', 'income', '📈', '#a55eea', true),
+(gen_random_uuid(), 'Подарок', 'gift_income', 'income', '🎁', '#fd79a8', true),
+(gen_random_uuid(), 'Другое', 'other_income', 'income', '💸', '#00b894', true)
+ON CONFLICT DO NOTHING;
+
+SELECT COUNT(*), type FROM categories GROUP BY type;
+EOF
+```

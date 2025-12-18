@@ -45,6 +45,10 @@ def main():
     # Callback handler for help language selection
     application.add_handler(CallbackQueryHandler(help_callback, pattern="^help_"))
     
+    # Callback handler for transaction confirmation
+    from .confirmation_handlers import transaction_callback_handler
+    application.add_handler(transaction_callback_handler)
+    
     # Message handlers
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     application.add_handler(MessageHandler(filters.VOICE, handle_voice))
