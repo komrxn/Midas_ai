@@ -4,7 +4,7 @@
  * Handles automatic authentication when app is opened through Telegram Mini App.
  */
 
-import axios from 'axios';
+import $axios from '@/api';
 
 export interface TelegramAuthResponse {
     access_token: string;
@@ -50,9 +50,9 @@ export async function authenticateViaTelegram(): Promise<string | null> {
     console.log('[Telegram Auth] Sending initData to backend for validation');
 
     try {
-        // Call backend Telegram auth endpoint
-        const response = await axios.post<TelegramAuthResponse>(
-            '/midas-api/auth/telegram-auth',
+        // Call backend Telegram auth endpoint using configured axios
+        const response = await $axios.post<TelegramAuthResponse>(
+            '/auth/telegram-auth',
             { init_data: initData }
         );
 
