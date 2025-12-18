@@ -398,13 +398,13 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Try Markdown, fallback to plain text
         try:
             await update.message.reply_text(
-                f"🎤 *Ты сказал:* {transcribed_text}\n\n{response}",
+                f"🎤 *Ты сказал:* {transcribed_text}\n\n{response_text}",
                 parse_mode='Markdown',
                 reply_markup=get_main_keyboard()
             )
         except Exception:
             await update.message.reply_text(
-                f"🎤 Ты сказал: {transcribed_text}\n\n{response}",
+                f"🎤 Ты сказал: {transcribed_text}\n\n{response_text}",
                 reply_markup=get_main_keyboard()
             )
         
