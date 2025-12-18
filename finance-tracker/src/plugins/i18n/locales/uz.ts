@@ -56,7 +56,7 @@ export default {
 
   // Asosiy sahifa
   main: {
-    title: 'Roʻyxatdan oʻtish',
+    title: 'Asosiy',
     enterSMS: 'SMS kodini kiriting',
     smsWasSent: 'SMS kod telefon raqamga yuborildi',
     enterSMSToContinue: 'Davom etish uchun uni pastga kiriting.',

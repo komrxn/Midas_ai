@@ -56,7 +56,7 @@ export default {
 
   // Main page
   main: {
-    title: 'Registration',
+    title: 'Main',
     enterSMS: 'Enter SMS code',
     smsWasSent: 'SMS code was sent to the phone number',
     enterSMSToContinue: 'Enter it below to continue.',

@@ -56,7 +56,7 @@ export default {
 
   // Главная страница
   main: {
-    title: 'Оформление',
+    title: 'Главная',
     enterSMS: 'Введите SMS-код',
     smsWasSent: 'SMS-код был выслан на телефонный номер',
     enterSMSToContinue: 'Введите его ниже, чтобы продолжить.',
