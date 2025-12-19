@@ -24,10 +24,27 @@ class UserResponse(BaseModel):
     phone_number: str
     name: str
     default_currency: str
+    language: str
     created_at: datetime
     
     class Config:
         from_attributes = True
+
+
+class TelegramRegister(BaseModel):
+    """Telegram-based registration."""
+    telegram_id: int
+    phone_number: str
+    name: str
+    language: str = "uz"  # Default to Uzbek
+
+
+class LoginResponse(BaseModel):
+    """Login response with token."""
+    access_token: str
+    token_type: str = "bearer"
+    username: str
+    language: str = "uz"
 
 
 class TokenResponse(BaseModel):

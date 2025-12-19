@@ -209,7 +209,8 @@ async def telegram_auth(
         user = User(
             telegram_id=tg_user["id"],
             phone_number=phone_number,
-            name=name
+            name=name,
+            language=tg_user.get("language_code", "uz") # Add language from Telegram user data
         )
         
         db.add(user)

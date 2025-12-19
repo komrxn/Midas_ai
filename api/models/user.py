@@ -24,6 +24,7 @@ class User(Base):
     
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    language: Mapped[str] = mapped_column(String(2), default="uz", server_default="uz", nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 
         server_default=func.now(), 
