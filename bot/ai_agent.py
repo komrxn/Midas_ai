@@ -1,8 +1,9 @@
-"""AI Agent with OpenAI Function Calling."""
+"""AI Agent with OpenAI integration and tool support."""
 import json
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from openai import AsyncOpenAI
+from openai.types.chat import ChatCompletionMessageToolCall as ToolCall
 
 from .config import config
 from .api_client import MidasAPIClient
