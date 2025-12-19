@@ -5,13 +5,20 @@ from telegram.ext import (
     Application,
     CommandHandler,
     MessageHandler,
-    filters,
     CallbackQueryHandler,
+    filters
 )
 
-from .config import config
-from .handlers import start, get_balance, handle_text, handle_voice, handle_photo, help_command, help_callback
-from .auth_handlers import register_conv, login_conv
+from bot.config import config
+from bot.handlers import (
+    handle_text,
+    handle_voice,
+    handle_photo
+)
+from bot.handlers.commands import start, help_command, help_callback
+from bot.handlers.balance import get_balance
+from bot.auth_handlers import register_conv, login_conv
+from bot.transaction_actions import transaction_action_handler
 
 # Configure logging
 logging.basicConfig(
@@ -23,15 +30,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Start the bot."""
-    # Validate config
-    try:
-        config.validate()
-    except ValueError as e:
-        logger.error(f"Configuration error: {e}")
-        return
-    
-    # Create application
-    application = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
+    application = Application.builder().token(config.BOT_TOKEN).build()
     
     # Auth conversation handlers (priority)
     application.add_handler(register_conv)
@@ -45,9 +44,8 @@ def main():
     # Callback handler for help language selection
     application.add_handler(CallbackQueryHandler(help_callback, pattern="^help_"))
     
-    # Callback handler for transaction confirmation
-    from .confirmation_handlers import transaction_callback_handler
-    application.add_handler(transaction_callback_handler)
+    # Callback handler for transaction actions (Edit/Delete)
+    application.add_handler(transaction_action_handler)
     
     # Message handlers
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))

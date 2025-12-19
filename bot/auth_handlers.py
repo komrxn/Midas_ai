@@ -131,7 +131,7 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     api = MidasAPIClient(config.API_BASE_URL)
     
     try:
-        result = await api.login(phone, telegram_id)
+        result = await api.login(phone)  # Fixed - removed telegram_id
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
         

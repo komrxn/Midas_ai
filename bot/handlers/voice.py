@@ -1,25 +1,23 @@
-"""Voice message handler."""
+"""Voice message handler module."""
+import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-import logging
+from io import BytesIO
 import httpx
-import io
 
-from ..user_storage import storage
 from ..api_client import MidasAPIClient
 from ..config import config
+from ..user_storage import storage
+from ..ai_agent import AIAgent
+from ..transaction_actions import show_transaction_with_actions
 from .common import with_auth_check, get_main_keyboard
-from ..confirmation_handlers import show_transaction_confirmation
 
 logger = logging.getLogger(__name__)
 
 
+@with_auth_check
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle voice messages."""
-    if not storage.is_user_authorized(update.effective_user.id):
-        await update.message.reply_text("⛔ Сначала авторизуйся: /start")
-        return
-    
+    """Handle voice messages - transcribe and process with AI."""
     user_id = update.effective_user.id
     token = storage.get_user_token(user_id)
     api = MidasAPIClient(config.API_BASE_URL)
