@@ -15,10 +15,15 @@ from .common import with_auth_check, get_main_keyboard
 logger = logging.getLogger(__name__)
 
 
-@with_auth_check
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle voice messages - transcribe and process with AI."""
     user_id = update.effective_user.id
+    
+    # Auth check
+    if not storage.is_user_authorized(user_id):
+        await update.message.reply_text("⛔ Сначала авторизуйся: /start")
+        return
+    
     token = storage.get_user_token(user_id)
     api = MidasAPIClient(config.API_BASE_URL)
     api.set_token(token)

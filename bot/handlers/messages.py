@@ -15,13 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle text messages - menu buttons and AI agent."""
-    if not storage.is_user_authorized(update.effective_user.id):
+    """Handle text messages with AI."""
+    user_id = update.effective_user.id
+    
+    # Auth check
+    if not storage.is_user_authorized(user_id):
         await update.message.reply_text("⛔ Сначала авторизуйся: /start")
         return
     
     text = update.message.text
-    user_id = update.effective_user.id
     
     # Check if user is editing a transaction
     if context.user_data.get('editing_tx'):
