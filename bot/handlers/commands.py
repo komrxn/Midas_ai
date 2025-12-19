@@ -5,7 +5,7 @@ import logging
 
 from ..user_storage import storage
 from ..help_messages import HELP_MESSAGES
-from .common import get_main_keyboard
+from ..lang_messages import get_message
 
 logger = logging.getLogger(__name__)
 
@@ -13,25 +13,28 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start command - show registration or login options."""
     user = update.effective_user
+    # Get lang if available (if user exists in storage)
+    lang = storage.get_user_language(user.id) or 'uz'
     
     if storage.is_user_authorized(user.id):
         await update.message.reply_text(
-            f"Привет, {user.first_name}! 👋\n\nТы уже авторизован.",
-            reply_markup=get_main_keyboard()
+            get_message(lang, 'welcome_back', name=user.first_name),
+            reply_markup=get_main_keyboard(lang)
         )
     else:
+        # For new users, maybe try to guess lang from Telegram user.language_code
+        # But for now default to UZ or what message keys say
         await update.message.reply_text(
-            f"Привет, {user.first_name}! 👋\n\n"
-            "Я помогу тебе вести учёт финансов.\n\n"
-            "Для начала работы:\n"
-            "/register - регистрация\n"
-            "/login - вход",
+            get_message(lang, 'welcome_new', name=user.first_name),
             reply_markup=ReplyKeyboardRemove()
         )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show help with language selection."""
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz' # Default for menu prompt
+    
     keyboard = [
         [
             InlineKeyboardButton("🇷🇺 Русский", callback_data="help_ru"),
@@ -42,7 +45,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "Выбери язык / Choose language / Tilni tanlang:",
+        get_message(lang, 'choose_language'),
         reply_markup=reply_markup
     )
 

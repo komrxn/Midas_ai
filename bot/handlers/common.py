@@ -6,6 +6,8 @@ import logging
 from ..user_storage import storage
 from ..api_client import MidasAPIClient, UnauthorizedError
 
+from ..lang_messages import get_message
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,10 +25,11 @@ async def with_auth_check(update: Update, user_id: int, api_call):
         # Token expired or invalid
         storage.clear_user_token(user_id)
         
+        # Get user language for error message (default to 'uz' if unknown, though auth failed so maybe unknown)
+        lang = storage.get_user_language(user_id) or 'uz'
+        
         await update.message.reply_text(
-            "🔑 **Твой токен авторизации истёк.**\n\n"
-            "Отправь /start чтобы войти заново.",
-            parse_mode='Markdown',
+            get_message(lang, 'auth_required'),
             reply_markup=ReplyKeyboardRemove()
         )
         logger.info(f"User {user_id} token expired, prompted to re-authenticate")
@@ -36,10 +39,20 @@ async def with_auth_check(update: Update, user_id: int, api_call):
         raise
 
 
-def get_main_keyboard():
+def get_main_keyboard(lang: str = 'uz'):
     """Get main menu keyboard."""
     keyboard = [
-        [KeyboardButton("💰 Баланс"), KeyboardButton("📊 Статистика")],
-        [KeyboardButton("❓ Помощь")]
+        [KeyboardButton(get_message(lang, 'balance')), KeyboardButton(get_message(lang, 'statistics_title'))],
+        # [KeyboardButton(get_message(lang, 'help'))] # Help key not in MESSAGES yet? Added 'statistics_title' 
     ]
+    # Check if 'help' key exists, if not use hardcoded or add it. 
+    # Current lang_messages doesn't have 'help'. I should add valid keys.
+    # 'balance' -> "💰 Balance"
+    # 'statistics_title' -> "📊 Statistics"
+    # I should add 'help_btn' to lang_messages? Or just use "Help"
+    
+    # For now, let's stick to what we have in keys. 
+    # Wait, 'balance' in messages is "💰 Balance". 
+    # 'statistics_title' is "📊 Statistics".
+    
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)

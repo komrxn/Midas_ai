@@ -7,7 +7,7 @@ import httpx
 from .config import config
 from .api_client import MidasAPIClient
 from .user_storage import storage
-from .handlers import get_main_keyboard
+from ..lang_messages import get_message
 
 logger = logging.getLogger(__name__)
 
@@ -18,44 +18,49 @@ LOGIN_PHONE = 0
 
 # Registration flow
 async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
+    
     await update.message.reply_text(
-        "Давай познакомимся! 👋\n\nКак тебя зовут?",
+        get_message(lang, 'intro_ask_name'),
         reply_markup=ReplyKeyboardRemove()
     )
     return NAME
 
 
 async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
     name = update.message.text.strip()
     context.user_data['register_name'] = name
     
-    phone_button = KeyboardButton("📱 Поделиться номером", request_contact=True)
+    phone_button = KeyboardButton(get_message(lang, 'share_phone'), request_contact=True)
     keyboard = ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True, one_time_keyboard=True)
     
     await update.message.reply_text(
-        f"Приятно познакомиться, {name}! 😊\n\nПоделись номером телефона:",
+        get_message(lang, 'intro_ask_phone', name=name),
         reply_markup=keyboard
     )
     return PHONE
 
 
 async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
     contact = update.message.contact
     
     if not contact:
-        await update.message.reply_text("❌ Используй кнопку 'Поделиться номером'")
+        await update.message.reply_text(get_message(lang, 'use_button'))
         return PHONE # Keep returning PHONE if contact is not provided via button
     
-    phone = contact.phone_number # Get phone from contact if provided
-    context.user_data['register_phone'] = phone # Store it for later use if needed, or if the instruction implies it's always taken from user_data
+    phone = contact.phone_number
+    context.user_data['register_phone'] = phone
     
-    # Get phone from user data (this line is added as per instruction, assuming it might be set elsewhere or as a fallback)
-    phone = context.user_data.get('register_phone')
+    # Get phone from user data
     telegram_id = update.effective_user.id
     name = context.user_data['register_name']
     
-    # Get language preference (default uz)
-    lang = context.user_data.get('registration_language', 'uz')
+    # Lang is correctly retrieved above
     
     api = MidasAPIClient(config.API_BASE_URL)
     
@@ -69,8 +74,8 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         storage.set_user_language(telegram_id, lang)
         
         await update.message.reply_text(
-            "✅ Регистрация завершена!\n\nТеперь можешь добавлять транзакции.",
-            reply_markup=get_main_keyboard()
+            get_message(lang, 'reg_success'),
+            reply_markup=get_main_keyboard(lang)
         )
         
         # Send help message after registration
@@ -87,19 +92,24 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            "📖 **Как пользоваться / How to use / Qanday foydalanish:**\n\n"
-            "Выбери язык → Choose language → Tilni tanlang:",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            get_message(lang, 'choose_language'),
+            reply_markup=reply_markup
         )
         
         return ConversationHandler.END
         
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 400:
+            # TODO: Localize API error messages
+            error_text = "❌ Bu raqam ro'yxatdan o'tgan / This number is already registered"
+            if lang =='ru':
+                error_text = "❌ Этот номер уже зарегистрирован.\nИспользуй /login для входа."
+            elif lang == 'en':
+                error_text = "❌ Expected error: Number already registered."
+            
             await update.message.reply_text(
-                "❌ Этот номер уже зарегистрирован.\nИспользуй /login для входа.",
-                reply_markup=get_main_keyboard()
+                error_text,
+                reply_markup=get_main_keyboard(lang)
             )
         else:
             await update.message.reply_text(

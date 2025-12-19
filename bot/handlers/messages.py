@@ -20,7 +20,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Auth check
     if not storage.is_user_authorized(user_id):
-        await update.message.reply_text("⛔ Сначала авторизуйся: /start")
+        lang = storage.get_user_language(user_id) or 'uz'
+        await update.message.reply_text(get_message(lang, 'auth_required'))
         return
     
     text = update.message.text
@@ -36,24 +37,26 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, user_id: int):
     """Process any text message (typed or transcribed) through the main pipeline."""
+async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, user_id: int):
+    """Process any text message (typed or transcribed) through the main pipeline."""
+    # Get user language first to handle localized buttons
+    lang = storage.get_user_language(user_id) or 'uz'
+    
     # Handle menu buttons first
-    if text == "💰 Баланс":
+    if text == get_message(lang, 'balance'):
         token = storage.get_user_token(user_id)
         api = MidasAPIClient(config.API_BASE_URL)
         api.set_token(token)
-        # Get user language
-        lang = storage.get_user_language(user_id) or 'uz'
         await show_balance(update, api, lang)
         return
-    elif text == "📊 Статистика":
+    elif text == get_message(lang, 'statistics_title'):
         # Show statistics (keep existing functionality)
         token = storage.get_user_token(user_id)
         api = MidasAPIClient(config.API_BASE_URL)
         api.set_token(token)
-        lang = storage.get_user_language(user_id) or 'uz'
         await show_statistics(update, api, lang)
         return
-    elif text == "❓ Помощь":
+    elif text == "❓ Help" or text == "❓ Yordam" or text == "❓ Помощь": # Needs proper key in future
         from .commands import help_command
         await help_command(update, context)
         return
@@ -67,9 +70,6 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     token = storage.get_user_token(user_id)
     api = MidasAPIClient(config.API_BASE_URL)
     api.set_token(token)
-    
-    # Get user language
-    lang = storage.get_user_language(user_id) or 'uz'
     
     # Process with AI
     agent = AIAgent(api)

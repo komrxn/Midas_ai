@@ -11,7 +11,7 @@ from ..config import config
 from ..user_storage import storage
 from ..ai_agent import AIAgent
 from ..transaction_actions import show_transaction_with_actions
-from .common import with_auth_check, get_main_keyboard
+from ..lang_messages import get_message
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +19,11 @@ logger = logging.getLogger(__name__)
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle voice messages - transcribe and process with AI."""
     user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
     
     # Auth check
     if not storage.is_user_authorized(user_id):
-        await update.message.reply_text("⛔ Сначала авторизуйся: /start")
+        await update.message.reply_text(get_message(lang, 'auth_required'))
         return
     
     token = storage.get_user_token(user_id)
@@ -30,7 +31,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     api.set_token(token)
     
     try:
-        await update.message.reply_text("🎤 Слушаю...")
+        await update.message.reply_text(get_message(lang, 'listening'))
         await update.message.chat.send_action(action="typing")
         
         # Download voice
@@ -80,6 +81,6 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Voice error: {e}")
         await update.message.reply_text(
-            "❌ Ошибка при обработке голосового сообщения.\nПопробуй ещё раз или напиши текстом.",
-            reply_markup=get_main_keyboard()
+            get_message(lang, 'voice_error'),
+            reply_markup=get_main_keyboard(lang)
         )

@@ -19,31 +19,44 @@ async def show_transaction_with_actions(
 ) -> None:
     """Show created transaction with Edit/Delete buttons."""
     tx_id = tx_data.get('transaction_id')
-    amount = float(tx_data.get('amount', 0))  # Convert to float
+    # Get localized strings
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    type_emoji = "📈" if tx_data['type'] == 'income' else "📉"
+    type_text = get_message(lang, 'income') if tx_data['type'] == 'income' else get_message(lang, 'expense')
+    amount_text = f"{tx_data['amount']:,.0f} {tx_data.get('currency', 'UZS')}"
+    
     desc = tx_data.get('description', '')
-    tx_type = tx_data.get('type', 'expense')
-    currency = tx_data.get('currency', 'uzs').upper()
+    category = tx_data.get('category')
     
     # Format message
-    type_emoji = "💰" if tx_type == "income" else "💸"
-    type_text = "Доход" if tx_type == "income" else "Расход"
+    # Example:
+    # ✅ Xarajat yozildi!
+    # 📉 50,000 UZS
+    # 📝 Tushlik
+    # 🏷 Oziq-ovqat
     
-    message = (
-        f"✅ {type_text} записан!\n"
-        f"{type_emoji} {amount:,.0f} {currency}\n"
+    status_msg = get_message(lang, 'income_recorded' if tx_data['type'] == 'income' else 'expense_recorded')
+    # Add checkmark if not already present in localized string (it is not)
+    status_msg = f"✅ {status_msg}"
+    
+    text = (
+        f"{status_msg}\n"
+        f"{type_emoji} {amount_text}\n"
         f"📝 {desc}"
     )
-    
-    # Create Edit/Delete buttons
+    if category:
+        text += f"\n🏷 {category['name'] if isinstance(category, dict) else category}"
+
     keyboard = [
         [
-            InlineKeyboardButton("✏️ Редактировать", callback_data=f"edit_tx_{tx_id}"),
-            InlineKeyboardButton("🗑 Удалить", callback_data=f"delete_tx_{tx_id}")
+            InlineKeyboardButton(f"{get_message(lang, 'edit_btn')}", callback_data=f"edit_tx_{tx_id}"),
+            InlineKeyboardButton(f"{get_message(lang, 'delete_btn')}", callback_data=f"delete_tx_{tx_id}")
         ]
     ]
     
     await update.message.reply_text(
-        message,
+        text,
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
@@ -63,22 +76,23 @@ async def handle_transaction_action(update: Update, context: ContextTypes.DEFAUL
     api = MidasAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
+    # Get localized strings (reuse user_id from query)
+    # Note: query.from_user.id is used above
+    lang = storage.get_user_language(user_id) or 'uz'
+
     if action == "edit":
         # Start edit mode
         context.user_data['editing_transaction_id'] = tx_id
-        await query.edit_message_text(
-            "✏️ Редактирование транзакции\n\n"
-            "Напиши новую сумму, описание или категорию:"
-        )
+        await query.edit_message_text(get_message(lang, 'edit_prompt'))
         
     elif action == "delete":
         # Delete transaction
         try:
             await api.delete_transaction(tx_id)
-            await query.edit_message_text("🗑 Удалено")
+            await query.edit_message_text(get_message(lang, 'deleted'))
         except Exception as e:
             logger.error(f"Failed to delete transaction: {e}")
-            await query.edit_message_text(f"❌ Ошибка: {str(e)}")
+            await query.edit_message_text(f"❌ {get_message(lang, 'error_generic')}: {str(e)}")
 
 
 async def handle_edit_transaction_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -88,6 +102,7 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
         return False  # Not editing
     
     user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
     text = update.message.text
     
     token = storage.get_user_token(user_id)
@@ -141,8 +156,8 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
     except Exception as e:
         logger.exception(f"Edit error: {e}")
         await update.message.reply_text(
-            f"❌ Ошибка: {str(e)}",
-            reply_markup=get_main_keyboard()
+            f"❌ {get_message(lang, 'error_generic')}: {str(e)}",
+            reply_markup=get_main_keyboard(lang)
         )
         return True  # Handled
 
