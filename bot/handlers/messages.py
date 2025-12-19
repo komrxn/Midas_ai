@@ -33,8 +33,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Handle menu buttons first
     if text == "💰 Баланс":
-        await get_balance(update, context)
-        # Get token and API client
         token = storage.get_user_token(user_id)
         api = MidasAPIClient(config.API_BASE_URL)
         api.set_token(token)
@@ -69,7 +67,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = storage.get_user_language(user_id) or 'uz'
     
     # Process with AI
-    agent = AIAgent(api, language=lang)
+    agent = AIAgent(api)
     result = await agent.process_message(user_id, text)
     
     response_text = result.get("response", "")
