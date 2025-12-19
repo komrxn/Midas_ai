@@ -7,7 +7,7 @@ import httpx
 from .config import config
 from .api_client import MidasAPIClient
 from .user_storage import storage
-from ..lang_messages import get_message
+from .lang_messages import get_message
 
 logger = logging.getLogger(__name__)
 
