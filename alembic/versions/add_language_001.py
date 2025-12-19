@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'add_language_001'
-down_revision = 'seed_default_categories'
+down_revision = 'seed_categories_001'  # Fixed - correct revision ID
 branch_labels = None
 depends_on = None
 
