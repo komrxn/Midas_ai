@@ -30,9 +30,10 @@ async def get_balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if balance is None:
         return  # Auth failed
     
-    income = balance.get("income", 0)
-    expense = balance.get("expense", 0)
-    total = balance.get("balance", 0)
+    # Convert to float (API returns strings)
+    income = float(balance.get("income", 0))
+    expense = float(balance.get("expense", 0))
+    total = float(balance.get("balance", 0))
     currency = balance.get("currency", "UZS")
     
     await update.message.reply_text(

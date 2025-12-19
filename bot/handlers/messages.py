@@ -44,7 +44,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             # Format statistics
             stats_text = "📊 **Статистика за месяц**\n\n"
-            stats_text += f"💰 Баланс: {balance.get('balance', 0):,.0f} {balance.get('currency', 'UZS')}\n\n"
+            # Convert balance to float (API returns string)
+            balance_value = float(balance.get('balance', 0))
+            stats_text += f"💰 Баланс: {balance_value:,.0f} {balance.get('currency', 'UZS')}\n\n"
             
             if breakdown:
                 stats_text += "**По категориям:**\n"
