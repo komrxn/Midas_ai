@@ -136,17 +136,22 @@ RULES:
    - If unsure about category, use best guess or 'other'.
    - "Taxi" -> category="taxi" (NOT transport).
 
-2. **Voice/Typos:**
+2. **Context/Memory:**
+   - REMEMBER previous messages.
+   - If user says "Dinner" (after you asked "What amount?" or "What for?"), COMBINE with previous info (amount 50k).
+   - DO NOT lose the amount.
+
+3. **Voice/Typos:**
    - Input is often from VOICE (STT), so expect typos/weird words (e.g. "Food 50000" -> "Fud 50000").
    - AGGRESSIVELY GUESS intent. If you see an amount and *something* looking like a category/desc, RECORD IT.
    - Only ask clarification if CRITICAL info (Amount) is missing or text is completely unintelligible.
 
-3. **Categories:**
+4. **Categories:**
    - Create category ONLY if user says "Create/Add category X".
    - CALL `create_category` tool.
    - If user uses a new category in a transaction (e.g. "Lunch 50k crypto"), check if "crypto" exists. If not, ask: "Create category 'crypto'?" OR map to 'entertainment'/'other'.
 
-4. **General:**
+5. **General:**
    - Be CONCISE. No long explanations.
    - Detect and use USER'S language.
 
@@ -305,6 +310,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                 }
                 
                 # Resolve category_id from slug
+                resolved_category_name = None
                 if category_slug:
                     try:
                         categories = await self.api_client.get_categories()
@@ -317,6 +323,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                         for cat in categories:
                             if cat.get("slug") == target_slug:
                                 category_id = cat.get("id")
+                                resolved_category_name = cat.get("name")
                                 break
                         
                         # 2. Try name match (case-insensitive)
@@ -324,6 +331,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                             for cat in categories:
                                 if cat.get("name", "").lower() == target_slug:
                                     category_id = cat.get("id")
+                                    resolved_category_name = cat.get("name")
                                     break
                                     
                         # 3. Fallback to 'other_expense' / 'other_income' if not found
@@ -332,6 +340,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                             for cat in categories:
                                 if cat.get("slug") == fallback_slug:
                                     category_id = cat.get("id")
+                                    resolved_category_name = cat.get("name")
                                     break
                         
                         # 4. Last resort: 'other' (legacy)
@@ -339,6 +348,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                              for cat in categories:
                                 if cat.get("slug") == "other":
                                     category_id = cat.get("id")
+                                    resolved_category_name = cat.get("name")
                                     break
 
                         if category_id:
@@ -351,7 +361,15 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                 
                 logger.info(f"Creating transaction: {tx_data}")
                 result = await self.api_client.create_transaction(tx_data)
-                return {"success": True, "transaction_id": result["id"], "amount": amount, "currency": currency}
+                return {
+                    "success": True, 
+                    "transaction_id": result["id"], 
+                    "amount": amount, 
+                    "currency": currency,
+                    "type": transaction_type,
+                    "description": description,
+                    "category": resolved_category_name or category_slug or "general"
+                }
 
             elif function_name == "create_category":
                 name = args.get("name")

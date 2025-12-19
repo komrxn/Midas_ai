@@ -94,12 +94,10 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
             
     # Show each created transaction with Edit/Delete buttons
     if created_transactions:
-        # If there's an AI partial response with transactions, show it too
-        if response_text:
-             try:
-                 await update.message.reply_text(response_text)
-             except Exception:
-                 pass
+        # Suppress text response if transaction is created (only show the card)
+        # unless it's a multi-part response with critical info? 
+        # For now, silence is golden for UI purity.
+        pass
                  
         for tx_data in created_transactions:
             await show_transaction_with_actions(update, user_id, tx_data)
