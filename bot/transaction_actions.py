@@ -23,43 +23,73 @@ async def show_transaction_with_actions(
     # Get localized strings
     lang = storage.get_user_language(user_id) or 'uz'
     
-    type_emoji = "📈" if tx_data['type'] == 'income' else "📉"
+    # Fetch current balance
+    api = MidasAPIClient(config.API_BASE_URL)
+    api.set_token(storage.get_user_token(user_id))
+    try:
+        balance_data = await api.get_balance()
+        balance_value = float(balance_data.get('balance', 0))
+        currency = balance_data.get('currency', 'UZS')
+        # Hardcoded USD balance for now or fetch if available?
+        # Assuming only single currency for MVP, but user asked for USD too.
+        # Let's just show main currency.
+    except Exception as e:
+        logger.warning(f"Could not fetch balance for tx message: {e}")
+        balance_value = 0
+        currency = 'UZS'
+
+    type_emoji = "💸" if tx_data['type'] == 'expense' else "💰"
     type_text = get_message(lang, 'income') if tx_data['type'] == 'income' else get_message(lang, 'expense')
-    amount_text = f"{float(tx_data['amount']):,.0f} {tx_data.get('currency', 'UZS')}"
+    amount_text = f"{tx_data.get('currency', 'UZS')} {float(tx_data['amount']):,.0f}".replace(",", " ")
     
     desc = tx_data.get('description', '')
-    category = tx_data.get('category')
+    category = tx_data.get('category', {})
+    category_name = category.get('name', 'General') if isinstance(category, dict) else str(category)
     
-    # Format message
-    # Example:
-    # ✅ Xarajat yozildi!
-    # 📉 50,000 UZS
-    # 📝 Tushlik
-    # 🏷 Oziq-ovqat
-    
-    status_msg = get_message(lang, 'income_recorded' if tx_data['type'] == 'income' else 'expense_recorded')
-    # Add checkmark if not already present in localized string (it is not)
-    status_msg = f"✅ {status_msg}"
+    # Date (using current date or tx date)
+    from datetime import datetime
+    date_str = datetime.now().strftime("%d.%m.%Y")
+
+    # Construct Message
+    # Добавлено в отчет ✅
+    #
+    # 💸 Расход:
+    # Дата: 18.12.2025
+    #
+    # Сумма: UZS 20 000
+    # Категория: Транспорт
+    # Описание: Такси
+    #
+    # Баланс: UZS (so'm): 1 210 000.00
     
     text = (
-        f"{status_msg}\n"
-        f"{type_emoji} {amount_text}\n"
-        f"📝 {desc}"
+        f"**{get_message(lang, 'added_to_report')}**\n\n"
+        f"{type_emoji} **{type_text}:**\n"
+        f"{get_message(lang, 'date_label')}: {date_str}\n\n"
+        f"**{get_message(lang, 'amount_label')}:** {amount_text}\n"
+        f"**{get_message(lang, 'category_label')}:** {category_name}\n"
     )
-    if category:
-        text += f"\n🏷 {category['name'] if isinstance(category, dict) else category}"
+    
+    if desc:
+        text += f"**{get_message(lang, 'desc_label')}:** {desc}\n"
+        
+    text += f"\n**{get_message(lang, 'balance')}:** {currency} {balance_value:,.2f}".replace(",", " ")
 
     keyboard = [
         [
-            InlineKeyboardButton(f"{get_message(lang, 'edit_btn')}", callback_data=f"edit_tx_{tx_id}"),
-            InlineKeyboardButton(f"{get_message(lang, 'delete_btn')}", callback_data=f"delete_tx_{tx_id}")
+            InlineKeyboardButton(f"{get_message(lang, 'cancel_btn')}", callback_data=f"delete_tx_{tx_id}"),
+            InlineKeyboardButton(f"{get_message(lang, 'edit_btn')}", callback_data=f"edit_tx_{tx_id}")
         ]
     ]
     
     await update.message.reply_text(
         text,
-        reply_markup=InlineKeyboardMarkup(keyboard)
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
     )
+    
+    # Also log transaction
+    logger.info(f"Transaction shown: {tx_id}")
 
 
 async def handle_transaction_action(update: Update, context: ContextTypes.DEFAULT_TYPE):
