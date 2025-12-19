@@ -58,24 +58,17 @@ class MidasAPIClient:
                 }
             )
             response.raise_for_status()
-            data = response.json()
-            self.token = data.get("access_token")
-            return data
+            return response.json()
     
-    async def login(self, phone_number: str, telegram_id: int) -> Dict[str, Any]:
-        """Login user via Telegram."""
+    async def login(self, phone_number: str) -> Dict[str, Any]:
+        """Login user via phone."""
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.base_url}/auth/login",
-                json={
-                    "phone_number": phone_number,
-                    "telegram_id": telegram_id
-                }
+                json={"phone_number": phone_number}
             )
             response.raise_for_status()
-            data = response.json()
-            self.token = data.get("access_token")
-            return data
+            return response.json()
     
     @handle_auth_errors
     async def get_me(self) -> Dict[str, Any]:
@@ -127,16 +120,38 @@ class MidasAPIClient:
             return response.json()
     
     @handle_auth_errors
-    async def create_transaction(self, transaction_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create transaction."""
+    async def create_transaction(self, tx_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create new transaction."""
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.base_url}/transactions",
-                headers=self.headers,
-                json=transaction_data
+                json=tx_data,
+                headers=self.headers
             )
             response.raise_for_status()
             return response.json()
+    
+    @handle_auth_errors
+    async def update_transaction(self, tx_id: str, **updates) -> Dict[str, Any]:
+        """Update transaction via PATCH."""
+        async with httpx.AsyncClient() as client:
+            response = await client.patch(
+                f"{self.base_url}/transactions/{tx_id}",
+                json=updates,
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+    
+    @handle_auth_errors
+    async def delete_transaction(self, tx_id: str) -> None:
+        """Delete transaction."""
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(
+                f"{self.base_url}/transactions/{tx_id}",
+                headers=self.headers
+            )
+            response.raise_for_status()
     
     @handle_auth_errors
     async def get_balance(self, period: str = "month") -> Dict[str, Any]:

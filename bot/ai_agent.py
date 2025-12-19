@@ -195,23 +195,27 @@ Be brief. Match user's language!"""
             if tool_calls:
                 # Execute all tool calls
                 tool_results = []
+                created_transactions = [] # Initialize list to collect created transactions
+                
                 for tool_call in tool_calls:
-                    function_name = tool_call.function.name
-                    function_args = json.loads(tool_call.function.arguments)
-                    
-                    logger.info(f"AI calling tool: {function_name} with args: {function_args}")
-                    
-                    # Execute the function
-                    result = await self._execute_tool(function_name, function_args)
-                    
-                    # Collect parsed transactions
-                    if result.get("pending_confirmation") and result.get("parsed_transaction"):
-                        parsed_transactions.append(result["parsed_transaction"])
-                    
-                    tool_results.append({
-                        "tool_call_id": tool_call.id,
-                        "output": json.dumps(result, ensure_ascii=False)
-                    })
+                    try:
+                        logger.info(f"AI calling tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
+                        tool_result = await self._execute_tool(user_id, tool_call)
+                        tool_results.append({
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps(tool_result, ensure_ascii=False)
+                        })
+                        
+                        # Collect successfully created transactions
+                        if tool_result.get("success") and "transaction_id" in tool_result:
+                            created_transactions.append(tool_result)
+                            
+                    except Exception as e:
+                        logger.exception(f"Error executing tool {tool_call.function.name}: {e}")
+                        tool_results.append({
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps({"error": str(e)}, ensure_ascii=False)
+                        })
                 
                 # Add assistant message with tool calls to history
                 messages.append({
@@ -252,53 +256,79 @@ Be brief. Match user's language!"""
             dialog_context.add_message(user_id, "assistant", final_text or "")
             
             return {
-                "response": final_text or "Понял!",
-                "parsed_transactions": parsed_transactions
+                "response": final_text or "Готово!",
+                "created_transactions": created_transactions
             }
             
         except Exception as e:
             logger.exception(f"AI agent error: {e}")
             return {
                 "response": "❌ Произошла ошибка. Попробуй ещё раз.",
-                "parsed_transactions": []
+                "created_transactions": []
             }
     
-    async def _execute_tool(self, function_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute a tool function."""
+    async def _execute_tool(self, user_id: int, tool_call: ToolCall) -> Dict[str, Any]:
+        """Execute AI function call."""
         try:
+            function_name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            
+            logger.info(f"Executing tool: {function_name}")
+            
             if function_name == "create_transaction":
-                # PARSE ONLY - return data for confirmation, don't create yet
+                transaction_type = args.get("type", "expense")
+                amount = float(args.get("amount", 0))
+                description = args.get("description", "")
+                currency = args.get("currency", "uzs").lower()
+                category_slug = args.get("category")
+                date_str = args.get("date")
+                
+                # Prepare transaction data
                 tx_data = {
-                    "type": arguments["type"],
-                    "amount": float(arguments["amount"]),
-                    "description": arguments["description"],
-                    "currency": arguments.get("currency", "uzs"),
-                    "category_slug": arguments.get("category_slug"),
+                    "type": transaction_type,
+                    "amount": amount,
+                    "description": description,
+                    "currency": currency,
                 }
                 
-                return {
-                    "success": True,
-                    "pending_confirmation": True,
-                    "parsed_transaction": tx_data
-                }
-            
-            elif function_name == "get_balance":
-                period = arguments.get("period", "month")
-                balance = await self.api_client.get_balance(period=period)
-                return balance
-            
-            elif function_name == "get_statistics":
-                period = arguments.get("period", "month")
-                balance = await self.api_client.get_balance(period=period)
-                breakdown = await self.api_client.get_category_breakdown(period=period)
-                return {
-                    "balance": balance,
-                    "breakdown": breakdown
-                }
-            
-            else:
-                return {"error": f"Unknown function: {function_name}"}
+                # Add category_id if slug provided
+                if category_slug:
+                    try:
+                        categories = await self.api_client.get_categories()
+                        for cat in categories:
+                            if cat.get('slug') == category_slug:
+                                tx_data['category_id'] = cat['id']
+                                break
+                    except Exception as e:
+                        logger.error(f"Failed to get category: {e}")
                 
+                # Add date if provided
+                if date_str:
+                    tx_data['transaction_date'] = date_str
+                
+                # CREATE TRANSACTION IMMEDIATELY
+                try:
+                    result = await self.api_client.create_transaction(tx_data)
+                    logger.info(f"Transaction created: {result.get('id')}")
+                    
+                    return {
+                        "success": True,
+                        "transaction_id": str(result['id']),
+                        "type": transaction_type,
+                        "amount": amount,
+                        "description": description,
+                        "currency": currency,
+                        "category_slug": category_slug or "none",
+                    }
+                except Exception as e:
+                    logger.error(f"Failed to create transaction: {e}")
+                    return {
+                        "success": False,
+                        "error": str(e)
+                    }
+            
+            return {"error": f"Unknown function: {function_name}"}
+                    
         except Exception as e:
             logger.exception(f"Tool execution error: {e}")
             return {"error": str(e)}
