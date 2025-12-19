@@ -1,5 +1,6 @@
 """Voice message handler module."""
 import logging
+import io
 from telegram import Update
 from telegram.ext import ContextTypes
 from io import BytesIO

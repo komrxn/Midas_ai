@@ -19,7 +19,7 @@ async def show_transaction_with_actions(
 ) -> None:
     """Show created transaction with Edit/Delete buttons."""
     tx_id = tx_data.get('transaction_id')
-    amount = tx_data.get('amount', 0)
+    amount = float(tx_data.get('amount', 0))  # Convert to float
     desc = tx_data.get('description', '')
     tx_type = tx_data.get('type', 'expense')
     currency = tx_data.get('currency', 'uzs').upper()
