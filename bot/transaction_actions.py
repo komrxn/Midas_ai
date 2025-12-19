@@ -96,19 +96,25 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
     
     try:
         # Parse the edit text to extract updates
-        # Simple parsing: look for numbers (amount) and text (description)
+        # Support "50ming", "50k" etc for thousands
         import re
         
         updates = {}
         
-        # Try to find amount (numbers)
-        amount_match = re.search(r'(\d+(?:[.,]\d+)?)', text)
-        if amount_match:
-            amount_str = amount_match.group(1).replace(',', '.')
-            updates['amount'] = float(amount_str)
+        # Check for multipliers first (ming, k)
+        ming_match = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:ming|минг)', text, re.IGNORECASE)
+        k_match = re.search(r'(\d+(?:[.,]\d+)?)\s*k\b', text, re.IGNORECASE)
+        plain_match = re.search(r'(\d+(?:[.,]\d+)?)', text)
         
-        # Get description (remove numbers, clean up)
-        description = re.sub(r'\d+(?:[.,]\d+)?', '', text).strip()
+        if ming_match:
+            updates['amount'] = float(ming_match.group(1).replace(',', '.')) * 1000
+        elif k_match:
+            updates['amount'] = float(k_match.group(1).replace(',', '.')) * 1000
+        elif plain_match:
+            updates['amount'] = float(plain_match.group(1).replace(',', '.'))
+        
+        # Get description (remove numbers and multipliers)
+        description = re.sub(r'\d+(?:[.,]\d+)?\s*(?:ming|минг|k)?', '', text, flags=re.IGNORECASE).strip()
         if description:
             updates['description'] = description
         
