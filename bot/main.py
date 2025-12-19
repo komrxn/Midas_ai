@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Start the bot."""
-    application = Application.builder().token(config.BOT_TOKEN).build()
+    application = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
     
     # Auth conversation handlers (priority)
     application.add_handler(register_conv)
