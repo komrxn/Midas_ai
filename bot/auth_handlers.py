@@ -80,7 +80,6 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         
         # Send help message after registration
-        from .help_messages import get_help_message
         from telegram import InlineKeyboardButton, InlineKeyboardMarkup
         
         keyboard = [
@@ -102,7 +101,6 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except httpx.HTTPStatusError as e:
         logger.error(f"Registration error: {e.response.status_code} - {e.response.text}")
         if e.response.status_code == 400:
-            # TODO: Localize API error messages
             error_text = "❌ Bu raqam ro'yxatdan o'tgan / This number is already registered"
             if lang =='ru':
                 error_text = "❌ Этот номер уже зарегистрирован.\nИспользуй /login для входа."
@@ -119,13 +117,44 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=get_main_keyboard(lang)
             )
         return ConversationHandler.END
+    except Exception as e:
+        logger.exception(f"Unexpected error during registration: {e}")
+        await update.message.reply_text(
+            get_message(lang, 'error_occurred'),
+            reply_markup=get_main_keyboard(lang)
+        )
+        return ConversationHandler.END
 
-# ... (skipped lines)
+
+# Login flow
+async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    phone_button = KeyboardButton("📱 Войти через номер", request_contact=True)
+    keyboard = ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True, one_time_keyboard=True)
+    
+    await update.message.reply_text("Войди через номер телефона:", reply_markup=keyboard)
+    return LOGIN_PHONE
+
 
 async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # ...
+    contact = update.message.contact
+    
+    if not contact:
+        await update.message.reply_text("❌ Используй кнопку")
+        return LOGIN_PHONE
+    
+    phone = contact.phone_number
+    telegram_id = update.effective_user.id
+    
+    api = MidasAPIClient(config.API_BASE_URL)
+    
     try:
-        # ...
+        result = await api.login(phone)
+        token = result['access_token']
+        storage.save_user_token(telegram_id, token)
+        
+        await update.message.reply_text("✅ Добро пожаловать!", reply_markup=get_main_keyboard())
+        return ConversationHandler.END
+        
     except httpx.HTTPStatusError as e:
         logger.error(f"Login error: {e.response.status_code} - {e.response.text}")
         

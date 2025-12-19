@@ -187,3 +187,27 @@ class MidasAPIClient:
             )
             response.raise_for_status()
             return response.json()
+
+    @handle_auth_errors
+    async def get_transactions(self, limit: int = 5) -> list:
+        """Get recent transactions."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/transactions",
+                params={"limit": limit, "skip": 0},
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def create_category(self, name: str, type: str, icon: str = "🏷") -> Dict[str, Any]:
+        """Create a new category."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/categories",
+                json={"name": name, "type": type, "icon": icon, "slug": name.lower().replace(" ", "_")},
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
