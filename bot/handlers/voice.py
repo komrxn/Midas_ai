@@ -12,6 +12,7 @@ from ..user_storage import storage
 from ..ai_agent import AIAgent
 from ..transaction_actions import show_transaction_with_actions
 from ..lang_messages import get_message
+from .common import get_main_keyboard
 
 logger = logging.getLogger(__name__)
 

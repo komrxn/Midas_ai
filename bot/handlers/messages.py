@@ -169,7 +169,15 @@ async def show_balance(update: Update, api: MidasAPIClient, lang: str):
         
         # Add recent transactions
         try:
-            transactions = await api.get_transactions(limit=5)
+            transactions_data = await api.get_transactions(limit=5)
+            # Handle paginated response if it comes as dict with 'items' or list
+            if isinstance(transactions_data, dict) and 'items' in transactions_data:
+                transactions = transactions_data['items']
+            elif isinstance(transactions_data, list):
+                transactions = transactions_data
+            else:
+                transactions = []
+
             if transactions:
                 balance_text += get_message(lang, 'last_transactions') + "\n"
                 for tx in transactions:

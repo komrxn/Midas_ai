@@ -38,8 +38,9 @@ async def show_transaction_with_actions(
         balance_value = 0
         currency = 'UZS'
 
-    type_emoji = "💸" if tx_data['type'] == 'expense' else "💰"
-    type_text = get_message(lang, 'income') if tx_data['type'] == 'income' else get_message(lang, 'expense')
+    type_val = tx_data.get('type', 'expense')
+    type_emoji = "💸" if type_val == 'expense' else "💰"
+    type_text = get_message(lang, 'income') if type_val == 'income' else get_message(lang, 'expense')
     amount_text = f"{tx_data.get('currency', 'UZS')} {float(tx_data['amount']):,.0f}".replace(",", " ")
     
     desc = tx_data.get('description', '')
