@@ -112,29 +112,49 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
         breakdown = await api.get_category_breakdown(period="month")
         
         # Format statistics
-        stats_text = get_message(lang, 'statistics_title') + "\n\n"
-        balance_value = float(balance.get('balance', 0))
-        stats_text += f"💰 {get_message(lang, 'balance')}: {balance_value:,.0f} {balance.get('currency', 'UZS')}\n\n"
+        stats_text = get_message(lang, 'stats_month')
         
         # Extract categories list
         if breakdown and isinstance(breakdown, dict):
             categories = breakdown.get('categories', [])
+            total_expense = float(breakdown.get('total_expense', 0))
+            
             if categories:
-                stats_text += get_message(lang, 'by_categories') + ":\n"
-                for cat in categories[:5]:  # Top 5
-                    cat_name = cat.get('category', get_message(lang, 'other'))
+                stats_text += get_message(lang, 'by_categories')
+                
+                # Filter out zero amounts and sort by amount desc
+                valid_cats = [c for c in categories if float(c.get('total', 0)) > 0]
+                valid_cats.sort(key=lambda x: float(x.get('total', 0)), reverse=True)
+                
+                for cat in valid_cats[:7]:  # Top 7
+                    # Get name, prefer 'name' then 'category' (slug)
+                    cat_name = cat.get('name') or cat.get('category') or get_message(lang, 'other')
+                    if isinstance(cat_name, str):
+                         cat_name = cat_name.title()
+                         
                     cat_total = float(cat.get('total', 0))
-                    stats_text += f"• {cat_name}: {cat_total:,.0f}\n"
+                    
+                    # Calculate percentage
+                    percentage = 0
+                    if total_expense > 0:
+                        percentage = (cat_total / total_expense) * 100
+                    
+                    # Format: • Food: 50,000 (25%)
+                    stats_text += f"• {cat_name}: {cat_total:,.0f} ({percentage:.1f}%)\n"
+                
+                stats_text += f"\n{get_message(lang, 'total')}: {total_expense:,.0f} {balance.get('currency', 'UZS')}"
+            else:
+                stats_text += "🤷‍♂️ No expenses yet this month."
         
         await update.message.reply_text(
             stats_text,
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(lang)
         )
     except Exception as e:
         logger.exception(f"Statistics error: {e}")
         await update.message.reply_text(
-            "❌ " + get_message(lang, 'error_occurred'),
-            reply_markup=get_main_keyboard()
+            get_message(lang, 'stats_error'), 
+            reply_markup=get_main_keyboard(lang)
         )
 
 async def show_balance(update: Update, api: MidasAPIClient, lang: str):
@@ -144,15 +164,33 @@ async def show_balance(update: Update, api: MidasAPIClient, lang: str):
         balance_value = float(balance_data.get('balance', 0))
         currency = balance_data.get('currency', 'UZS')
         
-        balance_text = f"💰 {get_message(lang, 'your_balance')}: {balance_value:,.0f} {currency}"
+        balance_text = f"{get_message(lang, 'balance_month')}"
+        balance_text += f"💰 {get_message(lang, 'your_balance')}: {balance_value:,.0f} {currency}\n\n"
         
+        # Add recent transactions
+        try:
+            transactions = await api.get_transactions(limit=5)
+            if transactions:
+                balance_text += get_message(lang, 'last_transactions') + "\n"
+                for tx in transactions:
+                    icon = "📈" if tx['type'] == 'income' else "📉"
+                    amount = float(tx['amount'])
+                    desc = tx.get('description', '') or tx.get('category', {}).get('name', 'Transaction')
+                    if isinstance(desc, dict): # if category is dict
+                         desc = desc.get('name', '')
+                         
+                    # Format: 📉 50,000 - Lunch
+                    balance_text += f"{icon} {amount:,.0f} - {desc}\n"
+        except Exception as e:
+            logger.error(f"Failed to fetch recent transactions: {e}")
+
         await update.message.reply_text(
             balance_text,
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(lang)
         )
     except Exception as e:
         logger.exception(f"Balance error: {e}")
         await update.message.reply_text(
-            "❌ " + get_message(lang, 'error_occurred'),
-            reply_markup=get_main_keyboard()
+            get_message(lang, 'error_occurred'),
+            reply_markup=get_main_keyboard(lang)
         )

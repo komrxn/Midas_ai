@@ -45,6 +45,9 @@ MESSAGES = {
         'category_label': "Kategoriya",
         'desc_label': "Tavsif",
         'cancel_btn': "Bekor qilish ❌",
+        'statistics_title': "📊 Statistika",
+        'instructions_btn': "❓ Qo'llanma",
+        'instructions_text': "Botdan foydalanish bo'yicha qo'llanma:\n\n1. Xarajat/Daromad qo'shish:\n\"Taksi 20000\", \"Oylik oldim 500$\"\n\n2. Kategoriya yaratish:\n\"Yangi kategoriya qo'sh: Bitcoin 🪙\"\n\n3. Statistika:\n\"Statistika\", \"Balans\"",
     },
     'ru': {
         'auth_required': "⛔ Пожалуйста, сначала авторизуйтесь: /start",
@@ -91,6 +94,8 @@ MESSAGES = {
         'category_label': "Категория",
         'desc_label': "Описание",
         'cancel_btn': "Отменить ❌",
+        'instructions_btn': "❓ Инструкция",
+        'instructions_text': "Как пользоваться ботом:\n\n1. Добавить расход/доход:\n\"Такси 20000\", \"Купил продукты 50к\"\n\n2. Создать категорию:\n\"Создай категорию Цветы 💐\"\n\n3. Статистика:\nНажми кнопку \"Статистика\" или \"Баланс\"",
     },
     'en': {
         'auth_required': "⛔ Please authenticate first: /start",
@@ -137,6 +142,8 @@ MESSAGES = {
         'category_label': "Category",
         'desc_label': "Description",
         'cancel_btn': "Cancel ❌",
+        'instructions_btn': "❓ Help",
+        'instructions_text': "How to use:\n\n1. Add transaction:\n\"Taxi 20000\", \"Salary 500$\"\n\n2. Create category:\n\"Create category Bitcoin 🪙\"\n\n3. Stats:\nPress \"Statistics\" or \"Balance\"",
     }
 }
 

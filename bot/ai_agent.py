@@ -95,62 +95,69 @@ class AIAgent:
                         }
                     }
                 }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "create_category",
+                    "description": "Create a new category. Only use IF user explicitly asks to create/add a category.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Category name (e.g. 'Crypto', 'Flowers')"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": ["expense", "income"],
+                                "default": "expense"
+                            },
+                            "icon": {
+                                "type": "string",
+                                "description": "Emoji icon for category (e.g. 🪙, 💐)"
+                            }
+                        },
+                        "required": ["name", "type"]
+                    }
+                }
             }
         ]
         
-        self.system_prompt = """You are Midas AI, a smart finance assistant.
+        self.system_prompt = """You are Midas AI, a smart & friendly finance assistant. 🤵‍♂️
 
 TASKS:
-1. Help track income/expenses
-2. Detect user language (Russian/Uzbek/English)
-3. Respond in SAME language
-4. Be CONCISE - bullet points only
+1. Track income/expenses
+2. Create categories (only if asked)
+3. Detect user language (Russian/Uzbek/English)
+4. Respond in SAME language
+5. Be FRIENDLY but CONCISE. Use Markdown.
 
 TRANSACTION RULES:
 - Spending → create_transaction type="expense"
 - Earning → create_transaction type="income"
 - Multiple in one message → call MULTIPLE times
-- Convert: "30k"/"30k"/"30 ming" → 30000
-- Convert: "5kk"/"5 млн"/"5 million" → 5000000
+- Convert: "30k"/"30 ming" → 30000; "5kk"/"5 mln" → 5000000
 - Default currency: uzs
 
-EXAMPLE:
-User: "Spent 70k dinner, got 300k salary"
-Calls:
-  1. create_transaction(type="expense", amount=70000, description="dinner", category_slug="food")
-  2. create_transaction(type="income", amount=300000, description="salary", category_slug="salary")
-Response: "✅ Recorded:\n• Expense: Dinner -70K UZS\n• Income: Salary +300K UZS"
+CATEGORIES:
+- expenses: food, groceries, cafes, taxi (ONLY for taxi!), housing, utilities, communication, clothing, health, beauty, education, sports, entertainment, travel, gifts, other_expense
+- income: salary, freelance, investments, gift_income, other_income
 
-CATEGORIES (with RU/UZ keywords):
-Expenses:
-- food (ovqat, еда) - general food
-- groceries (mahsulotlar, продукты) - shopping
-- cafes (kafe, кафе, restoran) - cafes/restaurants
-- taxi (taksi, такси, yandex, uzum) - ONLY taxi
-- transport (transport, транспорт) - metro/bus (NOT taxi!)
-- housing (uy, жильё) - rent
-- utilities (kommunal, коммуналка, suv, elektr) - utilities
-- communication (aloqa, связь, internet) - phone/internet
-- clothing (kiyim, одежда) - clothes
-- health (salomatlik, здоровье) - medicine/doctor
-- beauty (goʻzallik, красота) - salon
-- education (taʻlim, образование) - courses
-- sports (sport, спорт) - gym
-- entertainment (oʻyin-kulgi, развлечения) - entertainment
-- travel (sayohat, путешествия) - travel
-- gifts (sovgʻa, подарки) - gifts
-- other_expense (boshqa, другое) - other
+IMPORTANT:
+- "Taxi" → category="taxi" (NOT transport)
+- If user says "Create category X" or "Add category X" → YOU MUST uses create_category tool! Do not just mistakenly use 'other'.
+- If user wants to add transaction with NEW category, find nearest match OR ask to create it.
+- Response format: Beautiful Markdown
+  "✅ **Recorded:**
+   • 📉 Expense: Dinner -70,000 UZS
+   • 📈 Income: Salary +300,000 UZS"
 
-Income:
-- salary (ish haqi, зарплата, oylik) - salary
-- freelance (frilanс, фриланс) - freelance
-- investments (investitsiya, инвестиции) - investments
-- gift_income (sovgʻa, подарок) - gift
-- other_income (boshqa daromad, другое) - other
-
-IMPORTANT: "taksi"/"такси" → use "taxi" NOT "transport"!
-
-Be brief. Match user's language!"""
+TONE:
+- Friendly, helpful, polite.
+- Not dry. Use emojis.
+- Language: MATCH USER'S LANGUAGE EXACTLY.
+"""
     
     async def process_message(self, user_id: int, message: str) -> dict:
         """Process user message with AI agent.
@@ -205,14 +212,21 @@ Be brief. Match user's language!"""
                     try:
                         logger.info(f"AI calling tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
                         tool_result = await self._execute_tool(user_id, tool_call)
+                        
+                        # Format output for context
+                        output_str = json.dumps(tool_result, ensure_ascii=False)
+                        
                         tool_results.append({
                             "tool_call_id": tool_call.id,
-                            "output": json.dumps(tool_result, ensure_ascii=False)
+                            "output": output_str
                         })
                         
-                        # Collect successfully created transactions
-                        if tool_result.get("success") and "transaction_id" in tool_result:
-                            created_transactions.append(tool_result)
+                        # Collect successfully created transactions or categories
+                        if tool_result.get("success"):
+                            if "transaction_id" in tool_result:
+                                created_transactions.append(tool_result)
+                            # You can handle category success here if needed, 
+                            # but usually the AI explains it in the final response.
                             
                     except Exception as e:
                         logger.exception(f"Error executing tool {tool_call.function.name}: {e}")
@@ -224,17 +238,8 @@ Be brief. Match user's language!"""
                 # Add assistant message with tool calls to history
                 messages.append({
                     "role": "assistant",
-                    "content": assistant_message.content,
-                    "tool_calls": [
-                        {
-                            "id": tc.id,
-                            "type": "function",
-                            "function": {
-                                "name": tc.function.name,
-                                "arguments": tc.function.arguments
-                            }
-                        } for tc in tool_calls
-                    ]
+                    "content": assistant_message.content or "", # Content can be null if only tool calls
+                    "tool_calls": assistant_message.tool_calls
                 })
                 
                 # Add tool results
@@ -285,7 +290,6 @@ Be brief. Match user's language!"""
                 description = args.get("description", "")
                 currency = args.get("currency", "uzs").lower()
                 category_slug = args.get("category_slug") or args.get("category")
-                date_str = args.get("date")
                 
                 # Prepare transaction data
                 tx_data = {
@@ -298,40 +302,34 @@ Be brief. Match user's language!"""
                 # Add category_id if slug provided
                 if category_slug:
                     try:
-                        categories = await self.api_client.get_categories()
-                        for cat in categories:
-                            if cat.get('slug') == category_slug:
-                                tx_data['category_id'] = cat['id']
-                                break
-                    except Exception as e:
-                        logger.error(f"Failed to get category: {e}")
+                       tx_data["category_id"] = category_slug
+                    except:
+                        pass
                 
-                # Add date if provided
-                if date_str:
-                    tx_data['transaction_date'] = date_str
+                logger.info(f"Creating transaction: {tx_data}")
+                result = await self.api.create_transaction(tx_data)
+                return {"success": True, "transaction_id": result["id"], "amount": amount, "currency": currency}
+
+            elif function_name == "create_category":
+                name = args.get("name")
+                type_ = args.get("type", "expense")
+                icon = args.get("icon", "🏷")
                 
-                # CREATE TRANSACTION IMMEDIATELY
-                try:
-                    result = await self.api_client.create_transaction(tx_data)
-                    logger.info(f"Transaction created: {result.get('id')}")
-                    
-                    return {
-                        "success": True,
-                        "transaction_id": str(result['id']),
-                        "type": transaction_type,
-                        "amount": amount,
-                        "description": description,
-                        "currency": currency,
-                        "category_slug": category_slug or "none",
-                    }
-                except Exception as e:
-                    logger.error(f"Failed to create transaction: {e}")
-                    return {
-                        "success": False,
-                        "error": str(e)
-                    }
+                logger.info(f"Creating category: {name} ({type_})")
+                result = await self.api.create_category(name, type_, icon)
+                return {"success": True, "category_id": result["id"], "name": name}
             
-            return {"error": f"Unknown function: {function_name}"}
+            elif function_name == "get_balance":
+                period = args.get("period", "month")
+                result = await self.api.get_balance(period)
+                return result
+                
+            elif function_name == "get_statistics":
+                period = args.get("period", "month")
+                result = await self.api.get_category_breakdown(period)
+                return result
+
+            return {"success": False, "error": "Unknown function"}
                     
         except Exception as e:
             logger.exception(f"Tool execution error: {e}")

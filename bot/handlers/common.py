@@ -43,7 +43,7 @@ def get_main_keyboard(lang: str = 'uz'):
     """Get main menu keyboard."""
     keyboard = [
         [KeyboardButton(get_message(lang, 'balance')), KeyboardButton(get_message(lang, 'statistics_title'))],
-        # [KeyboardButton(get_message(lang, 'help'))] # Help key not in MESSAGES yet? Added 'statistics_title' 
+        [KeyboardButton(get_message(lang, 'instructions_btn'))]
     ]
     # Check if 'help' key exists, if not use hardcoded or add it. 
     # Current lang_messages doesn't have 'help'. I should add valid keys.

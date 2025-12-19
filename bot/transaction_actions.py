@@ -43,8 +43,17 @@ async def show_transaction_with_actions(
     amount_text = f"{tx_data.get('currency', 'UZS')} {float(tx_data['amount']):,.0f}".replace(",", " ")
     
     desc = tx_data.get('description', '')
-    category = tx_data.get('category', {})
-    category_name = category.get('name', 'General') if isinstance(category, dict) else str(category)
+    category = tx_data.get('category')
+    
+    # Handle category display safely
+    if isinstance(category, dict):
+        category_name = category.get('name') or category.get('slug') or "General"
+    elif isinstance(category, str):
+        # If it's just a slug string like 'taxi'
+        category_name = category.title()
+    else:
+        # Fallback
+        category_name = "General"
     
     # Date (using current date or tx date)
     from datetime import datetime
