@@ -299,12 +299,50 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                     "currency": currency,
                 }
                 
-                # Add category_id if slug provided
+                # Resolve category_id from slug
                 if category_slug:
                     try:
-                       tx_data["category_id"] = category_slug
-                    except:
-                        pass
+                        categories = await self.api_client.get_categories()
+                        category_id = None
+                        
+                        # Normalize slug
+                        target_slug = category_slug.lower().strip()
+                        
+                        # 1. Try exact slug match
+                        for cat in categories:
+                            if cat.get("slug") == target_slug:
+                                category_id = cat.get("id")
+                                break
+                        
+                        # 2. Try name match (case-insensitive)
+                        if not category_id:
+                            for cat in categories:
+                                if cat.get("name", "").lower() == target_slug:
+                                    category_id = cat.get("id")
+                                    break
+                                    
+                        # 3. Fallback to 'other_expense' / 'other_income' if not found
+                        if not category_id:
+                            fallback_slug = f"other_{transaction_type}" # other_expense / other_income
+                            for cat in categories:
+                                if cat.get("slug") == fallback_slug:
+                                    category_id = cat.get("id")
+                                    break
+                        
+                        # 4. Last resort: 'other' (legacy)
+                        if not category_id:
+                             for cat in categories:
+                                if cat.get("slug") == "other":
+                                    category_id = cat.get("id")
+                                    break
+
+                        if category_id:
+                            tx_data["category_id"] = category_id
+                        else:
+                            logger.warning(f"Category not found for slug: {category_slug}")
+                            
+                    except Exception as e:
+                        logger.error(f"Error resolving category: {e}")
                 
                 logger.info(f"Creating transaction: {tx_data}")
                 result = await self.api_client.create_transaction(tx_data)
