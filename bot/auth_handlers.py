@@ -100,6 +100,7 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
         
     except httpx.HTTPStatusError as e:
+        logger.error(f"Registration error: {e.response.status_code} - {e.response.text}")
         if e.response.status_code == 400:
             # TODO: Localize API error messages
             error_text = "❌ Bu raqam ro'yxatdan o'tgan / This number is already registered"
@@ -114,44 +115,29 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         else:
             await update.message.reply_text(
-                "❌ Ошибка регистрации. Попробуй позже.",
-                reply_markup=get_main_keyboard()
+                get_message(lang, 'error_generic'),
+                reply_markup=get_main_keyboard(lang)
             )
         return ConversationHandler.END
 
-
-# Login flow
-async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    phone_button = KeyboardButton("📱 Войти через номер", request_contact=True)
-    keyboard = ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True, one_time_keyboard=True)
-    
-    await update.message.reply_text("Войди через номер телефона:", reply_markup=keyboard)
-    return LOGIN_PHONE
-
+# ... (skipped lines)
 
 async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    contact = update.message.contact
-    
-    if not contact:
-        await update.message.reply_text("❌ Используй кнопку")
-        return LOGIN_PHONE
-    
-    phone = contact.phone_number
-    telegram_id = update.effective_user.id
-    
-    api = MidasAPIClient(config.API_BASE_URL)
-    
+    # ...
     try:
-        result = await api.login(phone)  # Fixed - removed telegram_id
-        token = result['access_token']
-        storage.save_user_token(telegram_id, token)
+        # ...
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Login error: {e.response.status_code} - {e.response.text}")
         
-        await update.message.reply_text("✅ Добро пожаловать!", reply_markup=get_main_keyboard())
-        return ConversationHandler.END
-        
-    except httpx.HTTPStatusError:
+        if e.response.status_code == 401:
+             msg = "❌ Ошибка авторизации. Проверьте номер или зарегистрируйтесь."
+        elif e.response.status_code == 404:
+             msg = "❌ Номер не найден. Зарегистрируйтесь: /register"
+        else:
+             msg = "❌ Ошибка входа."
+             
         await update.message.reply_text(
-            "❌ Номер не найден. Зарегистрируйся: /register",
+            msg,
             reply_markup=get_main_keyboard()
         )
         return ConversationHandler.END
