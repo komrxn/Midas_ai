@@ -310,7 +310,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                 }
                 
                 # Resolve category_id from slug
-                resolved_category_name = None
+                resolved_category_slug = None
                 if category_slug:
                     try:
                         categories = await self.api_client.get_categories()
@@ -323,7 +323,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                         for cat in categories:
                             if cat.get("slug") == target_slug:
                                 category_id = cat.get("id")
-                                resolved_category_name = cat.get("name")
+                                resolved_category_slug = cat.get("slug")  # ← Return slug, not name!
                                 break
                         
                         # 2. Try name match (case-insensitive)
@@ -331,16 +331,16 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                             for cat in categories:
                                 if cat.get("name", "").lower() == target_slug:
                                     category_id = cat.get("id")
-                                    resolved_category_name = cat.get("name")
+                                    resolved_category_slug = cat.get("slug")  # ← Return slug!
                                     break
                                     
                         # 3. Fallback to 'other_expense' / 'other_income' if not found
                         if not category_id:
-                            fallback_slug = f"other_{transaction_type}" # other_expense / other_income
+                            fallback_slug = f"other_{transaction_type}"
                             for cat in categories:
                                 if cat.get("slug") == fallback_slug:
                                     category_id = cat.get("id")
-                                    resolved_category_name = cat.get("name")
+                                    resolved_category_slug = cat.get("slug")
                                     break
                         
                         # 4. Last resort: 'other' (legacy)
@@ -348,7 +348,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                              for cat in categories:
                                 if cat.get("slug") == "other":
                                     category_id = cat.get("id")
-                                    resolved_category_name = cat.get("name")
+                                    resolved_category_slug = cat.get("slug")
                                     break
 
                         if category_id:
@@ -368,7 +368,7 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                     "currency": currency,
                     "type": transaction_type,
                     "description": description,
-                    "category": resolved_category_name or category_slug or "general"
+                    "category": resolved_category_slug or category_slug or "other_expense"  # ← slug for i18n!
                 }
 
             elif function_name == "create_category":
