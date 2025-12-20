@@ -129,12 +129,27 @@ class AIAgent:
 CORE OBJECTIVE:
 Record transactions and help manage finances.
 
+AVAILABLE CATEGORIES (use slug):
+EXPENSES: food, groceries, cafes, transport, taxi, housing, utilities, entertainment, health, education, clothing, communication, gifts, sports, beauty, travel, other_expense
+INCOME: salary, freelance, investments, gift_income, other_income
+
+CATEGORY MAPPING RULES (IMPORTANT):
+- "shopping" / "xarid" / "покупки" → clothing (одежда, обувь)
+- "market" / "bozor" / "магазин продуктов" → groceries (продукты питания)
+- "restaurant" / "restoran" → cafes
+- "fuel" / "benzin" / "газ" → transport
+- "internet" / "phone bill" → communication
+- "rent" / "ijara" / "аренда" → housing
+- "gym" / "fitnes" → sports
+- "medicine" / "dori" / "лекарства" → health
+- "книги" / "kitoblar" / "course" → education
+
+MAP intelligently based on context. If unsure, use 'other_expense'.
+
 RULES:
 1. **Transactions:**
-   - If user gives Amount + (Category OR Description) -> CALL `create_transaction` IMMEDIATELY.
+   - If user gives Amount + (Category OR Description) → CALL `create_transaction` IMMEDIATELY.
    - If info is missing (e.g. "Spent 50k"), ASK briefly: "What for?" (in user's language).
-   - If unsure about category, use best guess or 'other'.
-   - "Taxi" -> category="taxi" (NOT transport).
 
 2. **Context/Memory:**
    - REMEMBER previous messages.
