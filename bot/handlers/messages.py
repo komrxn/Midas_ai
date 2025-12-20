@@ -17,13 +17,20 @@ logger = logging.getLogger(__name__)
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages with AI."""
     user_id = update.effective_user.id
+    text = update.message.text
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    # Check for registration/login buttons (before auth check)
+    if "Ro'yxatdan o'tish" in text or "Регистрация" in text or "Register" in text:
+        from ..auth_handlers import register_start
+        return await register_start(update, context)
+    elif "Kirish" in text or "Войти" in text or "Login" in text:
+        from ..auth_handlers import login_start
+        return await login_start(update, context)
     
     if not storage.is_user_authorized(user_id):
-        lang = storage.get_user_language(user_id) or 'uz'
         await update.message.reply_text(t('auth.common.auth_required', lang))
         return
-    
-    text = update.message.text
     
     if context.user_data.get('editing_tx'):
         from ..confirmation_handlers import handle_edit_message

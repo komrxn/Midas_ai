@@ -74,7 +74,7 @@ async def show_transaction_with_actions(
     
     # Balance display
     balance_formatted = f"{balance_value:,.2f}".replace(",", " ")
-    text += f"\n💰 {t('common.balance', lang)}: {currency.lower()} {balance_formatted}"
+    text += f"\n💰 {t('common.common.balance', lang)}: {currency.lower()} {balance_formatted}"
 
     # Buttons
     keyboard = [
@@ -164,14 +164,17 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
         # Update transaction
         result = await api.update_transaction(tx_id, **updates)
         
-        # Show updated transaction
+        # Show updated transaction with correct category
+        category_data = result.get('category', {})
+        category_slug = category_data.get('slug', 'other_expense') if isinstance(category_data, dict) else 'other_expense'
+        
         tx_data = {
             'transaction_id': str(result['id']),
             'amount': result.get('amount', 0),
             'description': result.get('description', ''),
             'type': result.get('type', 'expense'),
             'currency': result.get('currency', 'uzs'),
-            'category': result.get('category', {})
+            'category': category_slug  # ← Pass slug for i18n translation!
         }
         
         await show_transaction_with_actions(update, user_id, tx_data)

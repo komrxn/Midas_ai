@@ -149,6 +149,7 @@ RULES:
 4. **Categories:**
    - Create category ONLY if user says "Create/Add category X".
    - CALL `create_category` tool.
+   - After creating, respond briefly: "Category '{name}' created ✅" (in user's language). NO technical details (ID, type, icon).
    - If user uses a new category in a transaction (e.g. "Lunch 50k crypto"), check if "crypto" exists. If not, ask: "Create category 'crypto'?" OR map to 'entertainment'/'other'.
 
 5. **General:**
@@ -378,7 +379,8 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
                 
                 logger.info(f"Creating category: {name} ({type_})")
                 result = await self.api_client.create_category(name, type_, icon)
-                return {"success": True, "category_id": result["id"], "name": name}
+                # Return minimal info - AI will handle user-facing message
+                return {"success": True, "category_id": result["id"], "name": name, "created": True}
             
             elif function_name == "get_balance":
                 period = args.get("period", "month")

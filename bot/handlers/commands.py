@@ -61,17 +61,31 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Save language preference
     storage.set_user_language(user_id, lang)
     
-    # Show welcome message and registration prompt
+    # Show welcome message
     await query.edit_message_text(
         t('auth.registration.welcome_new', lang, name=query.from_user.first_name)
     )
     
-    # Prompt to register
-    await query.message.reply_text(
-        f"{t('auth.common.auth_required', lang)}\n\n"
-        "📝 /register\n"
-        "🔑 /login"
-    )
+    # Show registration/login buttons
+    from telegram import KeyboardButton, ReplyKeyboardMarkup
+    
+    reg_text = "📝 " + ("Ro'yxatdan o'tish" if lang == 'uz' else ("Регистрация" if lang == 'ru' else "Register"))
+    login_text = "🔑 " + ("Kirish" if lang == 'uz' else ("Войти" if lang == 'ru' else "Login"))
+    
+    keyboard = [
+        [KeyboardButton(reg_text)],
+        [KeyboardButton(login_text)]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+    
+    # Prompt to register or login
+    prompt_msg = {
+        'uz': "Davom etish uchun tanlang:",
+        'ru': "Выберите действие:",
+        'en': "Choose an action:"
+    }.get(lang, "Choose:")
+    
+    await query.message.reply_text(prompt_msg, reply_markup=reply_markup)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
