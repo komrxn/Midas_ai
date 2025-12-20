@@ -3,7 +3,6 @@ import logging
 import io
 from telegram import Update
 from telegram.ext import ContextTypes
-from io import BytesIO
 import httpx
 
 from ..api_client import MidasAPIClient
@@ -11,7 +10,7 @@ from ..config import config
 from ..user_storage import storage
 from ..ai_agent import AIAgent
 from ..transaction_actions import show_transaction_with_actions
-from ..lang_messages import get_message
+from ..i18n import t
 from .common import get_main_keyboard
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Auth check
     if not storage.is_user_authorized(user_id):
-        await update.message.reply_text(get_message(lang, 'auth_required'))
+        await update.message.reply_text(t('auth.common.auth_required', lang))
         return
     
     token = storage.get_user_token(user_id)
@@ -32,7 +31,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     api.set_token(token)
     
     try:
-        await update.message.reply_text(get_message(lang, 'listening'))
+        await update.message.reply_text(t('transactions.voice.listening', lang))
         await update.message.chat.send_action(action="typing")
         
         # Download voice
@@ -73,15 +72,12 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Process transcribed text using common pipeline
         from .messages import process_text_message
         
-        # Show what was heard
-        # await update.message.reply_text(f"🎤 {transcribed_text}")
-        
         # Process as if it was a text message
         await process_text_message(update, context, transcribed_text, user_id)
 
     except Exception as e:
         logger.error(f"Voice error: {e}")
         await update.message.reply_text(
-            get_message(lang, 'voice_error'),
+            t('transactions.voice.error', lang),
             reply_markup=get_main_keyboard(lang)
         )

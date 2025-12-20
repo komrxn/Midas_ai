@@ -1,0 +1,21 @@
+{
+    "buttons": {
+        "balance": "💰 Balance",
+        "statistics": "📊 Statistics",
+        "help": "❓ Help",
+        "instructions": "❓ Instructions"
+    },
+    "actions": {
+        "confirm": "✅ Confirm",
+        "cancel": "❌ Cancel",
+        "edit": "✏️ Edit",
+        "delete": "🗑 Delete"
+    },
+    "common": {
+        "error": "❌ An error occurred",
+        "success": "✅ Success",
+        "loading": "⏳ Loading...",
+        "balance": "Balance",
+        "total": "Total"
+    }
+}

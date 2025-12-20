@@ -1,0 +1,41 @@
+{
+    "created": "Hisobotga qo'shildi ✅",
+    "type": {
+        "expense": "Xarajat",
+        "income": "Daromad"
+    },
+    "type_emoji": {
+        "expense": "💸",
+        "income": "💰"
+    },
+    "fields": {
+        "date": "Sana",
+        "amount": "Summa",
+        "category": "Kategoriya",
+        "description": "Tavsif"
+    },
+    "display": {
+        "amount": "{{currency}} {{amount}}",
+        "balance": "{{currency}} {{balance}}"
+    },
+    "actions": {
+        "edit_prompt": "✏️ Yangi ma'lumotlarni kiriting (summa va/yoki tavsif):",
+        "deleted": "🗑 Tranzaksiya o'chirildi",
+        "updated": "✅ Tranzaksiya yangilandi"
+    },
+    "stats": {
+        "month": "📊 Oylik statistika\n\n",
+        "by_categories": "Kategoriyalar bo'yicha:\n",
+        "no_data": "🤷‍♂️ Bu oyda hali xarajat yo'q",
+        "error": "❌ Statistikani yuklashda xatolik"
+    },
+    "balance": {
+        "month": "💰 Oylik balans\n\n",
+        "your_balance": "Sizning balansingiz",
+        "last_transactions": "Oxirgi tranzaksiyalar:\n"
+    },
+    "voice": {
+        "listening": "🎤 Eshityapman...",
+        "error": "❌ Ovozni qayta ishlashda xatolik"
+    }
+}

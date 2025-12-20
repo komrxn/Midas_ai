@@ -1,13 +1,13 @@
 """Conversation handlers for phone-based registration and login."""
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ContextTypes, ConversationHandler, CommandHandler, MessageHandler, filters
+from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ContextTypes, ConversationHandler, CommandHandler,MessageHandler, filters
 import logging
 import httpx
 
 from .config import config
 from .api_client import MidasAPIClient
 from .user_storage import storage
-from .lang_messages import get_message
+from .i18n import t
 from .handlers.common import get_main_keyboard
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = storage.get_user_language(user_id) or 'uz'
     
     await update.message.reply_text(
-        get_message(lang, 'intro_ask_name'),
+        t('auth.registration.ask_name', lang),
         reply_markup=ReplyKeyboardRemove()
     )
     return NAME
@@ -35,11 +35,11 @@ async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.message.text.strip()
     context.user_data['register_name'] = name
     
-    phone_button = KeyboardButton(get_message(lang, 'share_phone'), request_contact=True)
+    phone_button = KeyboardButton(t('auth.registration.share_phone', lang), request_contact=True)
     keyboard = ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True, one_time_keyboard=True)
     
     await update.message.reply_text(
-        get_message(lang, 'intro_ask_phone', name=name),
+        t('auth.registration.ask_phone', lang, name=name),
         reply_markup=keyboard
     )
     return PHONE
@@ -51,37 +51,29 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     contact = update.message.contact
     
     if not contact:
-        await update.message.reply_text(get_message(lang, 'use_button'))
-        return PHONE # Keep returning PHONE if contact is not provided via button
+        await update.message.reply_text(t('auth.registration.use_button', lang))
+        return PHONE
     
     phone = contact.phone_number
     context.user_data['register_phone'] = phone
     
-    # Get phone from user data
     telegram_id = update.effective_user.id
     name = context.user_data['register_name']
-    
-    # Lang is correctly retrieved above
     
     api = MidasAPIClient(config.API_BASE_URL)
     
     try:
-        # Register with language
         result = await api.register(telegram_id, phone, name, language=lang)
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
-        
-        # Save language preference
         storage.set_user_language(telegram_id, lang)
         
         await update.message.reply_text(
-            get_message(lang, 'reg_success'),
+            t('auth.registration.success', lang),
             reply_markup=get_main_keyboard(lang)
         )
         
         # Send help message after registration
-        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-        
         keyboard = [
             [
                 InlineKeyboardButton("🇷🇺 Русский", callback_data="help_ru"),
@@ -92,7 +84,7 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            get_message(lang, 'choose_language'),
+            t('auth.common.choose_language', lang),
             reply_markup=reply_markup
         )
         
@@ -101,26 +93,20 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except httpx.HTTPStatusError as e:
         logger.error(f"Registration error: {e.response.status_code} - {e.response.text}")
         if e.response.status_code == 400:
-            error_text = "❌ Bu raqam ro'yxatdan o'tgan / This number is already registered"
-            if lang =='ru':
-                error_text = "❌ Этот номер уже зарегистрирован.\nИспользуй /login для входа."
-            elif lang == 'en':
-                error_text = "❌ Expected error: Number already registered."
-            
             await update.message.reply_text(
-                error_text,
+                t('auth.registration.error_exists', lang),
                 reply_markup=get_main_keyboard(lang)
             )
         else:
             await update.message.reply_text(
-                get_message(lang, 'error_generic'),
+                t('auth.registration.error_generic', lang),
                 reply_markup=get_main_keyboard(lang)
             )
         return ConversationHandler.END
     except Exception as e:
         logger.exception(f"Unexpected error during registration: {e}")
         await update.message.reply_text(
-            get_message(lang, 'error_occurred'),
+            t('auth.registration.error_generic', lang),
             reply_markup=get_main_keyboard(lang)
         )
         return ConversationHandler.END
@@ -128,18 +114,20 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Login flow
 async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    phone_button = KeyboardButton("📱 Войти через номер", request_contact=True)
+    lang = storage.get_user_language(update.effective_user.id) or 'uz'
+    phone_button = KeyboardButton(t('auth.login.button', lang), request_contact=True)
     keyboard = ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True, one_time_keyboard=True)
     
-    await update.message.reply_text("Войди через номер телефона:", reply_markup=keyboard)
+    await update.message.reply_text(t('auth.login.prompt', lang), reply_markup=keyboard)
     return LOGIN_PHONE
 
 
 async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     contact = update.message.contact
+    lang = storage.get_user_language(update.effective_user.id) or 'uz'
     
     if not contact:
-        await update.message.reply_text("❌ Используй кнопку")
+        await update.message.reply_text(t('auth.registration.use_button', lang))
         return LOGIN_PHONE
     
     phone = contact.phone_number
@@ -152,29 +140,30 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
         
-        await update.message.reply_text("✅ Добро пожаловать!", reply_markup=get_main_keyboard())
+        await update.message.reply_text(t('auth.login.success', lang), reply_markup=get_main_keyboard(lang))
         return ConversationHandler.END
         
     except httpx.HTTPStatusError as e:
         logger.error(f"Login error: {e.response.status_code} - {e.response.text}")
         
         if e.response.status_code == 401:
-             msg = "❌ Ошибка авторизации. Проверьте номер или зарегистрируйтесь."
+             msg = t('auth.login.error_unauthorized', lang)
         elif e.response.status_code == 404:
-             msg = "❌ Номер не найден. Зарегистрируйтесь: /register"
+             msg = t('auth.login.error_not_found', lang)
         else:
-             msg = "❌ Ошибка входа."
+             msg = t('auth.login.error_generic', lang)
              
         await update.message.reply_text(
             msg,
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(lang)
         )
         return ConversationHandler.END
 
 
 # Cancel handler
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Отменено.", reply_markup=get_main_keyboard())
+    lang = storage.get_user_language(update.effective_user.id) or 'uz'
+    await update.message.reply_text(t('common.actions.cancel', lang), reply_markup=get_main_keyboard(lang))
     return ConversationHandler.END
 
 

@@ -9,7 +9,7 @@ from ..config import config
 from ..user_storage import storage
 from ..transaction_actions import show_transaction_with_actions, handle_edit_transaction_message
 from .common import with_auth_check, get_main_keyboard
-from ..lang_messages import get_message
+from ..i18n import t, translate_category
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +18,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages with AI."""
     user_id = update.effective_user.id
     
-    # Auth check
     if not storage.is_user_authorized(user_id):
         lang = storage.get_user_language(user_id) or 'uz'
-        await update.message.reply_text(get_message(lang, 'auth_required'))
+        await update.message.reply_text(t('auth.common.auth_required', lang))
         return
     
     text = update.message.text
     
-    # Check if user is editing a transaction
     if context.user_data.get('editing_tx'):
         from ..confirmation_handlers import handle_edit_message
         await handle_edit_message(update, context)
@@ -37,34 +35,34 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, user_id: int):
     """Process any text message (typed or transcribed) through the main pipeline."""
-async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, user_id: int):
-    """Process any text message (typed or transcribed) through the main pipeline."""
-    # Get user language first to handle localized buttons
     lang = storage.get_user_language(user_id) or 'uz'
     
-    # Handle menu buttons first
-    if text == get_message(lang, 'balance'):
+    # Handle menu buttons (compare with localized button text)
+    button_balance = t('common.buttons.balance', lang)
+    button_stats = t('common.buttons.statistics', lang)
+    button_help = t('common.buttons.instructions', lang)
+    
+    if text == button_balance:
         token = storage.get_user_token(user_id)
         api = MidasAPIClient(config.API_BASE_URL)
         api.set_token(token)
         await show_balance(update, api, lang)
         return
-    elif text == get_message(lang, 'statistics_title'):
-        # Show statistics (keep existing functionality)
+    elif text == button_stats:
         token = storage.get_user_token(user_id)
         api = MidasAPIClient(config.API_BASE_URL)
         api.set_token(token)
         await show_statistics(update, api, lang)
         return
-    elif text == "❓ Help" or text == "❓ Yordam" or text == "❓ Помощь": # Needs proper key in future
+    elif text == button_help:
         from .commands import help_command
         await help_command(update, context)
         return
     
-    # Check if user is editing a transaction (action buttons flow)
+    # Check if editing transaction
     is_editing = await handle_edit_transaction_message(update, context)
     if is_editing:
-        return  # Edit handled
+        return
     
     # Get token and API client
     token = storage.get_user_token(user_id)
@@ -78,27 +76,22 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     response_text = result.get("response", "")
     created_transactions = result.get("created_transactions", [])
     
-    # Show AI response
+    # Show AI response (only if no transactions created)
     if not created_transactions and response_text:
         try:
             await update.message.reply_text(
                 response_text,
                 parse_mode='Markdown',
-                reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard(lang)
             )
         except Exception:
             await update.message.reply_text(
                 response_text,
-                reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard(lang)
             )
             
     # Show each created transaction with Edit/Delete buttons
     if created_transactions:
-        # Suppress text response if transaction is created (only show the card)
-        # unless it's a multi-part response with critical info? 
-        # For now, silence is golden for UI purity.
-        pass
-                 
         for tx_data in created_transactions:
             await show_transaction_with_actions(update, user_id, tx_data)
 
@@ -109,27 +102,24 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
         balance = await api.get_balance(period="month")
         breakdown = await api.get_category_breakdown(period="month")
         
-        # Format statistics
-        stats_text = get_message(lang, 'stats_month')
+        stats_text = t('transactions.stats.month', lang)
         
-        # Extract categories list
         if breakdown and isinstance(breakdown, dict):
             categories = breakdown.get('categories', [])
             total_expense = float(breakdown.get('total_expense', 0))
             
             if categories:
-                stats_text += get_message(lang, 'by_categories')
+                stats_text += t('transactions.stats.by_categories', lang)
                 
-                # Filter out zero amounts and sort by amount desc
+                # Filter out zero amounts and sort
                 valid_cats = [c for c in categories if float(c.get('total', 0)) > 0]
                 valid_cats.sort(key=lambda x: float(x.get('total', 0)), reverse=True)
                 
-                for cat in valid_cats[:7]:  # Top 7
-                    # Get name, prefer 'name' then 'category' (slug)
-                    cat_name = cat.get('name') or cat.get('category') or get_message(lang, 'other')
-                    if isinstance(cat_name, str):
-                         cat_name = cat_name.title()
-                         
+                for cat in valid_cats[:7]:
+                    # Get category slug and translate
+                    cat_slug = cat.get('category') or cat.get('slug', '')
+                    cat_name = translate_category(cat_slug, lang) if cat_slug else translate_category('other', lang)
+                    
                     cat_total = float(cat.get('total', 0))
                     
                     # Calculate percentage
@@ -137,12 +127,12 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
                     if total_expense > 0:
                         percentage = (cat_total / total_expense) * 100
                     
-                    # Format: • Food: 50,000 (25%)
                     stats_text += f"• {cat_name}: {cat_total:,.0f} ({percentage:.1f}%)\n"
                 
-                stats_text += f"\n{get_message(lang, 'total')}: {total_expense:,.0f} {balance.get('currency', 'UZS')}"
+                currency = balance.get('currency', 'UZS')
+                stats_text += f"\n{t('common.common.total', lang)}: {total_expense:,.0f} {currency}"
             else:
-                stats_text += "🤷‍♂️ No expenses yet this month."
+                stats_text += t('transactions.stats.no_data', lang)
         
         await update.message.reply_text(
             stats_text,
@@ -151,9 +141,10 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
     except Exception as e:
         logger.exception(f"Statistics error: {e}")
         await update.message.reply_text(
-            get_message(lang, 'stats_error'), 
+            t('transactions.stats.error', lang),
             reply_markup=get_main_keyboard(lang)
         )
+
 
 async def show_balance(update: Update, api: MidasAPIClient, lang: str):
     """Show user balance."""
@@ -162,13 +153,14 @@ async def show_balance(update: Update, api: MidasAPIClient, lang: str):
         balance_value = float(balance_data.get('balance', 0))
         currency = balance_data.get('currency', 'UZS')
         
-        balance_text = f"{get_message(lang, 'balance_month')}"
-        balance_text += f"💰 {get_message(lang, 'your_balance')}: {balance_value:,.0f} {currency}\n\n"
+        balance_text = t('transactions.balance.month', lang)
+        balance_formatted = f"{balance_value:,.0f}".replace(",", " ")
+        balance_text += f"💰 {t('transactions.balance.your_balance', lang)}: {balance_formatted} {currency}\n\n"
         
         # Add recent transactions
         try:
             transactions_data = await api.get_transactions(limit=5)
-            # Handle paginated response if it comes as dict with 'items' or list
+            # Handle paginated response
             if isinstance(transactions_data, dict) and 'items' in transactions_data:
                 transactions = transactions_data['items']
             elif isinstance(transactions_data, list):
@@ -177,15 +169,21 @@ async def show_balance(update: Update, api: MidasAPIClient, lang: str):
                 transactions = []
 
             if transactions:
-                balance_text += get_message(lang, 'last_transactions') + "\n"
+                balance_text += t('transactions.balance.last_transactions', lang)
                 for tx in transactions:
                     icon = "📈" if tx['type'] == 'income' else "📉"
                     amount = float(tx['amount'])
-                    desc = tx.get('description', '') or tx.get('category', {}).get('name', 'Transaction')
-                    if isinstance(desc, dict): # if category is dict
-                         desc = desc.get('name', '')
-                         
-                    # Format: 📉 50,000 - Lunch
+                    
+                    # Get description or category
+                    desc = tx.get('description', '')
+                    if not desc:
+                        category = tx.get('category', {})
+                        if isinstance(category, dict):
+                            cat_slug = category.get('slug', '')
+                            desc = translate_category(cat_slug, lang) if cat_slug else t('categories.other', lang)
+                        else:
+                            desc = translate_category('other', lang)
+                    
                     balance_text += f"{icon} {amount:,.0f} - {desc}\n"
         except Exception as e:
             logger.error(f"Failed to fetch recent transactions: {e}")
@@ -197,6 +195,6 @@ async def show_balance(update: Update, api: MidasAPIClient, lang: str):
     except Exception as e:
         logger.exception(f"Balance error: {e}")
         await update.message.reply_text(
-            get_message(lang, 'error_occurred'),
+            t('common.common.error', lang),
             reply_markup=get_main_keyboard(lang)
         )

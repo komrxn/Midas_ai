@@ -1,0 +1,21 @@
+{
+    "buttons": {
+        "balance": "💰 Balans",
+        "statistics": "📊 Statistika",
+        "help": "❓ Yordam",
+        "instructions": "❓ Ko'rsatmalar"
+    },
+    "actions": {
+        "confirm": "✅ Tasdiqlash",
+        "cancel": "❌ Bekor qilish",
+        "edit": "✏️ Tahrirlash",
+        "delete": "🗑 O'chirish"
+    },
+    "common": {
+        "error": "❌ Xatolik yuz berdi",
+        "success": "✅ Muvaffaqiyatli",
+        "loading": "⏳ Yuklanmoqda...",
+        "balance": "Balans",
+        "total": "Jami"
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "created": "Added to report ✅",
+    "type": {
+        "expense": "Expense",
+        "income": "Income"
+    },
+    "type_emoji": {
+        "expense": "💸",
+        "income": "💰"
+    },
+    "fields": {
+        "date": "Date",
+        "amount": "Amount",
+        "category": "Category",
+        "description": "Description"
+    },
+    "display": {
+        "amount": "{{currency}} {{amount}}",
+        "balance": "{{currency}} {{balance}}"
+    },
+    "actions": {
+        "edit_prompt": "✏️ Enter new data (amount and/or description):",
+        "deleted": "🗑 Transaction deleted",
+        "updated": "✅ Transaction updated"
+    },
+    "stats": {
+        "month": "📊 Monthly statistics\n\n",
+        "by_categories": "By categories:\n",
+        "no_data": "🤷‍♂️ No expenses this month yet",
+        "error": "❌ Error loading statistics"
+    },
+    "balance": {
+        "month": "💰 Monthly balance\n\n",
+        "your_balance": "Your balance",
+        "last_transactions": "Recent transactions:\n"
+    },
+    "voice": {
+        "listening": "🎤 Listening...",
+        "error": "❌ Voice processing error"
+    }
+}
