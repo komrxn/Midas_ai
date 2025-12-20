@@ -169,7 +169,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Setup handlers
 register_conv = ConversationHandler(
-    entry_points=[CommandHandler('register', register_start)],
+    entry_points=[
+        CommandHandler('register', register_start),
+        MessageHandler(filters.Regex(r"^📝.*(Ro'yxatdan o'tish|Регистрация|Register)"), register_start)
+    ],
     states={
         NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, register_name)],
         PHONE: [MessageHandler(filters.CONTACT, register_phone)]
@@ -178,7 +181,10 @@ register_conv = ConversationHandler(
 )
 
 login_conv = ConversationHandler(
-    entry_points=[CommandHandler('login', login_start)],
+    entry_points=[
+        CommandHandler('login', login_start),
+        MessageHandler(filters.Regex(r"^🔑.*(Kirish|Войти|Login)"), login_start)
+    ],
     states={
         LOGIN_PHONE: [MessageHandler(filters.CONTACT, login_phone)]
     },
