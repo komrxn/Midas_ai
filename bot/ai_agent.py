@@ -21,7 +21,7 @@ class AIAgent:
             api_key=config.OPENAI_API_KEY,
             timeout=60.0  # 60 секунд таймаут
         )
-        self.model = "gpt-5-nano"  
+        self.model = "gpt-5.1"  
         
         self.tools = [
             {
