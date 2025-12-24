@@ -1,6 +1,7 @@
 """AI Agent with OpenAI integration and tool support."""
 import json
 import logging
+import datetime
 from typing import Dict, Any, List
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageToolCall as ToolCall
