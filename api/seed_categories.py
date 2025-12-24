@@ -1,19 +1,17 @@
 import asyncio
 import os
 import sys
-from uuid import uuid4
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from api.database import get_db, AsyncSessionLocal
-from api.models.category import Category
-from bot.categories_data import DEFAULT_CATEGORIES
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
+from uuid import uuid4
 from sqlalchemy import select, func, delete
+from sqlalchemy.ext.asyncio import AsyncSession
+from api.database import get_db, AsyncSessionLocal
+from api.models.category import Category
 from api.models.transaction import Transaction
+from bot.categories_data import DEFAULT_CATEGORIES
 
 async def seed_categories():
     print("Seeding categories...")
