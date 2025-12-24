@@ -191,7 +191,7 @@ RULES:
 5. **Categories:**
    - Create category ONLY if user says "Create/Add category X".
    - CALL `create_category` tool.
-   - After creating, respond briefly: "Category '{name}' created ✅" (in user's language). NO technical details (ID, type, icon).
+   - After creating, respond briefly: "Category '{{name}}' created ✅" (in user's language). NO technical details (ID, type, icon).
    - If user uses a new category in a transaction (e.g. "Lunch 50k crypto"), check if "crypto" exists. If not, ask: "Create category 'crypto'?" OR map to 'entertainment'/'other'.
 
 6. **General:**
