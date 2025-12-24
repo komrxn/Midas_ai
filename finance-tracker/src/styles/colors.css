@@ -58,6 +58,7 @@
 	--gold-border-hover: rgba(220, 180, 0, 0.45);
 	--gold-card-bg: linear-gradient(135deg, rgba(220, 180, 0, 0.15) 0%, var(--card-default) 70%);
 	--gold-card-radial: radial-gradient(circle at top right, rgba(220, 180, 0, 0.15) 0%, transparent 70%);
+	--gold-card-radial-hover: radial-gradient(circle at top right, rgba(255, 215, 0, 0.3) 0%, rgba(255, 200, 0, 0.2) 50%, rgba(255, 215, 0, 0.1) 70%, transparent 100%);
 }
 
 /* Утилитарный класс для золотого текста с эффектом блеска */
@@ -119,4 +120,7 @@
 	/* лёгкий бордер */
 	--border-medium: rgb(58, 58, 58);
 	/* более заметный бордер */
+
+	/* Золотые эффекты для монеты в темной теме - более яркие */
+	--gold-card-radial-hover: radial-gradient(circle at top right, rgba(255, 215, 0, 0.4) 0%, rgba(255, 200, 0, 0.3) 40%, rgba(255, 215, 0, 0.2) 60%, rgba(255, 200, 0, 0.1) 80%, transparent 100%);
 }

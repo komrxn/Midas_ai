@@ -79,7 +79,7 @@ const items = computed(() => [
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   padding-bottom: 0.5rem;
   margin: 1.4rem -2rem 0 -2rem;
   padding: 0 2rem;
@@ -111,16 +111,13 @@ const items = computed(() => [
       background: var(--gold-card-radial);
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, background 0.3s ease;
     }
 
     &:hover {
-      border-color: var(--gold-border-hover);
-      box-shadow: var(--gold-shadow-hover);
-      transform: translateY(-2px);
-
       &::before {
         opacity: 1;
+        background: var(--gold-card-radial-hover);
       }
     }
   }
