@@ -100,27 +100,26 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
     try:
         balance = await api.get_balance(period="month")
         breakdown = await api.get_category_breakdown(period="month")
-        logger.info(f"Statistics breakdown response: {breakdown}")
         
         stats_text = t('transactions.stats.month', lang)
         
         if breakdown and isinstance(breakdown, dict):
             categories = breakdown.get('categories', [])
-            total_expense = float(breakdown.get('total_expense', 0))
+            total_expense = float(breakdown.get('total', 0))
             
             if categories:
                 stats_text += t('transactions.stats.by_categories', lang)
                 
                 # Filter out zero amounts and sort
-                valid_cats = [c for c in categories if float(c.get('total', 0)) > 0]
-                valid_cats.sort(key=lambda x: float(x.get('total', 0)), reverse=True)
+                valid_cats = [c for c in categories if float(c.get('amount', 0)) > 0]
+                valid_cats.sort(key=lambda x: float(x.get('amount', 0)), reverse=True)
                 
                 for cat in valid_cats[:7]:
                     # Get category slug and translate
-                    cat_slug = cat.get('category') or cat.get('slug', '')
+                    cat_slug = cat.get('category_slug') or cat.get('slug', '')
                     cat_name = translate_category(cat_slug, lang) if cat_slug else translate_category('other', lang)
                     
-                    cat_total = float(cat.get('total', 0))
+                    cat_total = float(cat.get('amount', 0))
                     
                     # Calculate percentage
                     percentage = 0
