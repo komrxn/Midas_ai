@@ -36,6 +36,7 @@ const props = defineProps<{
   width: 100%;
   label {
     font: var(--font-14-r);
+    // color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: flex-start;

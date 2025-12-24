@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { analitcs, book, categories, rounded } from '@/assets/icons';
+import { book, analitcs } from '@/assets/icons';
 import VIcon from '../UI/VIcon.vue';
 import { Button } from 'primevue';
 
@@ -9,32 +9,25 @@ const { t } = useI18n();
 
 const items = computed(() => [
   {
-    id: 4,
-    title: t('analytics.title'),
-    icon: analitcs,
-    color: '#8b00ff',
-    link: '/analytics'
-  },
-  {
-    id: 2,
-    title: t('categories.title'),
-    icon: categories,
-    color: 'var(--p-blue-500)',
-    link: '/categories'
-  },
-  {
     id: 3,
     title: t('debts.title'),
     icon: book,
     color: 'var(--p-red-500)',
     link: '/debts'
   },
+  // {
+  //   id: 1,
+  //   title: t('limits.title'),
+  //   icon: rounded,
+  //   color: 'var(--primary-500)',
+  //   link: '/limits'
+  // },
   {
-    id: 1,
-    title: t('limits.title'),
-    icon: rounded,
-    color: 'var(--primary-500)',
-    link: '/limits'
+    id: 4,
+    title: t('analytics.title'),
+    icon: analitcs,
+    color: '#8b00ff',
+    link: '/analytics'
   },
 ]);
 //   {
@@ -69,14 +62,15 @@ const items = computed(() => [
   <div class="main-grid">
     <Button class="main-grid__item" v-for="i in items" :key="i.id" as="router-link" text :to="i.link">
       <VIcon :icon="i.icon" class="main-grid__item-icon" />
-      <h1 class="font-14-r gold-text">{{ i.title }}</h1>
+      <h1 class="font-18-r gold-text">{{ i.title }}</h1>
     </Button>
   </div>
 </template>
 
 <style scoped lang="scss">
 .main-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   overflow-x: auto;
   overflow-y: visible;
@@ -86,13 +80,13 @@ const items = computed(() => [
   scrollbar-width: none;
 
   &__item {
-    padding: 3rem 1.6rem;
+    padding: 2rem 1.6rem;
     border-radius: 1.6rem;
     display: flex;
     align-items: center;
-    flex-direction: column;
+    // flex-direction: column;
     justify-content: center;
-    gap: 0.8rem;
+    gap: 1rem;
     min-width: 120px;
     flex-shrink: 0;
     text-decoration: none;

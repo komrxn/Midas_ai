@@ -1,8 +1,7 @@
 <template>
     <div class="settings-page">
         <div class="settings-page__header">
-            <Button :icon="arrowLeft" severity="secondary" @click="router.back()"
-                class="settings-page__header-button" />
+            <div class="settings-page__header-empty" />
             <h1 class="gold-text">{{ t('settings.title') }}</h1>
             <div class="settings-page__header-empty" />
         </div>
@@ -53,8 +52,8 @@
                 </div>
                 <div v-else class="settings-page__user-info">
                     <div class="settings-page__user-info-item">
-                        <VInputText :model-value="userDataFields.name" :label="t('settings.name')" readonly
-                            size="small" class="font-14-r" />
+                        <VInputText :model-value="userDataFields.name" :label="t('settings.name')" readonly size="small"
+                            class="font-14-r" />
                     </div>
                     <div class="settings-page__user-info-item">
                         <VInputText :model-value="userDataFields.phone" :label="t('settings.phone')" readonly
@@ -73,10 +72,8 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Button, SelectButton, ProgressSpinner } from 'primevue';
-import { arrowLeft } from '@/assets/icons';
+import { SelectButton, ProgressSpinner } from 'primevue';
 import VIcon from '@/components/UI/VIcon.vue';
 import { useThemeMode } from '@/composables/UI/useThemeMode';
 import VInputText from '@/components/Form/VInputText.vue';
@@ -86,7 +83,6 @@ import type { TLangs } from '@/plugins/i18n/models';
 import { setCurrentLocale } from '@/plugins/i18n/models';
 import { locales } from '@/plugins/i18n';
 
-const router = useRouter();
 const { t, locale } = useI18n();
 const { modeModel } = useThemeMode();
 const userStore = useUserStore();

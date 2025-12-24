@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { dollar, home } from '@/assets/icons';
+import { dollar, home, user } from '@/assets/icons';
 import VIcon from '@/components/UI/VIcon.vue';
 
 const route = useRoute();
@@ -21,6 +21,12 @@ const navItems = computed(() => [
         icon: dollar,
         path: '/transactions',
     },
+    {
+        name: 'settings',
+        title: t('settings.title'),
+        icon: user,
+        path: '/settings',
+    },
 ]);
 
 const isActive = (path: string) => {
@@ -28,7 +34,7 @@ const isActive = (path: string) => {
 };
 
 const showBottomBar = computed(() => {
-    return route.name === 'main' || route.name === 'transactions';
+    return route.name === 'main' || route.name === 'transactions' || route.name === 'settings';
 });
 </script>
 
@@ -51,7 +57,10 @@ const showBottomBar = computed(() => {
     display: flex;
     flex-direction: column;
     position: relative;
-    padding-bottom: 8rem;
+
+    &--with-bottom-bar {
+        padding-bottom: 8rem;
+    }
 }
 
 .bottom-bar {
@@ -64,7 +73,7 @@ const showBottomBar = computed(() => {
     align-items: center;
     background: var(--card-default, var(--secondary-50));
     border-top: 1px solid var(--gold-border);
-    padding: 1.2rem 2rem;
+    padding: 1.2rem 1rem;
     padding-bottom: calc(1.2rem + env(safe-area-inset-bottom));
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
     z-index: 100;
@@ -76,8 +85,8 @@ const showBottomBar = computed(() => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
-        padding: 0.8rem 1.6rem;
+        gap: 0.8rem;
+        padding: 0.8rem 1rem;
         border-radius: var(--radius-m);
         text-decoration: none;
         color: var(--text-color-secondary);

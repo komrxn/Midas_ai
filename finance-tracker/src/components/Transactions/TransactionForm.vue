@@ -259,6 +259,7 @@ const handleSubmit = () => {
 
     &__title {
         font: var(--font-20-b);
+        color: var(--text-color);
         margin: 0;
     }
 

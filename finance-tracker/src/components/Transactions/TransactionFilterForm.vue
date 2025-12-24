@@ -42,7 +42,7 @@
 
             <div class="transaction-filter-form__footer">
                 <div class="transaction-filter-form__buttons">
-                    <Button :label="t('filters.reset')" severity="secondary" outlined fluid @click="handleReset"
+                    <Button :label="t('filters.reset')" severity="danger" outlined fluid @click="handleReset"
                         class="transaction-filter-form__button" />
                     <Button :label="t('filters.apply')" type="submit" fluid severity="primary"
                         class="transaction-filter-form__button" />
@@ -227,6 +227,7 @@ const handleSubmit = () => {
 
     &__title {
         font: var(--font-20-b);
+        color: var(--text-color);
         margin: 0;
     }
 

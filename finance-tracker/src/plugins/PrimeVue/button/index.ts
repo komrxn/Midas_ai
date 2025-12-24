@@ -32,6 +32,12 @@ export const buttonConfig = (): ButtonDesignTokens => {
         activeBorderColor: 'transparent',
       },
     },
+    outlined: {
+      secondary: {
+        borderColor: 'var(--secondary-800)',
+        color: 'var(--secondary-800)',
+      }
+    },
   };
 };
 

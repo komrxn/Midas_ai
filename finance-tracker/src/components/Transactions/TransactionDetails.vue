@@ -46,7 +46,7 @@
         </div>
 
         <div class="transaction-details__actions">
-            <Button :label="t('common.edit')" severity="secondary" outlined fluid @click="$emit('edit')"
+            <Button :label="t('common.edit')" severity="primary" fluid @click="$emit('edit')"
                 class="transaction-details__action-button" />
             <Button :label="t('common.delete')" severity="danger" outlined fluid @click="$emit('remove')"
                 class="transaction-details__action-button" />

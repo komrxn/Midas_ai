@@ -52,7 +52,7 @@ import VInputNumber from '@/components/Form/VInputNumber.vue';
 import VSelect from '@/components/Form/VSelect.vue';
 import type { FormRule } from '@/composables/Form/types';
 import type { DebtFormData } from '@/composables/Debts/types';
-import { DebtType, DebtStatus } from '@/composables/Debts/types';
+import { DebtType } from '@/composables/Debts/types';
 
 const { t } = useI18n();
 
@@ -177,6 +177,7 @@ const handleSubmit = () => {
 
     &__title {
         font: var(--font-20-b);
+        color: var(--text-color);
         margin: 0;
     }
 

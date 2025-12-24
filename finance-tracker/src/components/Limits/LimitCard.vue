@@ -64,12 +64,14 @@ const toggleMenu = (event: Event) => {
 const menuItems = computed<MenuItem[]>(() => [
     {
         label: t('common.edit'),
+        severity: 'primary',
         command: () => {
             emit('edit');
         },
     },
     {
         label: t('common.delete'),
+        severity: 'danger',
         command: () => {
             emit('remove');
         },

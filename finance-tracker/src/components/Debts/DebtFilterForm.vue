@@ -19,7 +19,7 @@
 
             <div class="debt-filter-form__footer">
                 <div class="debt-filter-form__buttons">
-                    <Button :label="t('filters.reset')" severity="secondary" outlined fluid @click="handleReset"
+                    <Button :label="t('filters.reset')" severity="danger" outlined fluid @click="handleReset"
                         class="debt-filter-form__button" />
                     <Button :label="t('filters.apply')" type="submit" fluid severity="primary"
                         class="debt-filter-form__button" />
@@ -138,6 +138,7 @@ const handleSubmit = () => {
 
     &__title {
         font: var(--font-20-b);
+        color: var(--text-color);
         margin: 0;
     }
 

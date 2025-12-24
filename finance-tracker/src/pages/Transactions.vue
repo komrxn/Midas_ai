@@ -1,8 +1,9 @@
 <template>
     <div class="transactions-page">
         <div class="transactions-page__header">
-            <Button :icon="arrowLeft" severity="secondary" @click="router.back()"
-                class="transactions-page__header-button" />
+            <!-- <Button :icon="arrowLeft" severity="secondary" @click="router.back()"
+                class="transactions-page__header-button" /> -->
+                <div style="width: 3.6rem;"/>
             <h1 class="gold-text">{{ t('transactions.title') }}</h1>
             <Button :icon="filter" severity="secondary" @click="filterDrawerVisible = true"
                 class="transactions-page__header-button" />
@@ -53,8 +54,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { arrowLeft, filter, warning } from '@/assets/icons';
-import router from '@/router/router';
+import { filter, warning } from '@/assets/icons';
 import { Button, ProgressSpinner } from 'primevue';
 
 const { t } = useI18n();

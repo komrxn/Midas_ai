@@ -2,6 +2,7 @@
     <div class="main-chart">
         <div class="main-chart__header">
             <h1 class="font-20-b gold-text">{{ t('main.categories') }}</h1>
+            <Button label="Посмотреть все" text size="small" @click="handleViewAll" />
         </div>
         <div ref="chartWrapperRef" class="main-chart__container-wrapper">
             <VChart ref="chartRef" :option="chartOption" class="main-chart__container" @click="handleChartClick" />
@@ -32,7 +33,9 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import { onClickOutside } from '@vueuse/core';
+import { Button } from 'primevue';
 
 import VChart from 'vue-echarts';
 import type { EChartsOption } from 'echarts';
@@ -41,6 +44,7 @@ import { useBalanceStore } from '@/store/balanceStore';
 import { useCategoriesChartStore } from '@/store/categoriesChartStore';
 
 const { t } = useI18n();
+const router = useRouter();
 
 const balanceStore = useBalanceStore();
 const { balance: balanceData } = storeToRefs(balanceStore);
@@ -92,6 +96,11 @@ const selectCategory = (categoryName: string) => {
     }
 };
 
+// Переход на страницу категорий
+const handleViewAll = () => {
+    router.push({ name: 'categories' });
+};
+
 // Обработчик клика на график
 const handleChartClick = (params: any) => {
     if (params.componentType === 'series' && params.name) {
@@ -135,7 +144,7 @@ onMounted(async () => {
             loadBalance({ period: 'month' }), // Используем store, чтобы избежать дублирования запроса
             loadCategories({ period: 'month', type: 'expense' }), // Используем store для кеширования
         ]);
-        
+
         // Инициализируем обработчик клика
         if (categoryBreakdown.value) {
             initChartClickHandler();
@@ -242,8 +251,8 @@ const chartOption = computed<EChartsOption>(() => ({
 
     &__header {
         display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 1.6rem;
     }
 

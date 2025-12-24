@@ -85,16 +85,16 @@ export default {
   settings: {
     title: 'Sozlamalar',
     appearance: 'Ko‘rinish',
-    theme: 'Mavzu',
-    themeHint: 'Yorug‘ yoki qorong‘u mavzuni tanlang',
-    light: 'Yorug‘',
-    dark: 'Qorong‘u',
+    theme: 'Rejim',
+    themeHint: 'Tungi yoki kungi rejimni tanlang',
+    light: 'Kungi',
+    dark: 'Tungi',
     language: 'Til',
-    languageHint: 'Interfeys tilini tanlang',
+    languageHint: 'Tilni tanlang',
     userData: 'Foydalanuvchi ma\'lumotlari',
     name: 'Ism',
     phone: 'Telefon',
-    defaultCurrency: 'Standart valyuta',
+    defaultCurrency: 'Asosiy valyuta',
   },
 
   // Tranzaksiyalar
