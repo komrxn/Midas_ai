@@ -31,7 +31,7 @@ import type { Category } from '@/composables/Categories/types';
 import { CategoryType } from '@/composables/Categories/types';
 import { menuDots } from '@/assets/icons';
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 
 const props = defineProps<{
     category: Category;
@@ -58,9 +58,11 @@ const toggleMenu = (event: Event) => {
 // });
 
 const categoryName = computed(() => {
-    if (props.category.slug) {
+    // Если категория системная (по умолчанию) и есть перевод - используем его
+    if (props.category.is_default && props.category.slug && te(`categoryList.${props.category.slug}`)) {
         return t(`categoryList.${props.category.slug}`);
     }
+    // Во всех остальных случаях (кастомная категория или нет перевода) - показываем оригинальное название
     return props.category.name;
 });
 
