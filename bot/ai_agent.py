@@ -121,7 +121,7 @@ class AIAgent:
                         "required": ["name", "type"]
                     }
                 }
-            }
+            },
             {
                 "type": "function",
                 "function": {
