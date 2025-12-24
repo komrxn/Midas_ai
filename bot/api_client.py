@@ -223,3 +223,26 @@ class MidasAPIClient:
             )
             response.raise_for_status()
             return response.json()
+
+    @handle_auth_errors
+    async def get_debts(self, status: str = "open") -> list:
+        """Get list of debts."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/debts",
+                params={"status": status},
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def mark_debt_as_paid(self, debt_id: str) -> Dict[str, Any]:
+        """Mark debt as paid."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/debts/{debt_id}/mark-paid",
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()

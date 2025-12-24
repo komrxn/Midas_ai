@@ -160,6 +160,27 @@ class AIAgent:
                         "required": ["type", "person_name", "amount"]
                     }
                 }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "settle_debt",
+                    "description": "Пометить долг как оплаченный/возвращенный. Используй когда пользователь говорит 'Сахина вернула долг', 'Я отдал долг Али'.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "person_name": {
+                                "type": "string",
+                                "description": "Имя человека"
+                            },
+                             "amount": {
+                                "type": "number",
+                                "description": "Сумма (опционально, для уточнения, если долгов несколько)"
+                            }
+                        },
+                        "required": ["person_name"]
+                    }
+                }
             }
         ]
         
@@ -193,6 +214,7 @@ RULES:
 2. **Debts (NEW):**
    - If user says "I lent 50k to Ali" / "Daler qarz oldi 50k" / "Дал в долг Али 50к" → CALL `create_debt` (type="owe_me").
    - If user says "I borrowed 100$ from John" / "Men Alidan 100$ qarz oldim" / "Взял в долг у Джона 100$" → CALL `create_debt` (type="i_owe").
+   - If user says "Ali returned debt" / "Ali qarzini berdi" / "Али вернул долг" → CALL `settle_debt`.
    - Extract `person_name` carefully.
 
 3. **Context/Memory:**
@@ -230,6 +252,9 @@ Action: create_transaction(amount=500, type="income", category_slug="salary", cu
 
 User: "Dalerga 500k qarz berdim" (I lent 500k to Daler)
 Action: create_debt(type="owe_me", person_name="Daler", amount=500000, description="Qarz berdim")
+
+User: "Daler qaytardi" (Daler returned)
+Action: settle_debt(person_name="Daler")
 """
     
     async def process_message(self, user_id: int, message: str) -> dict:
@@ -281,6 +306,7 @@ Action: create_debt(type="owe_me", person_name="Daler", amount=500000, descripti
                 tool_results = []
                 created_transactions = [] # Initialize list to collect created transactions
                 created_debts = [] # Initialize list to collect created debts
+                settled_debts = [] # Initialize list to collect settled debts
                 
                 for tool_call in tool_calls:
                     try:
@@ -301,7 +327,8 @@ Action: create_debt(type="owe_me", person_name="Daler", amount=500000, descripti
                                 created_transactions.append(tool_result)
                             elif "debt_id" in tool_result:
                                 created_debts.append(tool_result)
-                            # You can handle category success here if needed
+                            elif "settled_debt_id" in tool_result:
+                                settled_debts.append(tool_result)
                             
                     except Exception as e:
                         logger.exception(f"Error executing tool {tool_call.function.name}: {e}")
@@ -336,6 +363,7 @@ Action: create_debt(type="owe_me", person_name="Daler", amount=500000, descripti
                 # No tools called, just conversation
                 final_text = assistant_message.content
                 created_debts = []
+                settled_debts = []
             
             # Save assistant response to context
             dialog_context.add_message(user_id, "assistant", final_text or "")
@@ -343,7 +371,8 @@ Action: create_debt(type="owe_me", person_name="Daler", amount=500000, descripti
             return {
                 "response": final_text or "Готово!",
                 "created_transactions": created_transactions,
-                "created_debts": created_debts
+                "created_debts": created_debts,
+                "settled_debts": settled_debts
             }
             
         except Exception as e:
@@ -472,6 +501,48 @@ Action: create_debt(type="owe_me", person_name="Daler", amount=500000, descripti
                     "type": debt_data["type"]
                 }
                 
+            elif function_name == "settle_debt":
+                person_name = args.get("person_name", "").lower()
+                amount_filter = float(args.get("amount", 0)) if args.get("amount") else None
+                
+                # Fetch all open debts
+                debts = await self.api_client.get_debts(status="open")
+                
+                # Filter by name (fuzzy match)
+                matched_debts = [d for d in debts if person_name in d.get("person_name", "").lower()]
+                
+                if not matched_debts:
+                     return {"success": False, "error": f"Debt for '{person_name}' not found."}
+                
+                target_debt = None
+                
+                # If exact amount specified
+                if amount_filter:
+                    amount_matches = [d for d in matched_debts if float(d.get("amount", 0)) == amount_filter]
+                    if amount_matches:
+                        target_debt = amount_matches[0] # Take first valid
+                
+                # If only one match by name
+                if not target_debt and len(matched_debts) == 1:
+                    target_debt = matched_debts[0]
+                    
+                if target_debt:
+                    result = await self.api_client.mark_debt_as_paid(target_debt["id"])
+                    return {
+                        "success": True, 
+                        "settled_debt_id": result["id"],
+                        "person": result["person_name"],
+                        "amount": result["amount"],
+                        "currency": result["currency"],
+                        "type": result["type"]
+                    }
+                else:
+                    return {
+                        "success": False, 
+                        "error": "Found multiple debts. Please specify amount.",
+                        "candidates": [f"{d['person_name']} - {d['amount']}" for d in matched_debts]
+                    }
+
             elif function_name == "get_statistics":
                 period = args.get("period", "month")
                 result = await self.api_client.get_category_breakdown(period)

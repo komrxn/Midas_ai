@@ -75,9 +75,10 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     response_text = result.get("response", "")
     created_transactions = result.get("created_transactions", [])
     created_debts = result.get("created_debts", [])
+    settled_debts = result.get("settled_debts", [])
     
-    # Show AI response (only if no transactions/debts created)
-    if not created_transactions and not created_debts and response_text:
+    # Show AI response (only if no transactions/debts created or settled)
+    if not created_transactions and not created_debts and not settled_debts and response_text:
         try:
             await update.message.reply_text(
                 response_text,
@@ -116,6 +117,23 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
             if debt.get('description'):
                text += f"{t('debts.description', lang)}: {debt.get('description')}\n"
             
+            await update.message.reply_text(
+                text,
+                reply_markup=get_main_keyboard(lang)
+            )
+
+    # Show settled debts
+    if settled_debts:
+        for debt in settled_debts:
+             # debt: {settled_debt_id, person, amount, type, currency}
+            amount_val = float(debt.get('amount', 0))
+            amount_str = f"{amount_val:,.0f}".replace(",", " ")
+            currency = debt.get('currency', 'UZS')
+
+            text = f"{t('debts.debt_settled', lang)}\n\n"
+            text += f"{t('debts.person', lang)}: {debt.get('person')}\n"
+            text += f"{t('debts.amount', lang)}: {amount_str} {currency}\n"
+
             await update.message.reply_text(
                 text,
                 reply_markup=get_main_keyboard(lang)
