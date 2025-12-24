@@ -2,7 +2,7 @@ import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import type { EChartsOption } from 'echarts';
-import { MONTHS_SHORT, DAYS_SHORT } from '@/composables/Categories/data';
+
 import { formatAmountShort, formatDateLabel } from '@/utils';
 import { useAnalyticsRequests } from '@/composables/Analytics/requests';
 import { useBalanceStore } from '@/store/balanceStore';
@@ -83,7 +83,7 @@ export const useAnalytics = () => {
     // Используем summary если доступен, иначе отдельные данные
     const balanceData = computed(() => summaryData.value?.balance || balanceDataFromStore.value);
     const categoriesDataComputed = computed(() => summaryData.value?.category_breakdown || categoriesData.value);
-    const trendsDataComputed = computed(() => {
+    const trendsDataComputed = computed<LineChartDataPoint[]>(() => {
         const trends = summaryData.value?.trends || trendsData.value;
         if (!trends) {
             return [];
@@ -151,7 +151,7 @@ export const useAnalytics = () => {
             .slice(0, 5);
     });
 
-    const lineChartData = computed(() => trendsDataComputed.value);
+    const lineChartData = computed<LineChartDataPoint[]>(() => trendsDataComputed.value);
 
     const getCategoryAmount = (categoryName: string): number => {
         const category = categoryData.value.find(c => c.name === categoryName);
