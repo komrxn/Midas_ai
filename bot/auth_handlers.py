@@ -81,12 +81,6 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     lang = context.user_data.get('registration_language', 'uz')
     
-    logger.info(f"=== REGISTRATION DEBUG ===")
-    logger.info(f"User ID: {user_id}")
-    logger.info(f"context.user_data.get('registration_language'): {context.user_data.get('registration_language')}")
-    logger.info(f"Final lang: {lang}")
-    logger.info(f"========================")
-    
     contact = update.message.contact
     
     if not contact:
@@ -102,7 +96,6 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     api = MidasAPIClient(config.API_BASE_URL)
     
     try:
-        logger.info(f"Calling API register with language={lang}")
         result = await api.register(telegram_id, phone, name, language=lang)
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
@@ -118,21 +111,6 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             t('auth.registration.success', db_lang),
             reply_markup=get_main_keyboard(db_lang)
-        )
-        
-        # Send help message after registration
-        keyboard = [
-            [
-                InlineKeyboardButton("🇷🇺 Русский", callback_data="help_ru"),
-                InlineKeyboardButton("🇬🇧 English", callback_data="help_en"),
-            ],
-            [InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="help_uz")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        await update.message.reply_text(
-            t('auth.common.choose_language', db_lang),
-            reply_markup=reply_markup
         )
         
         return ConversationHandler.END
