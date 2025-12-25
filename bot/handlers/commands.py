@@ -25,56 +25,51 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=get_main_keyboard(lang)
         )
     else:
-            
-            keyboard = [
-                [KeyboardButton(reg_text)],
-                [KeyboardButton(login_text)]
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
-            
-            await update.message.reply_text(welcome_msg, reply_markup=reply_markup)
+        # New user - show language selection FIRST
+        keyboard = [
+            [
+                InlineKeyboardButton("🇷🇺 Русский", callback_data="startlang_ru"),
+                InlineKeyboardButton("🇬🇧 English", callback_data="startlang_en"),
+            ],
+            [InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="startlang_uz")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # Show tri-lingual welcome
+        message = (
+            "👋 Assalomu alaykum!\n"
+            "Bu bot Sizning shaxsiy moliyaviy yordamchingiz.\n\n"
+            "👋 Здравствуйте!\n"
+            "Этот бот — ваш личный финансовый помощник.\n\n"
+            "👋 Hello!\n"
+            "This bot is your personal finance assistant.\n\n"
+            "🌐 Tilni tanlang / Выберите язык / Choose language:"
+        )
+        
+        await update.message.reply_text(
+            message,
+            reply_markup=reply_markup
+        )
 
 
-async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle language selection callback."""
+async def start_language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle language selection at /start for new users."""
     query = update.callback_query
     await query.answer()
     
-    # Extract language from callback_data: "setlang_uz" -> "uz"
+    # Extract language from callback_data: "startlang_ru" -> "ru"
     lang = query.data.split('_')[1]
     user_id = query.from_user.id
     
-    # Save language preference in local storage
+    # Save language preference
     storage.set_user_language(user_id, lang)
     
-    # IMPORTANT: Also save to context.user_data for registration flow
-    context.user_data['selected_language'] = lang
-    
-    # If user is authorized, also update language in database via API
-    if storage.is_user_authorized(user_id):
-        try:
-            from ..api_client import MidasAPIClient
-            from ..config import config
-            
-            token = storage.get_user_token(user_id)
-            api = MidasAPIClient(config.API_BASE_URL)
-            api.set_token(token)
-            
-            # Update language in database
-            await api.update_user_language(lang)
-            logger.info(f"Updated language to {lang} for user {user_id} in database")
-        except Exception as e:
-            logger.error(f"Failed to update language in database: {e}")
-            # Continue anyway - at least local storage is updated
-    
-    # Show welcome message
+    # Show welcome message in selected language
     await query.edit_message_text(
         t('auth.registration.welcome_new', lang, name=query.from_user.first_name)
     )
     
-    # Show registration/login buttons
-    from telegram import KeyboardButton, ReplyKeyboardMarkup
-    
+    # Show registration/login buttons in selected language
     reg_text = "📝 " + ("Ro'yxatdan o'tish" if lang == 'uz' else ("Регистрация" if lang == 'ru' else "Register"))
     login_text = "🔑 " + ("Kirish" if lang == 'uz' else ("Войти" if lang == 'ru' else "Login"))
     
@@ -95,16 +90,17 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show help with language selection."""
+    """Handle /help command."""
     user_id = update.effective_user.id
-    lang = storage.get_user_language(user_id) or 'uz'
+    lang = storage.get_user_language(user_id)
     
+    # Show language selection for help
     keyboard = [
         [
             InlineKeyboardButton("🇷🇺 Русский", callback_data="help_ru"),
             InlineKeyboardButton("🇬🇧 English", callback_data="help_en"),
         ],
-        [InlineKeyboardButton("🇺🇿 O'zbek", callback_data="help_uz")]
+        [InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="help_uz")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -115,15 +111,17 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def help_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle help language selection callback."""
+    """Show help in selected language."""
     query = update.callback_query
     await query.answer()
     
+    # Extract language: "help_ru" -> "ru"
     lang = query.data.split('_')[1]
-    help_text = HELP_MESSAGES.get(lang, HELP_MESSAGES['ru'])
+    
+    help_text = t('help.full_guide', lang)
     
     await query.edit_message_text(
-        text=help_text,
+        help_text,
         parse_mode='Markdown'
     )
 
