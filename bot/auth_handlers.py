@@ -234,9 +234,21 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # Cancel handler
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = storage.get_user_language(update.effective_user.id) or 'uz'
-    await update.message.reply_text(t('common.actions.cancel', lang), reply_markup=get_main_keyboard(lang))
+async def register_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cancel registration."""
+    await update.message.reply_text(
+        "Registration cancelled.",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return ConversationHandler.END
+
+
+async def login_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cancel login."""
+    await update.message.reply_text(
+        "Login cancelled.",
+        reply_markup=ReplyKeyboardRemove()
+    )
     return ConversationHandler.END
 
 
