@@ -66,11 +66,18 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = await api.register(telegram_id, phone, name, language=lang)
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
-        storage.set_user_language(telegram_id, lang)
+        
+        # Fetch user info to get language from database  
+        api.set_token(token)
+        user_info = await api.get_me()
+        db_lang = user_info.get('language', lang)
+        
+        # Sync language from database to local storage
+        storage.set_user_language(telegram_id, db_lang)
         
         await update.message.reply_text(
-            t('auth.registration.success', lang),
-            reply_markup=get_main_keyboard(lang)
+            t('auth.registration.success', db_lang),
+            reply_markup=get_main_keyboard(db_lang)
         )
         
         # Send help message after registration
@@ -84,7 +91,7 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            t('auth.common.choose_language', lang),
+            t('auth.common.choose_language', db_lang),
             reply_markup=reply_markup
         )
         
@@ -150,7 +157,18 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         token = result['access_token']
         storage.save_user_token(telegram_id, token)
         
-        await update.message.reply_text(t('auth.login.success', lang), reply_markup=get_main_keyboard(lang))
+        # Fetch user info to get language from database
+        api.set_token(token)
+        user_info = await api.get_me()
+        db_lang = user_info.get('language', lang)
+        
+        # Sync language from database to local storage
+        storage.set_user_language(telegram_id, db_lang)
+        
+        await update.message.reply_text(
+            t('auth.login.success', db_lang),
+            reply_markup=get_main_keyboard(db_lang)
+        )
         return ConversationHandler.END
         
     except httpx.HTTPStatusError as e:
