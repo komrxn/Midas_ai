@@ -13,25 +13,57 @@ from .handlers.common import get_main_keyboard
 logger = logging.getLogger(__name__)
 
 # States
-NAME, PHONE = range(2)
+LANGUAGE, NAME, PHONE = range(3)
 LOGIN_PHONE = 0
 
 
 # Registration flow
 async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
+    """Start registration - ask user to choose language."""
+    # Show language selection
+    keyboard = [
+        [
+            InlineKeyboardButton("🇷🇺 Русский", callback_data="reglang_ru"),
+            InlineKeyboardButton("🇬🇧 English", callback_data="reglang_en"),
+        ],
+        [InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="reglang_uz")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    # Show in all 3 languages
+    message = (
+        "👋 Assalomu alaykum!\nBu bot Sizning shaxsiy moliyaviy yordamchingiz.\n\n"
+        "👋 Здравствуйте!\nЭтот бот — ваш личный финансовый помощник.\n\n"
+        "👋 Hello!\nThis bot is your personal finance assistant.\n\n"
+        "🌐 Tilni tanlang / Выберите язык / Choose language:"
+    )
     
     await update.message.reply_text(
-        t('auth.registration.ask_name', lang),
-        reply_markup=ReplyKeyboardRemove()
+        message,
+        reply_markup=reply_markup
+    )
+    return LANGUAGE
+
+
+async def register_language_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle language selection during registration."""
+    query = update.callback_query
+    await query.answer()
+    
+    # Extract language from callback_data: "reglang_ru" -> "ru"
+    lang = query.data.split('_')[1]
+    
+    # Save to context for this registration flow
+    context.user_data['registration_language'] = lang
+    
+    await query.edit_message_text(
+        t('auth.registration.ask_name', lang)
     )
     return NAME
 
 
 async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
+    lang = context.user_data.get('registration_language', 'uz')
     name = update.message.text.strip()
     context.user_data['register_name'] = name
     
@@ -47,12 +79,11 @@ async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
+    lang = context.user_data.get('registration_language', 'uz')
     
     logger.info(f"=== REGISTRATION DEBUG ===")
     logger.info(f"User ID: {user_id}")
-    logger.info(f"context.user_data.get('selected_language'): {context.user_data.get('selected_language')}")
-    logger.info(f"storage.get_user_language({user_id}): {storage.get_user_language(user_id)}")
+    logger.info(f"context.user_data.get('registration_language'): {context.user_data.get('registration_language')}")
     logger.info(f"Final lang: {lang}")
     logger.info(f"========================")
     
@@ -209,26 +240,35 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-# Setup handlers
+# Registration Conversation Handler
 register_conv = ConversationHandler(
     entry_points=[
-        CommandHandler('register', register_start),
-        MessageHandler(filters.Regex(r"^📝.*(Ro'yxatdan o'tish|Регистрация|Register)"), register_start)
+        MessageHandler(
+            filters.Text(["📝 Ro'yxatdan o'tish", "📝 Регистрация", "📝 Register"]),
+            register_start
+        )
     ],
     states={
+        LANGUAGE: [CallbackQueryHandler(register_language_selected, pattern="^reglang_")],
         NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, register_name)],
         PHONE: [MessageHandler(filters.CONTACT, register_phone)]
     },
-    fallbacks=[CommandHandler('cancel', cancel)]
+    fallbacks=[CommandHandler('cancel', register_cancel)],
+    allow_reentry=True
 )
 
+
+# Login Conversation Handler
 login_conv = ConversationHandler(
     entry_points=[
-        CommandHandler('login', login_start),
-        MessageHandler(filters.Regex(r"^🔑.*(Kirish|Войти|Login)"), login_start)
+        MessageHandler(
+            filters.Text(["🔑 Kirish", "🔑 Войти", "🔑 Login"]),
+            login_start
+        )
     ],
     states={
         LOGIN_PHONE: [MessageHandler(filters.CONTACT, login_phone)]
     },
-    fallbacks=[CommandHandler('cancel', cancel)]
+    fallbacks=[CommandHandler('cancel', login_cancel)],
+    allow_reentry=True
 )
