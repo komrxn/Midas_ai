@@ -37,5 +37,13 @@
     "voice": {
         "listening": "🎤 Listening...",
         "error": "❌ Voice processing error"
+    },
+    "confirmation": {
+        "prompt": "Confirm?",
+        "expired": "⏰ Confirmation time expired",
+        "not_yours": "❌ Not your transaction",
+        "cancelled": "❌ Cancelled",
+        "recorded": "✅ Recorded!",
+        "error": "❌ Error"
     }
 }

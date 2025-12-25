@@ -9,23 +9,28 @@ from ..api_client import MidasAPIClient
 from ..config import config
 from .common import with_auth_check, get_main_keyboard
 from ..confirmation_handlers import show_transaction_confirmation
+from ..i18n import t
 
 logger = logging.getLogger(__name__)
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle photo messages (receipt scanning with Vision AI)."""
-    if not storage.is_user_authorized(update.effective_user.id):
-        await update.message.reply_text("⛔ Сначала авторизуйся: /start")
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    if not storage.is_user_authorized(user_id):
+        # await update.message.reply_text("⛔ Сначала авторизуйся: /start")
+        await update.message.reply_text(t('auth.common.auth_required', lang))
         return
     
-    user_id = update.effective_user.id
     token = storage.get_user_token(user_id)
     api = MidasAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:
-        await update.message.reply_text("📸 Анализирую фото...")
+        # await update.message.reply_text("📸 Анализирую фото...")
+        await update.message.reply_text(t('common.common.loading', lang)) # Using loading or I could add specific "analyzing" key
         await update.message.chat.send_action(action="typing")
         
         # Download photo (highest resolution)
@@ -81,12 +86,12 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(
                 f"📸 *С чека:* {extracted_text}\n\n{response_text}",
                 parse_mode='Markdown',
-                reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard(lang)
             )
         except Exception:
             await update.message.reply_text(
                 f"📸 С чека: {extracted_text}\n\n{response_text}",
-                reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard(lang)
             )
         
         # Show confirmations
@@ -97,6 +102,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.exception(f"Photo error: {e}")
         await update.message.reply_text(
-            "❌ Не смог обработать фото.\nПопробуй сфотографировать получше или введи вручную.",
-            reply_markup=get_main_keyboard()
+            # "❌ Не смог обработать фото.\nПопробуй сфотографировать получше или введи вручную.",
+            t('common.common.error', lang),
+            reply_markup=get_main_keyboard(lang)
         )

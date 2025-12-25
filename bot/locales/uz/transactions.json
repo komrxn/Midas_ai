@@ -37,5 +37,13 @@
     "voice": {
         "listening": "🎤 Eshityapman...",
         "error": "❌ Ovozni qayta ishlashda xatolik"
+    },
+    "confirmation": {
+        "prompt": "Tasdiqlaysizmi?",
+        "expired": "⏰ Tasdiqlash vaqti tugadi",
+        "not_yours": "❌ Bu sizning tranzaksiyangiz emas",
+        "cancelled": "❌ Bekor qilindi",
+        "recorded": "✅ Yozildi!",
+        "error": "❌ Xato"
     }
 }
