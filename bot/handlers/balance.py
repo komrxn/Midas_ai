@@ -49,5 +49,5 @@ async def get_balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"{get_message(lang, 'expense')}: {expense:,.0f} {currency}\n"
         f"{get_message(lang, 'total')}: {total:,.0f} {currency}",
         parse_mode='Markdown',
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(lang)
     )

@@ -225,6 +225,10 @@ Action: settle_debt(person_name="Daler")
         - response: str - AI response text
         - parsed_transactions: List[Dict] - transactions awaiting confirmation
         """
+        from .user_storage import storage
+        from .i18n import t
+        lang = storage.get_user_language(user_id) or 'uz'
+        
         try:
             # Track parsed transactions
             parsed_transactions = []
@@ -254,8 +258,13 @@ Action: settle_debt(person_name="Daler")
             # Check for empty response
             if not assistant_message.content and not assistant_message.tool_calls:
                 logger.error("AI returned empty response")
+                fallback_response = {
+                    'uz': "Tushundim! Yozdim.",
+                    'ru': "Понял! Записал.",
+                    'en': "Got it! Recorded."
+                }.get(lang, "Понял! Записал.")
                 return {
-                    "response": "Понял! Записал.",
+                    "response": fallback_response,
                     "parsed_transactions": []
                 }
             
@@ -329,8 +338,14 @@ Action: settle_debt(person_name="Daler")
             # Save assistant response to context
             dialog_context.add_message(user_id, "assistant", final_text or "")
             
+            fallback_done = {
+                'uz': "Tayyor!",
+                'ru': "Готово!",
+                'en': "Done!"
+            }.get(lang, "Готово!")
+            
             return {
-                "response": final_text or "Готово!",
+                "response": final_text or fallback_done,
                 "created_transactions": created_transactions,
                 "created_debts": created_debts,
                 "settled_debts": settled_debts
@@ -338,8 +353,9 @@ Action: settle_debt(person_name="Daler")
             
         except Exception as e:
             logger.exception(f"AI agent error: {e}")
+            error_msg = t('common.common.error', lang)
             return {
-                "response": "❌ Произошла ошибка. Попробуй ещё раз.",
+                "response": f"❌ {error_msg}",
                 "created_transactions": []
             }
     
