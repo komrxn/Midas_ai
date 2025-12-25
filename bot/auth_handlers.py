@@ -20,7 +20,7 @@ LOGIN_PHONE = 0
 # Registration flow
 async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    lang = storage.get_user_language(user_id) or 'uz'
+    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
     
     await update.message.reply_text(
         t('auth.registration.ask_name', lang),
@@ -31,7 +31,7 @@ async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    lang = storage.get_user_language(user_id) or 'uz'
+    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
     name = update.message.text.strip()
     context.user_data['register_name'] = name
     
@@ -47,7 +47,7 @@ async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    lang = storage.get_user_language(user_id) or 'uz'
+    lang = context.user_data.get('selected_language') or storage.get_user_language(user_id) or 'uz'
     contact = update.message.contact
     
     if not contact:

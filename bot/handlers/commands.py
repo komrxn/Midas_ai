@@ -79,6 +79,9 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Save language preference in local storage
     storage.set_user_language(user_id, lang)
     
+    # IMPORTANT: Also save to context.user_data for registration flow
+    context.user_data['selected_language'] = lang
+    
     # If user is authorized, also update language in database via API
     if storage.is_user_authorized(user_id):
         try:
