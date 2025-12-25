@@ -1,10 +1,9 @@
-"""Command handlers: /start, /help, etc."""
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+"""Command handlers."""
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler
 import logging
 
 from ..user_storage import storage
-from ..help_messages import HELP_MESSAGES
 from ..i18n import t
 from .common import get_main_keyboard
 
@@ -12,51 +11,20 @@ logger = logging.getLogger(__name__)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command - show language selection or main menu."""
+    """Handle /start command."""
     user = update.effective_user
-    lang = storage.get_user_language(user.id)
+    user_id = user.id
     
-    if storage.is_user_authorized(user.id):
-        # Existing user
-        if not lang:
-            lang = 'uz'
+    # Check if user is authorized
+    if storage.is_user_authorized(user_id):
+        # Existing user - show in their language
+        lang = storage.get_user_language(user_id)
+        
         await update.message.reply_text(
             t('auth.registration.welcome_back', lang, name=user.first_name),
             reply_markup=get_main_keyboard(lang)
         )
     else:
-        # New user
-        if not lang:
-            # First time - show language selector
-            keyboard = [
-                [
-                    InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="setlang_uz"),
-                    InlineKeyboardButton("🇷🇺 Русский", callback_data="setlang_ru"),
-                ],
-                [InlineKeyboardButton("🇬🇧 English", callback_data="setlang_en")]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            
-            await update.message.reply_text(
-                "🌍 Choose your language / Tilni tanlang / Выберите язык:",
-                reply_markup=reply_markup
-            )
-        else:
-            # Language set but not registered - show trilingual welcome + buttons
-            welcome_msg = (
-                f"👋 Assalomu alaykum, {user.first_name}!\n"
-                "Bu bot Sizning shaxsiy moliyaviy yordamchingiz.\n\n"
-                f"👋 Здравствуйте, {user.first_name}!\n"
-                "Этот бот — ваш личный финансовый помощник.\n\n"
-                f"👋 Hello, {user.first_name}!\n"
-                "This bot is your personal finance assistant."
-            )
-            
-            # Show registration/login buttons
-            from telegram import KeyboardButton, ReplyKeyboardMarkup
-            
-            reg_text = "📝 " + ("Ro'yxatdan o'tish" if lang == 'uz' else ("Регистрация" if lang == 'ru' else "Register"))
-            login_text = "🔑 " + ("Kirish" if lang == 'uz' else ("Войти" if lang == 'ru' else "Login"))
             
             keyboard = [
                 [KeyboardButton(reg_text)],
@@ -160,6 +128,6 @@ async def help_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-# Export callback handlers
-language_selector_handler = CallbackQueryHandler(language_callback, pattern="^setlang_")
+# Language selector callback handler
+language_selector_handler = CallbackQueryHandler(start_language_callback, pattern="^startlang_")
 help_selector_handler = CallbackQueryHandler(help_callback, pattern="^help_")
