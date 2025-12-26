@@ -120,13 +120,18 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if e.response.status_code == 400:
             error_data = e.response.json()
             if "already registered" in str(error_data):
+                # User already exists - show login button
+                login_text = "🔑 " + ("Kirish" if lang == 'uz' else ("Войти" if lang == 'ru' else "Login"))
+                keyboard = [[KeyboardButton(login_text)]]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+                
                 msg = {
-                    'uz': "⚠️ Siz allaqachon ro'yxatdan o'tgansiz!\nIltimos, tizimga kiring: /login",
-                    'ru': "⚠️ Вы уже зарегистрированы!\nПожалуйста, войдите в систему: /login",
-                    'en': "⚠️ You are already registered!\nPlease login: /login"
+                    'uz': "⚠️ Siz allaqachon ro'yxatdan o'tgansiz!\n\nKirish uchun quyidagi tugmani bosing:",
+                    'ru': "⚠️ Вы уже зарегистрированы!\n\nДля входа нажмите на кнопку ниже:",
+                    'en': "⚠️ You are already registered!\n\nClick the button below to login:"
                 }.get(lang, "Already registered")
                 
-                await update.message.reply_text(msg, reply_markup=get_main_keyboard(lang))
+                await update.message.reply_text(msg, reply_markup=reply_markup)
             else:
                 await update.message.reply_text(
                     t('auth.registration.error_exists', lang),

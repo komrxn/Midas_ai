@@ -18,10 +18,18 @@ async def with_auth_check(update: Update, user_id: int, api_call):
         storage.clear_user_token(user_id)
         lang = storage.get_user_language(user_id) or 'uz'
         
-        await update.message.reply_text(
-            t('auth.common.auth_required', lang),
-            reply_markup=ReplyKeyboardRemove()
-        )
+        # Show login button
+        login_text = "🔑 " + ("Kirish" if lang == 'uz' else ("Войти" if lang == 'ru' else "Login"))
+        keyboard = [[KeyboardButton(login_text)]]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+        
+        msg = {
+            'uz': "⚠️ Avtorizatsiya kerak\n\nKirish uchun quyidagi tugmani bosing:",
+            'ru': "⚠️ Требуется авторизация\n\nНажмите на кнопку ниже для входа:",
+            'en': "⚠️ Authorization required\n\nClick the button below to login:"
+        }.get(lang, "Authorization required")
+        
+        await update.message.reply_text(msg, reply_markup=reply_markup)
         logger.info(f"User {user_id} token expired, prompted to re-authenticate")
         return None
     except Exception as e:
