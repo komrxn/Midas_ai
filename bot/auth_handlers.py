@@ -242,21 +242,40 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if e.response.status_code == 401:
              # Phone number mismatch or invalid
+             reg_btn_text = {
+                 'uz': "📝 Ro'yxatdan o'tish",
+                 'ru': "📝 Регистрация",
+                 'en': "📝 Register"
+             }.get(lang, "📝 Register")
+             
              msg = {
-                 'uz': "❌ Telefon raqami noto'g'ri yoki ro'yxatdan o'tmagansiz.\nIltimos, qayta ro'yxatdan o'ting: /register",
-                 'ru': "❌ Неверный номер телефона или вы не зарегистрированы.\nПожалуйста, зарегистрируйтесь заново: /register",
-                 'en': "❌ Invalid phone number or not registered.\nPlease register: /register"
+                 'uz': "❌ Telefon raqami noto'g'ri yoki ro'yxatdan o'tmagansiz.\nIltimos, qayta ro'yxatdan o'ting:",
+                 'ru': "❌ Неверный номер телефона или вы не зарегистрированы.\nПожалуйста, зарегистрируйтесь заново:",
+                 'en': "❌ Invalid phone number or not registered.\nPlease register again:"
              }.get(lang, "Invalid phone number")
+             
+             keyboard = [[KeyboardButton(reg_btn_text)]]
+             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+             
+             await update.message.reply_text(
+                msg,
+                reply_markup=reply_markup
+             )
+             return ConversationHandler.END
         elif e.response.status_code == 404:
              msg = t('auth.login.error_not_found', lang)
+             await update.message.reply_text(
+                msg,
+                reply_markup=get_main_keyboard(lang)
+             )
+             return ConversationHandler.END
         else:
              msg = t('auth.login.error_generic', lang)
-             
-        await update.message.reply_text(
-            msg,
-            reply_markup=get_main_keyboard(lang)
-        )
-        return ConversationHandler.END
+             await update.message.reply_text(
+                msg,
+                reply_markup=get_main_keyboard(lang)
+             )
+             return ConversationHandler.END
 
 
 # Cancel handler
