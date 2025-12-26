@@ -25,6 +25,7 @@ class DebtUpdate(BaseModel):
     person_name: Optional[str] = Field(None, min_length=1, max_length=200)
     amount: Optional[Decimal] = Field(None, gt=0)
     description: Optional[str] = Field(None, max_length=500)
+    type: Optional[str] = Field(None, pattern="^(i_owe|owe_me)$")
     status: Optional[str] = Field(None, pattern="^(open|overdue|settled)$")
     due_date: Optional[date] = None
     settled_at: Optional[datetime] = None
