@@ -34,6 +34,7 @@ export interface DebtCreateData {
 }
 
 export interface DebtUpdateData {
+    type?: DebtType;
     person_name: string;
     amount: number;
     description: string;
