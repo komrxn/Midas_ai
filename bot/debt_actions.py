@@ -153,7 +153,6 @@ async def handle_edit_debt_message(update: Update, context: ContextTypes.DEFAULT
     api.set_token(token)
     
     try:
-    try:
         # Fetch current debt
         current_debt = await api.get_debt(debt_id)
         
