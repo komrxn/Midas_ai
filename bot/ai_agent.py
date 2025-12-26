@@ -642,8 +642,11 @@ USER INPUT: "{user_input}"
 
 TASK:
 Update fields: amount, person_name, description, type (owe_me/i_owe).
-- Detect if user changes who owes whom (type).
-- Detect amount changes.
+- CRITICAL: Detect semantics of WHO OWES WHOM.
+  - "I owe..." / "Я должен..." / "Men qarzdorman..." -> type: "i_owe"
+  - "Owes me..." / "Мне должны..." / "Menga qarz..." -> type: "owe_me"
+- If the phrase implies a complete change of context (e.g. "Actually I owe Kama"), update 'type' and 'person_name' accordingly.
+- Detect amount changes (K/k/ming/mln support).
 - Detect person name changes.
 
 EXAMPLE 1:
@@ -651,10 +654,15 @@ Old: {{ "amount": 100000, "person_name": "Ali", "type": "owe_me" }}
 Input: "200k"
 Output: {{ "amount": 200000 }}
 
-EXAMPLE 2:
+EXAMPLE 2 (Complete context switch):
 Old: {{ "amount": 100000, "person_name": "Ali", "type": "owe_me" }}
-Input: "I owe Ali 50k"
-Output: {{ "amount": 50000, "type": "i_owe", "person_name": "Ali" }}
+Input: "Я должна Каме 150к"
+Output: {{ "amount": 150000, "type": "i_owe", "person_name": "Кама", "description": "Я должна Каме" }}
+
+EXAMPLE 3 (Just type switch):
+Old: {{ "amount": 50000, "person_name": "Vali", "type": "owe_me" }}
+Input: "Не, это я ему должен"
+Output: {{ "type": "i_owe" }}
 
 Return JSON:"""
 
