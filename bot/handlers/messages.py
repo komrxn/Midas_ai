@@ -8,7 +8,7 @@ from ..api_client import MidasAPIClient
 from ..config import config
 from ..user_storage import storage
 from ..transaction_actions import show_transaction_with_actions, handle_edit_transaction_message
-from .common import with_auth_check, get_main_keyboard
+from .common import with_auth_check, get_main_keyboard, send_typing_action
 from ..i18n import t, translate_category
 
 from ..debt_actions import show_debt_with_actions, handle_edit_debt_message
@@ -16,6 +16,7 @@ from ..debt_actions import show_debt_with_actions, handle_edit_debt_message
 logger = logging.getLogger(__name__)
 
 
+@send_typing_action
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages with AI."""
     user_id = update.effective_user.id

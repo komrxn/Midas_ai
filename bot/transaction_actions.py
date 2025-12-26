@@ -9,6 +9,7 @@ from .api_client import MidasAPIClient
 from .config import config
 from .user_storage import storage
 from .i18n import t, translate_category
+from .handlers.common import send_typing_action
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ async def handle_transaction_action(update: Update, context: ContextTypes.DEFAUL
             await query.edit_message_text(f"{t('common.common.error', lang)}: {str(e)}")
 
 
+@send_typing_action
 async def handle_edit_transaction_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle message when user is editing a transaction."""
     tx_id = context.user_data.pop('editing_transaction_id', None)
@@ -137,34 +139,64 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
     api.set_token(token)
     
     try:
-        import re
+        # Fetch current transaction to provide context to AI
+        current_tx = {}
+        try:
+            # We need to fetch full details. The listing endpoint gives summary, but let's see if we can get by ID
+            # MidasAPIClient doesn't have get_transaction_by_id yet, but we can reconstruct from what we have 
+            # or add get_transaction. For now, let's assume we can proceed with partial info or
+            # better: implement get_transaction in api_client.py if needed.
+            # actually we can just pass what we know, or fetch.
+            # Let's try to fetch list and find it (inefficient) or just rely on user input?
+            # AI needs context. "Taxi" -> "Switch to Metro" needs to know it was Taxi.
+            # Let's add get_transaction to api_client first? 
+            # Or just use get_transactions with limit if recently created.
+            pass
+        except:
+            pass
         
-        updates = {}
+        # NOTE: We need a way to get the current transaction details!
+        # Since we don't have get_transaction(id), we will try to fetch recent.
+        # But this is inside edit flow.
         
-        # Parse amount with multipliers
-        ming_match = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:ming|минг)', text, re.IGNORECASE)
-        k_match = re.search(r'(\d+(?:[.,]\d+)?)\s*k\b', text, re.IGNORECASE)
-        plain_match = re.search(r'(\d+(?:[.,]\d+)?)', text)
+        # Let's assume we added get_transaction to api_client.py. If not, I should add it.
+        # Checking api_client.py... it does NOT have get_transaction(id).
+        # purely update_transaction.
         
-        if ming_match:
-            updates['amount'] = float(ming_match.group(1).replace(',', '.')) * 1000
-        elif k_match:
-            updates['amount'] = float(k_match.group(1).replace(',', '.')) * 1000
-        elif plain_match:
-            updates['amount'] = float(plain_match.group(1).replace(',', '.'))
+        # I will add get_transaction to api_client first.
+        # But for now, let's assume I will add it in next step.
         
-        # Get description
-        description = re.sub(r'\d+(?:[.,]\d+)?\s*(?:ming|минг|k)?', '', text, flags=re.IGNORECASE).strip()
-        if description:
-            updates['description'] = description
+        # Wait, I cannot use it if it's not there.
+        # I'll implement the call assuming method exists, then I'll add the method.
+        
+        # Actually, let's look at `show_transaction_with_actions`... it takes `tx_data`.
+        # We don't have `tx_data` stored in context (only ID).
+        # I will add `get_transaction` to `MidasAPIClient` in `api_client.py` IMMEDIATELY after this tool call.
+        
+        current_tx = await api.get_transaction(tx_id)
+        
+        # Prepare data for AI
+        old_data = {
+            "amount": float(current_tx.get('amount', 0)),
+            "description": current_tx.get('description', ''),
+            "category_slug": current_tx.get('category', {}).get('slug', ''),
+            "type": current_tx.get('type', 'expense'),
+            "currency": current_tx.get('currency', 'uzs')
+        }
+        
+        from .ai_agent import AIAgent
+        agent = AIAgent(api)
+        
+        updates = await agent.edit_transaction(old_data, text)
         
         if not updates:
-            updates['description'] = text
-        
+             await update.message.reply_text(t('common.common.error', lang))
+             return True
+             
         # Update transaction
         result = await api.update_transaction(tx_id, **updates)
         
-        # Show updated transaction with correct category
+        # Show updated transaction
         category_data = result.get('category', {})
         category_slug = category_data.get('slug', 'other_expense') if isinstance(category_data, dict) else 'other_expense'
         
@@ -174,7 +206,7 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
             'description': result.get('description', ''),
             'type': result.get('type', 'expense'),
             'currency': result.get('currency', 'uzs'),
-            'category': category_slug  # ← Pass slug for i18n translation!
+            'category': category_slug
         }
         
         await show_transaction_with_actions(update, user_id, tx_data)

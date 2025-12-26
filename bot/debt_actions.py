@@ -10,6 +10,7 @@ from .api_client import MidasAPIClient
 from .config import config
 from .user_storage import storage
 from .i18n import t
+from .handlers.common import send_typing_action
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,7 @@ async def handle_debt_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await query.edit_message_text(t('debts.actions.edit_prompt', lang))
 
 
+@send_typing_action
 async def handle_edit_debt_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Handle message when user is editing a debt."""
     debt_id = context.user_data.pop('editing_debt_id', None)
@@ -151,37 +153,41 @@ async def handle_edit_debt_message(update: Update, context: ContextTypes.DEFAULT
     api.set_token(token)
     
     try:
-        updates = {}
+    try:
+        # Fetch current debt
+        current_debt = await api.get_debt(debt_id)
         
-        # Parse amount like transaction editing
-        ming_match = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:ming|минг)', text, re.IGNORECASE)
-        k_match = re.search(r'(\d+(?:[.,]\d+)?)\s*k\b', text, re.IGNORECASE)
-        plain_match = re.search(r'(\d+(?:[.,]\d+)?)', text)
+        # Prepare data for AI
+        old_data = {
+            "amount": float(current_debt.get('amount', 0)),
+            "person_name": current_debt.get('person_name', ''),
+            "description": current_debt.get('description', ''),
+            "type": current_debt.get('type', 'owe_me'),
+            "currency": current_debt.get('currency', 'uzs')
+        }
         
-        amount = None
-        if ming_match:
-            amount = float(ming_match.group(1).replace(',', '.')) * 1000
-        elif k_match:
-            amount = float(k_match.group(1).replace(',', '.')) * 1000
-        elif plain_match:
-            amount = float(plain_match.group(1).replace(',', '.'))
+        from .ai_agent import AIAgent
+        agent = AIAgent(api)
         
-        description = re.sub(r'\d+(?:[.,]\d+)?\s*(?:ming|минг|k)?', '', text, flags=re.IGNORECASE).strip()
+        updates = await agent.edit_debt(old_data, text)
         
-        if amount:
-            updates['amount'] = amount
-            
-        if description:
-            updates['description'] = description
-
-        # If only text provided without numbers, update description
-        if not amount and text:
-            updates['description'] = text
+        if not updates:
+             await update.message.reply_text(t('common.common.error', lang))
+             return True
 
         # Update debt
         result = await api.update_debt(debt_id, **updates)
         
         await show_debt_with_actions(update, user_id, result)
+        return True
+        
+    except Exception as e:
+        logger.exception(f"Edit debt error: {e}")
+        from .handlers.common import get_main_keyboard
+        await update.message.reply_text(
+            f"{t('common.common.error', lang)}: {str(e)}",
+            reply_markup=get_main_keyboard(lang)
+        )
         return True
         
     except Exception as e:

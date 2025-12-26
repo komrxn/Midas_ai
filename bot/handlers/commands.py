@@ -5,11 +5,12 @@ import logging
 
 from ..user_storage import storage
 from ..i18n import t
-from .common import get_main_keyboard
+from .common import get_main_keyboard, send_typing_action
 
 logger = logging.getLogger(__name__)
 
 
+@send_typing_action
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
     user = update.effective_user
@@ -89,6 +90,7 @@ async def start_language_callback(update: Update, context: ContextTypes.DEFAULT_
     await query.message.reply_text(prompt_msg, reply_markup=reply_markup)
 
 
+@send_typing_action
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command."""
     user_id = update.effective_user.id

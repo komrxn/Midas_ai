@@ -141,6 +141,18 @@ class MidasAPIClient:
                 headers=self.headers
             )
             response.raise_for_status()
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def get_transaction(self, tx_id: str) -> Dict[str, Any]:
+        """Get single transaction by ID."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/transactions/{tx_id}",
+                headers=self.headers
+            )
+            response.raise_for_status()
             return response.json()
     
     @handle_auth_errors
@@ -219,6 +231,17 @@ class MidasAPIClient:
             response = await client.post(
                 f"{self.base_url}/debts",
                 json=debt_data,
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def get_debt(self, debt_id: str) -> Dict[str, Any]:
+        """Get single debt by ID."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/debts/{debt_id}",
                 headers=self.headers
             )
             response.raise_for_status()

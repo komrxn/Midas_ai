@@ -1,13 +1,31 @@
 """Common utilities for handlers."""
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 import logging
+from functools import wraps
 
 from ..user_storage import storage
 from ..api_client import MidasAPIClient, UnauthorizedError
 from ..i18n import t
 
 logger = logging.getLogger(__name__)
+
+
+def send_typing_action(func):
+    """Sends typing action while processing command."""
+    @wraps(func)
+    async def command_func(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        try:
+            if update and update.effective_message:
+                await update.effective_message.reply_chat_action(ChatAction.TYPING)
+        except Exception as e:
+            # Ignore errors if sending action fails (e.g. invalid chat)
+            logger.debug(f"Failed to send typing action: {e}")
+            pass
+            
+        return await func(update, context, *args, **kwargs)
+    return command_func
 
 
 async def with_auth_check(update: Update, user_id: int, api_call):

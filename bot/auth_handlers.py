@@ -8,7 +8,7 @@ from .config import config
 from .api_client import MidasAPIClient
 from .user_storage import storage
 from .i18n import t
-from .handlers.common import get_main_keyboard
+from .handlers.common import get_main_keyboard, send_typing_action
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ LOGIN_PHONE = 0
 
 
 # Registration flow
+@send_typing_action
 async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start registration - ask user to choose language."""
     # Show language selection
@@ -77,6 +78,7 @@ async def register_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return PHONE
 
 
+@send_typing_action
 async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     lang = context.user_data.get('registration_language', 'uz')
@@ -87,6 +89,15 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(t('auth.registration.use_button', lang))
         return PHONE
     
+    # 1. SECURITY CHECK: Ensure contact belongs to the user
+    if contact.user_id and contact.user_id != user_id:
+        logger.warning(f"Registration security alert: User {user_id} tried to use contact of {contact.user_id}")
+        await update.message.reply_text(
+            "⚠️ Security Alert: You can only register with your own phone number.",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END
+
     phone = contact.phone_number
     context.user_data['register_phone'] = phone
     
@@ -153,6 +164,7 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # Login flow
+@send_typing_action
 async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = storage.get_user_language(update.effective_user.id) or 'uz'
     phone_button = KeyboardButton(t('auth.login.button', lang), request_contact=True)
@@ -162,13 +174,24 @@ async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return LOGIN_PHONE
 
 
+@send_typing_action
 async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     contact = update.message.contact
-    lang = storage.get_user_language(update.effective_user.id) or 'uz'
+    user_id = update.effective_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
     
     if not contact:
         await update.message.reply_text(t('auth.registration.use_button', lang))
         return LOGIN_PHONE
+    
+    # 1. SECURITY CHECK: Ensure contact belongs to the user
+    if contact.user_id and contact.user_id != user_id:
+        logger.warning(f"Login security alert: User {user_id} tried to use contact of {contact.user_id}")
+        await update.message.reply_text(
+            "⚠️ Security Alert: You can only login with your own phone number.",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END
     
     phone = contact.phone_number
     telegram_id = update.effective_user.id
@@ -178,11 +201,31 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         result = await api.login(phone)
         token = result['access_token']
-        storage.save_user_token(telegram_id, token)
         
-        # Fetch user info to get language from database
+        # 2. SECURITY CHECK: Verify account binding
+        # Use the token to get user info and check if telegram_id matches
         api.set_token(token)
         user_info = await api.get_me()
+        
+        bound_telegram_id = user_info.get('telegram_id')
+        
+        # If account is already bound to another Telegram ID
+        if bound_telegram_id and str(bound_telegram_id) != str(telegram_id):
+            logger.critical(f"Account Takeover Attempt: Account {phone} is bound to {bound_telegram_id}, but user {telegram_id} tried to access it.")
+            
+            # Reject access
+            msg = {
+                'uz': "⛔️ Bu hisob boshqa Telegram akkauntiga bog'langan. Xavfsizlik uchun kirish rad etildi.",
+                'ru': "⛔️ Этот аккаунт привязан к другому Telegram ID. В доступе отказано в целях безопасности.",
+                'en': "⛔️ This account is linked to another Telegram ID. Access denied for security."
+            }.get(lang, "Access denied")
+            
+            await update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
+            return ConversationHandler.END
+
+        # If we passed checks, save token and proceed
+        storage.save_user_token(telegram_id, token)
+        
         db_lang = user_info.get('language', lang)
         
         # Sync language from database to local storage

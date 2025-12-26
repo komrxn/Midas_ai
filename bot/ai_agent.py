@@ -530,3 +530,130 @@ Action: settle_debt(person_name="Daler")
         except Exception as e:
             logger.exception(f"Tool execution error: {e}")
             return {"error": str(e)}
+
+    async def edit_transaction(self, old_data: Dict[str, Any], user_input: str) -> Dict[str, Any]:
+        """Smartly edit transaction based on user input."""
+        try:
+            prompt = f"""You are smart transaction editor.
+            
+CURRENT TRANSACTION JSON:
+{json.dumps(old_data, ensure_ascii=False)}
+
+USER INPUT: "{user_input}"
+
+TASK:
+Update fields based on user input.
+- If user attempts to change amount (e.g. "40k", "50000"), update 'amount'.
+- If user attempts to change category/description (e.g. "taxi", "lunch"), update 'description' AND 'category_slug' (map intelligently).
+- If user says something unrelated, try to interpret it as description update.
+- Return ONLY valid JSON with updated fields. Fields not mentioned should NOT be included (or include unchanged if easier, but prefer partial).
+
+EXAMPLE 1:
+Old: {{ "amount": 30000, "description": "Taxi" }}
+Input: "40k"
+Output: {{ "amount": 40000 }}
+
+EXAMPLE 2:
+Old: {{ "amount": 30000, "description": "Taxi" }}
+Input: "Metro"
+Output: {{ "description": "Metro", "category_slug": "public_transport" }}
+
+EXAMPLE 3:
+Old: {{ "amount": 30000, "description": "Taxi" }}
+Input: "Lunch 50k"
+Output: {{ "amount": 50000, "description": "Lunch", "category_slug": "food" }}
+
+Return JSON:"""
+
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            
+            result_json = response.choices[0].message.content
+            updates = json.loads(result_json)
+            
+            # Resolve category slug to ID if changed
+            if "category_slug" in updates:
+                category_slug = updates["category_slug"]
+                try:
+                    categories = await self.api_client.get_categories()
+                    category_id = None
+                    target_slug = category_slug.lower().strip()
+                    
+                    # 1. Try exact slug match
+                    for cat in categories:
+                        if cat.get("slug") == target_slug:
+                            category_id = cat.get("id")
+                            break
+                    
+                    # 2. Try name match
+                    if not category_id:
+                        for cat in categories:
+                            if cat.get("name", "").lower() == target_slug:
+                                category_id = cat.get("id")
+                                break
+                                
+                    # 3. Fallback
+                    if not category_id:
+                        fallback_slug = f"other_{old_data.get('type', 'expense')}"
+                        for cat in categories:
+                            if cat.get("slug") == fallback_slug:
+                                category_id = cat.get("id")
+                                break
+                    
+                    if category_id:
+                        updates["category_id"] = category_id
+                    else:
+                        logger.warning(f"Could not resolve category id for slug: {category_slug}")
+                        
+                except Exception as e:
+                    logger.error(f"Error resolving category in edit: {e}")
+
+            return updates
+        except Exception as e:
+            logger.error(f"AI edit transaction error: {e}")
+            # Fallback to description update
+            return {"description": user_input}
+
+    async def edit_debt(self, old_data: Dict[str, Any], user_input: str) -> Dict[str, Any]:
+        """Smartly edit debt based on user input."""
+        try:
+            prompt = f"""You are smart debt editor.
+
+CURRENT DEBT JSON:
+{json.dumps(old_data, ensure_ascii=False)}
+
+USER INPUT: "{user_input}"
+
+TASK:
+Update fields: amount, person_name, description, type (owe_me/i_owe).
+- Detect if user changes who owes whom (type).
+- Detect amount changes.
+- Detect person name changes.
+
+EXAMPLE 1:
+Old: {{ "amount": 100000, "person_name": "Ali", "type": "owe_me" }}
+Input: "200k"
+Output: {{ "amount": 200000 }}
+
+EXAMPLE 2:
+Old: {{ "amount": 100000, "person_name": "Ali", "type": "owe_me" }}
+Input: "I owe Ali 50k"
+Output: {{ "amount": 50000, "type": "i_owe", "person_name": "Ali" }}
+
+Return JSON:"""
+
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            
+            result_json = response.choices[0].message.content
+            updates = json.loads(result_json)
+            return updates
+        except Exception as e:
+            logger.error(f"AI edit debt error: {e}")
+            return {"description": user_input}

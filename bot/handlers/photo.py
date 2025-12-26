@@ -7,13 +7,14 @@ import base64
 from ..user_storage import storage
 from ..api_client import MidasAPIClient
 from ..config import config
-from .common import with_auth_check, get_main_keyboard
+from .common import with_auth_check, get_main_keyboard, send_typing_action
 from ..confirmation_handlers import show_transaction_confirmation
 from ..i18n import t
 
 logger = logging.getLogger(__name__)
 
 
+@send_typing_action
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle photo messages (receipt scanning with Vision AI)."""
     user_id = update.effective_user.id
