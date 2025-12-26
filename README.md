@@ -1,4 +1,4 @@
-# 🤖 Midas AI Accountant API
+# 🤖 Baraka Ai Accountant API
 
 <div align="center">
 

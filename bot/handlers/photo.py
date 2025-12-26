@@ -5,7 +5,7 @@ import logging
 import base64
 
 from ..user_storage import storage
-from ..api_client import MidasAPIClient
+from ..api_client import BarakaAPIClient
 from ..config import config
 from .common import with_auth_check, get_main_keyboard, send_typing_action
 from ..confirmation_handlers import show_transaction_confirmation
@@ -26,7 +26,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:

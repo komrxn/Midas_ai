@@ -7,7 +7,7 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageToolCall as ToolCall
 
 from .config import config
-from .api_client import MidasAPIClient
+from .api_client import BarakaAPIClient
 from .dialog_context import dialog_context
 from .categories_data import DEFAULT_CATEGORIES  # <--- Imported category data
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class AIAgent:
     """AI Agent using OpenAI Function Calling for transaction management."""
     
-    def __init__(self, api_client: MidasAPIClient):
+    def __init__(self, api_client: BarakaAPIClient):
         self.api_client = api_client
         self.client = AsyncOpenAI(
             api_key=config.OPENAI_API_KEY,

@@ -5,7 +5,7 @@ import logging
 import httpx
 
 from .config import config
-from .api_client import MidasAPIClient
+from .api_client import BarakaAPIClient
 from .user_storage import storage
 from .i18n import t
 from .handlers.common import get_main_keyboard, send_typing_action
@@ -104,7 +104,7 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     telegram_id = update.effective_user.id
     name = context.user_data['register_name']
     
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     
     try:
         result = await api.register(telegram_id, phone, name, language=lang)
@@ -196,7 +196,7 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     phone = contact.phone_number
     telegram_id = update.effective_user.id
     
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     
     try:
         result = await api.login(phone)

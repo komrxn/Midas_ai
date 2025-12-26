@@ -4,7 +4,7 @@ from telegram.ext import ContextTypes
 import logging
 
 from ..user_storage import storage
-from ..api_client import MidasAPIClient
+from ..api_client import BarakaAPIClient
 from ..config import config
 from .common import with_auth_check, get_main_keyboard
 
@@ -22,7 +22,7 @@ async def get_balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     async def _get_balance():

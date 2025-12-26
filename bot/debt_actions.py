@@ -6,7 +6,7 @@ from telegram.ext import ContextTypes, CallbackQueryHandler
 from typing import Dict, Any
 from datetime import datetime
 
-from .api_client import MidasAPIClient
+from .api_client import BarakaAPIClient
 from .config import config
 from .user_storage import storage
 from .i18n import t
@@ -104,7 +104,7 @@ async def handle_debt_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
     lang = storage.get_user_language(user_id) or 'uz'
     token = storage.get_user_token(user_id)
     
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
 
     if action == "settle":
@@ -149,7 +149,7 @@ async def handle_edit_debt_message(update: Update, context: ContextTypes.DEFAULT
     text = update.message.text
     
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:

@@ -4,7 +4,7 @@ from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
 from ..ai_agent import AIAgent
-from ..api_client import MidasAPIClient
+from ..api_client import BarakaAPIClient
 from ..config import config
 from ..user_storage import storage
 from ..transaction_actions import show_transaction_with_actions, handle_edit_transaction_message
@@ -50,13 +50,13 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     
     if text == button_balance:
         token = storage.get_user_token(user_id)
-        api = MidasAPIClient(config.API_BASE_URL)
+        api = BarakaAPIClient(config.API_BASE_URL)
         api.set_token(token)
         await show_balance(update, api, lang)
         return
     elif text == button_stats:
         token = storage.get_user_token(user_id)
-        api = MidasAPIClient(config.API_BASE_URL)
+        api = BarakaAPIClient(config.API_BASE_URL)
         api.set_token(token)
         await show_statistics(update, api, lang)
         return
@@ -72,7 +72,7 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     
     # Get token and API client
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     # Process with AI
@@ -126,7 +126,7 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
             )
 
 
-async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
+async def show_statistics(update: Update, api: BarakaAPIClient, lang: str):
     """Show user statistics."""
     from ..api_client import UnauthorizedError
     
@@ -186,7 +186,7 @@ async def show_statistics(update: Update, api: MidasAPIClient, lang: str):
         )
 
 
-async def show_balance(update: Update, api: MidasAPIClient, lang: str):
+async def show_balance(update: Update, api: BarakaAPIClient, lang: str):
     """Show user balance."""
     from ..api_client import UnauthorizedError
     

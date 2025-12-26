@@ -1,6 +1,6 @@
-# 🤖 Midas Telegram Bot
+# 🤖 Baraka Ai Telegram Bot
 
-Telegram бот для учёта финансов через Midas API.
+Telegram бот для учёта финансов через Baraka Ai API.
 
 ## 🚀 Возможности
 
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 # Telegram Bot
 TELEGRAM_BOT_TOKEN=your_bot_token_from_botfather
 
-# API URL (где запущен Midas API)
+# API URL (где запущен Baraka Ai API)
 API_BASE_URL=http://localhost:8001
 
 # OpenAI (уже есть)
@@ -116,7 +116,7 @@ bot/
 ├── __init__.py
 ├── main.py          # Точка входа
 ├── config.py        # Конфигурация
-├── api_client.py    # Клиент для Midas API
+├── api_client.py    # Клиент для Baraka Ai API
 ├── user_storage.py  # Хранение токенов и pending транзакций
 ├── handlers.py      # Обработчики команд и сообщений
 ├── requirements.txt # Зависимости
@@ -136,7 +136,7 @@ bot/
 Логи выводятся в консоль:
 
 ```
-2025-12-14 19:00:00 - __main__ - INFO - 🤖 Starting Midas Telegram Bot...
+2025-12-14 19:00:00 - __main__ - INFO - 🤖 Starting Baraka Ai Telegram Bot...
 2025-12-14 19:00:05 - httpx - INFO - HTTP Request: POST /auth/login
 ```
 
@@ -150,7 +150,7 @@ sudo nano /etc/systemd/system/midas-bot.service
 
 ```ini
 [Unit]
-Description=Midas Telegram Bot
+Description=Baraka Ai Telegram Bot
 After=network.target
 
 [Service]

@@ -1,4 +1,4 @@
-# Midas API Documentation for Frontend Developers
+# Baraka Ai API Documentation for Frontend Developers
 
 **Version:** 2.0.0  
 **Base URL:** `http://localhost:8000` (development) | `https://your-domain.com` (production)  

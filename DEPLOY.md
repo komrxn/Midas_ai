@@ -4,8 +4,8 @@
 
 ```
 http://your-ip/         → Существующий сервис (kkh)
-http://your-ip/midas    → Midas Frontend
-http://your-ip/midas-api → Midas API
+http://your-ip/midas    → Baraka Ai Frontend
+http://your-ip/midas-api → Baraka Ai API
 ```
 
 Сервер nginx маршрутизирует запросы на Docker контейнеры на портах:
@@ -19,7 +19,7 @@ http://your-ip/midas-api → Midas API
 ### 1. Обновить код
 
 ```bash
-cd /opt/Midas_ai
+cd /opt/Baraka_Ai
 git pull
 ```
 
@@ -42,7 +42,7 @@ sudo systemctl reload nginx
 **Содержимое для добавления** (из `nginx.server.conf`):
 
 ```nginx
-# Midas Frontend
+# Baraka Ai Frontend
 location /midas/ {
     proxy_pass http://localhost:3001/;
     proxy_http_version 1.1;
@@ -54,7 +54,7 @@ location /midas/ {
     proxy_cache_bypass $http_upgrade;
 }
 
-# Midas API
+# Baraka Ai API
 location /midas-api/ {
     rewrite ^/midas-api/(.*)$ /$1 break;
     proxy_pass http://localhost:8001;

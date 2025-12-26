@@ -56,7 +56,7 @@ def main():
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     
     # Start bot
-    logger.info("🤖 Starting Midas Telegram Bot...")
+    logger.info("🤖 Starting Baraka Ai Telegram Bot...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

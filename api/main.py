@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="Midas AI - Personal Finance Tracker",
+    title="Baraka Ai - Personal Finance Tracker",
     description="Smart AI-powered expense tracking",
     version="1.0.0",
     root_path="/midas-api",  # For Swagger to work behind nginx

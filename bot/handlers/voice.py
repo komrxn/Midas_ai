@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import httpx
 
-from ..api_client import MidasAPIClient
+from ..api_client import BarakaAPIClient
 from ..config import config
 from ..user_storage import storage
 from ..ai_agent import AIAgent
@@ -28,7 +28,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:

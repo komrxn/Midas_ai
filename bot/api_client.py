@@ -1,4 +1,4 @@
-"""API client for Midas backend."""
+"""API client for Baraka Ai backend."""
 import httpx
 from typing import Optional, Dict, Any
 import logging
@@ -26,8 +26,8 @@ def handle_auth_errors(func):
     return wrapper
 
 
-class MidasAPIClient:
-    """Client for interacting with Midas API."""
+class BarakaAPIClient:
+    """Client for interacting with Baraka Ai API."""
     
     def __init__(self, base_url: str):
         self.base_url = base_url.rstrip('/')

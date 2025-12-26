@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes, CallbackQueryHandler
 from typing import Dict, Any
 from datetime import datetime
 
-from .api_client import MidasAPIClient
+from .api_client import BarakaAPIClient
 from .config import config
 from .user_storage import storage
 from .i18n import t, translate_category
@@ -24,7 +24,7 @@ async def show_transaction_with_actions(
     lang = storage.get_user_language(user_id) or 'uz'
     
     # Fetch current balance
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(storage.get_user_token(user_id))
     try:
         balance_data = await api.get_balance()
@@ -107,7 +107,7 @@ async def handle_transaction_action(update: Update, context: ContextTypes.DEFAUL
     lang = storage.get_user_language(user_id) or 'uz'
     token = storage.get_user_token(user_id)
     
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
 
     if action == "edit":
@@ -135,7 +135,7 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
     text = update.message.text
     
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:
@@ -143,7 +143,7 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
         current_tx = {}
         try:
             # We need to fetch full details. The listing endpoint gives summary, but let's see if we can get by ID
-            # MidasAPIClient doesn't have get_transaction_by_id yet, but we can reconstruct from what we have 
+            # BarakaAPIClient doesn't have get_transaction_by_id yet, but we can reconstruct from what we have 
             # or add get_transaction. For now, let's assume we can proceed with partial info or
             # better: implement get_transaction in api_client.py if needed.
             # actually we can just pass what we know, or fetch.
@@ -171,7 +171,7 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
         
         # Actually, let's look at `show_transaction_with_actions`... it takes `tx_data`.
         # We don't have `tx_data` stored in context (only ID).
-        # I will add `get_transaction` to `MidasAPIClient` in `api_client.py` IMMEDIATELY after this tool call.
+        # I will add `get_transaction` to `BarakaAPIClient` in `api_client.py` IMMEDIATELY after this tool call.
         
         current_tx = await api.get_transaction(tx_id)
         

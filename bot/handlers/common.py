@@ -6,7 +6,7 @@ import logging
 from functools import wraps
 
 from ..user_storage import storage
-from ..api_client import MidasAPIClient, UnauthorizedError
+from ..api_client import BarakaAPIClient, UnauthorizedError
 from ..i18n import t
 
 logger = logging.getLogger(__name__)

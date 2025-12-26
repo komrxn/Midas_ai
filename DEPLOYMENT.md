@@ -1,6 +1,6 @@
 # 🚀 Production Deployment Guide
 
-Step-by-step guide for deploying Midas API to production server.
+Step-by-step guide for deploying Baraka Ai API to production server.
 
 ---
 

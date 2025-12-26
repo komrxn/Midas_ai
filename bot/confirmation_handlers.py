@@ -4,7 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler
 from typing import Dict, Any
 
-from .api_client import MidasAPIClient
+from .api_client import BarakaAPIClient
 from .config import config
 from .user_storage import storage
 from .pending_storage import pending_storage
@@ -105,7 +105,7 @@ async def handle_transaction_callback(update: Update, context: ContextTypes.DEFA
     if action == "confirm":
         # Create transaction
         token = storage.get_user_token(user_id)
-        api = MidasAPIClient(config.API_BASE_URL)
+        api = BarakaAPIClient(config.API_BASE_URL)
         api.set_token(token)
         
         try:
@@ -185,7 +185,7 @@ async def handle_edit_message(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     # Process edit with AI
     token = storage.get_user_token(user_id)
-    api = MidasAPIClient(config.API_BASE_URL)
+    api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:
