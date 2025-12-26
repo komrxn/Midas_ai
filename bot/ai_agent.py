@@ -618,6 +618,9 @@ Return JSON:"""
                     
                     if category_id:
                         updates["category_id"] = category_id
+                        # Remove slug so we don't send it to API which might not expect it
+                        if "category_slug" in updates:
+                            del updates["category_slug"]
                     else:
                         logger.warning(f"Could not resolve category id for slug: {category_slug}")
                         
