@@ -46,27 +46,6 @@ class AIAgent:
                     }
                 }
             },
-            # ... (other tools kept implicitly, but replace_file requires contiguous block or use multi_replace. 
-            # Wait, the prompt is far down. I should do 2 separate edits or use multi_replace.
-            # I will use multi_replace for safety and cleanliness.
-            
-            # actually I will effectively use replace_file for the timeout first, then prompt separately.)
-
-                    "description": "Create a new transaction (expense or income)",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "amount": {"type": "number", "description": "Transaction amount"},
-                            "currency": {"type": "string", "enum": ["uzs", "usd"], "description": "Currency code"},
-                            "category_slug": {"type": "string", "description": "Category slug (must be from available list)"},
-                            "description": {"type": "string", "description": "Description of the transaction"},
-                            "date": {"type": "string", "description": "Date in YYYY-MM-DD format (optional)"},
-                            "type": {"type": "string", "enum": ["income", "expense"], "description": "Transaction type"}
-                        },
-                        "required": ["amount", "currency", "category_slug", "type"]
-                    }
-                }
-            },
             {
                 "type": "function",
                 "function": {
