@@ -573,12 +573,25 @@ CURRENT TRANSACTION JSON:
 VALID CATEGORY SLUGS for '{tx_type}':
 {slugs_str}
 
+CATEGORY MAPPING RULES (IMPORTANT):
+- "food" / "ovqat" / "еда" / "продукты" -> groceries (if cooking ingredients) OR cafes
+- "yandex" / "taxi" -> taxi
+- "click" / "payme" -> utilities (often)
+- "netflix" / "spotify" / "apple" -> subscriptions
+- "zara" / "nike" -> clothing or shoes
+- "shop" / "bozor" -> groceries or home_other
+- "u cell" / "beeline" -> internet or communication
+- "benzin" / "zapravka" -> fuel
+- "metro" / "bus" -> public_transport
+- "apteka" / "dori" -> medicine
+- "kurs" / "o'qish" -> courses or education
+
 USER INPUT: "{user_input}"
 
 TASK:
 Update fields based on user input.
 - If user attempts to change amount (e.g. "40k", "50000"), update 'amount'.
-- If user attempts to change category/description (e.g. "taxi", "lunch"), update 'description' AND 'category_slug'.
+- If user attempts to change category/description (e.g. "taxi", "lunch", "на еду"), update 'description' AND 'category_slug'.
 - IMPORTANT: 'category_slug' MUST be one of the VALID CATEGORY SLUGS provided above. Pick the closest match.
 - If user says something unrelated, try to interpret it as description update.
 - Return ONLY valid JSON with updated fields.
@@ -595,8 +608,8 @@ Output: {{ "description": "Metro", "category_slug": "public_transport" }}
 
 EXAMPLE 3:
 Old: {{ "amount": 30000, "description": "Taxi" }}
-Input: "Lunch 50k"
-Output: {{ "amount": 50000, "description": "Lunch", "category_slug": "food" }}
+Input: "На еду 50к"
+Output: {{ "amount": 50000, "description": "На еду", "category_slug": "groceries" }}
 
 Return JSON:"""
 
