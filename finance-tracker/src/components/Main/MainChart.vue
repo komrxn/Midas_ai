@@ -2,7 +2,7 @@
     <div class="main-chart">
         <div class="main-chart__header">
             <h1 class="font-20-b gold-text">{{ t('main.categories') }}</h1>
-            <Button label="Посмотреть все" text size="small" @click="handleViewAll" />
+            <Button :label="t('main.categoriesViewAll')" text size="small" @click="handleViewAll" />
         </div>
         <div ref="chartWrapperRef" class="main-chart__container-wrapper">
             <VChart ref="chartRef" :option="chartOption" class="main-chart__container" @click="handleChartClick" />
@@ -79,7 +79,7 @@ const expensesData = computed(() => {
         const nameKey = `categoryList.${slug}`;
         // If translation exists, use it. Otherwise use the backend name.
         const displayName = (slug && te(nameKey)) ? t(nameKey) : cat.category_name;
-        
+
         return {
             name: displayName,
             value: parseFloat(cat.amount),

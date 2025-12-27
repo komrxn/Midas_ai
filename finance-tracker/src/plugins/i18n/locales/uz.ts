@@ -71,6 +71,7 @@ export default {
     expense: 'Xarajat',
     income: 'Daromad',
     categories: 'Kategoriyalar',
+    categoriesViewAll: 'Barchasini ko\'rish',
     currentBalance: 'Joriy balans',
     totalExpenses: 'Jami xarajatlar',
     quickInput: 'Tezkor kirish',

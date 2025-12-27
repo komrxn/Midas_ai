@@ -71,6 +71,7 @@ export default {
     expense: 'Expense',
     income: 'Income',
     categories: 'Categories',
+    categoriesViewAll: 'View All',
     currentBalance: 'Current balance',
     totalExpenses: 'Total expenses',
     quickInput: 'Quick input',

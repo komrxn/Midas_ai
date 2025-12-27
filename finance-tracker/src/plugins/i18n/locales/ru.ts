@@ -71,6 +71,7 @@ export default {
     expense: 'Расход',
     income: 'Доход',
     categories: 'Категории',
+    categoriesViewAll: 'Посмотреть все',
     currentBalance: 'Текущий баланс',
     totalExpenses: 'Всего расходов',
     quickInput: 'Быстрый ввод',
