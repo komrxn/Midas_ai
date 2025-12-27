@@ -630,9 +630,11 @@ Return JSON:"""
                     target_slug = category_slug.lower().strip()
                     
                     # 1. Try exact slug match
+                    # 1. Try exact slug match
                     for cat in categories:
                         if cat.get("slug") == target_slug:
                             category_id = cat.get("id")
+                            logger.info(f"Resolved slug '{target_slug}' to id {category_id} (exact match)")
                             break
                     
                     # 2. Try name match
@@ -640,14 +642,17 @@ Return JSON:"""
                         for cat in categories:
                             if cat.get("name", "").lower() == target_slug:
                                 category_id = cat.get("id")
+                                logger.info(f"Resolved slug '{target_slug}' to id {category_id} (name match)")
                                 break
                                 
                     # 3. Fallback
                     if not category_id:
+                        logger.warning(f"Could not resolve slug '{target_slug}' in {len(categories)} categories. Available slugs snippet: {[c['slug'] for c in categories[:5]]}...")
                         fallback_slug = f"other_{old_data.get('type', 'expense')}"
                         for cat in categories:
                             if cat.get("slug") == fallback_slug:
                                 category_id = cat.get("id")
+                                logger.info(f"Falling back to '{fallback_slug}' id {category_id}")
                                 break
                     
                     if category_id:
@@ -656,7 +661,7 @@ Return JSON:"""
                         if "category_slug" in updates:
                             del updates["category_slug"]
                     else:
-                        logger.warning(f"Could not resolve category id for slug: {category_slug}")
+                        logger.warning(f"Could not resolve category id for slug: {category_slug} (even fallback failed)")
                         
                 except Exception as e:
                     logger.error(f"Error resolving category in edit: {e}")
