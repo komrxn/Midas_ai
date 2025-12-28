@@ -6,16 +6,16 @@
         </div>
         <div ref="chartWrapperRef" class="main-chart__container-wrapper">
             <VChart ref="chartRef" :option="chartOption" class="main-chart__container" @click="handleChartClick" />
-            <Transition name="fade">
-                <div v-if="selectedCategory" class="main-chart__center">
-                    <p class="main-chart__center-label font-14-r">{{ centerLabel }}</p>
-                    <h2 class="main-chart__center-value font-30-b gold-text">{{ formattedCenterValue }}</h2>
+            <div class="main-chart__center">
+                <div class="main-chart__center-content">
+                    <p class="main-chart__center-label font-14-r">{{ selectedCategory ? centerLabel :
+                        t('main.currentBalance') }}</p>
+                    <h2 class="main-chart__center-value font-30-b gold-text">{{ selectedCategory ? formattedCenterValue
+                        : formattedBalance }}</h2>
+                    <Button v-if="selectedCategory" :label="t('main.viewTransactions')" size="small"
+                        severity="secondary" class="main-chart__center-button" @click="handleViewTransactions" />
                 </div>
-                <div v-else class="main-chart__center">
-                    <p class="main-chart__center-label font-14-r">{{ t('main.currentBalance') }}</p>
-                    <h2 class="main-chart__center-value font-30-b gold-text">{{ formattedBalance }}</h2>
-                </div>
-            </Transition>
+            </div>
         </div>
         <div class="main-chart__categories">
             <div v-for="category in expensesData" :key="category.name" class="main-chart__category"
@@ -39,9 +39,10 @@ import { Button } from 'primevue';
 
 import VChart from 'vue-echarts';
 import type { EChartsOption } from 'echarts';
-import { formatAmountShort } from '@/utils';
+import { formatAmountShort, formatDateToAPIDatetime, formatDateToAPI } from '@/utils';
 import { useBalanceStore } from '@/store/balanceStore';
 import { useCategoriesChartStore } from '@/store/categoriesChartStore';
+import { useTransactionsStore } from '@/store/transactionsStore';
 
 const { t, te } = useI18n();
 const router = useRouter();
@@ -53,6 +54,9 @@ const { loadBalance } = balanceStore;
 const categoriesChartStore = useCategoriesChartStore();
 const { categoryBreakdown, isLoaded } = storeToRefs(categoriesChartStore);
 const { loadCategories } = categoriesChartStore;
+
+const transactionsStore = useTransactionsStore();
+const { applyFilters } = transactionsStore;
 
 const chartRef = ref<InstanceType<typeof VChart> | null>(null);
 const chartWrapperRef = ref<HTMLElement | null>(null);
@@ -85,6 +89,7 @@ const expensesData = computed(() => {
             value: parseFloat(cat.amount),
             percentage: cat.percentage.toString(),
             color: cat.color || 'rgb(149, 165, 166)',
+            category_id: cat.category_id,
         };
     });
 });
@@ -108,7 +113,42 @@ const handleViewAll = () => {
     router.push({ name: 'categories' });
 };
 
-// Обработчик клика на график
+// Получение дат начала и конца текущего месяца
+const getMonthDates = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0);
+
+    return {
+        start: formatDateToAPIDatetime(formatDateToAPI(startDate), false),
+        end: formatDateToAPIDatetime(formatDateToAPI(endDate), true),
+    };
+};
+
+// Переход на страницу транзакций с фильтрами
+const handleViewTransactions = async () => {
+    if (!selectedCategory.value) return;
+
+    const category = expensesData.value.find(c => c.name === selectedCategory.value);
+    if (!category || !category.category_id) return;
+
+    const { start, end } = getMonthDates();
+
+    // Применяем фильтры через store
+    await applyFilters({
+        category_id: category.category_id,
+        start_date: start,
+        end_date: end,
+        type: 'expense',
+    });
+
+    // Переходим на страницу транзакций
+    router.push({ name: 'transactions' });
+};
+
 const handleChartClick = (params: any) => {
     if (params.componentType === 'series' && params.name) {
         selectCategory(params.name);
@@ -286,9 +326,18 @@ const chartOption = computed<EChartsOption>(() => ({
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
         pointer-events: none;
         z-index: 10;
+        width: 100%;
+    }
+
+    &__center-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        position: relative;
     }
 
     &__center-label {
@@ -300,6 +349,11 @@ const chartOption = computed<EChartsOption>(() => ({
     &__center-value {
         color: var(--text-color);
         transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    &__center-button {
+        pointer-events: auto;
+        min-width: 12rem;
     }
 
     &__categories {
