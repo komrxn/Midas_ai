@@ -305,6 +305,7 @@ class BarakaAPIClient:
             response.raise_for_status()
             return response.json()
 
+    @handle_auth_errors
     async def set_limit(self, category_slug: str, amount: float, period: str = "month") -> Dict[str, Any]:
         """Set limit for a category (Create or Update)."""
         import datetime
