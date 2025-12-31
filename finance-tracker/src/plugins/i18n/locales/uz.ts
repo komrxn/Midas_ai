@@ -73,6 +73,7 @@ export default {
     categories: 'Kategoriyalar',
     categoriesViewAll: 'Barchasini ko\'rish',
     currentBalance: 'Joriy balans',
+    viewTransactions: 'Tranzaksiyalarni ko\'rish',
     totalExpenses: 'Jami xarajatlar',
     quickInput: 'Tezkor kirish',
     voiceInput: 'Ovozli kirish',

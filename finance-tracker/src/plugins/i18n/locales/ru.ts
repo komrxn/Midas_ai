@@ -73,6 +73,7 @@ export default {
     categories: 'Категории',
     categoriesViewAll: 'Посмотреть все',
     currentBalance: 'Текущий баланс',
+    viewTransactions: 'Посмотреть транзакции',
     totalExpenses: 'Всего расходов',
     quickInput: 'Быстрый ввод',
     voiceInput: 'Голосовой ввод',

@@ -73,6 +73,7 @@ export default {
     categories: 'Categories',
     categoriesViewAll: 'View All',
     currentBalance: 'Current balance',
+    viewTransactions: 'View transactions',
     totalExpenses: 'Total expenses',
     quickInput: 'Quick input',
     voiceInput: 'Voice input',
