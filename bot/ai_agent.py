@@ -478,6 +478,7 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                 logger.info(f"Setting limit: {category_slug} {amount}")
                 try:
                     result = await self.api_client.set_limit(category_slug, amount, period)
+                    logger.info(f"Set limit success: {result}")
                     return {
                         "success": True, 
                         "limit_id": result["id"], 
@@ -486,6 +487,7 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                         "remaining": result["remaining"]
                     }
                 except Exception as e:
+                    logger.error(f"Set limit failed: {e}")
                     return {"success": False, "error": str(e)}
 
             elif function_name == "create_category":

@@ -336,7 +336,10 @@ class BarakaAPIClient:
                     break
                     
         if not category_id:
+            logger.error(f"Category '{category_slug}' not found. Available slugs: {[c.get('slug') for c in categories[:5]]}...")
             raise ValueError(f"Category '{category_slug}' not found.")
+            
+        logger.info(f"Resolved category '{category_slug}' to ID {category_id}")
 
         # 2. Determine period dates
         today = datetime.date.today()
