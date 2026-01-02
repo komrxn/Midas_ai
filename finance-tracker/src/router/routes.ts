@@ -68,6 +68,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/subscription',
+    name: 'subscription',
+    component: () => import('@/pages/Subscription.vue'),
+    meta: {
+      layout: 'Default',
+    },
+  },
+  {
     path: '/status/:type',
     name: 'status',
     component: () => import('@/pages/StatusPage.vue'),

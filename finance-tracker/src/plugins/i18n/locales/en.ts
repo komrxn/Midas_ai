@@ -82,6 +82,10 @@ export default {
     limitsTitle: 'Limits',
     limitsRecommendationTitle: 'Control your expenses',
     limitsRecommendationText: 'Add limits for categories to track your spending and stay within budget',
+    subscriptionBanner: {
+      title: 'Upgrade to Pro',
+      description: 'Get access to advanced analytics, limits and unlimited transactions',
+    },
   },
 
   // Settings
@@ -373,5 +377,49 @@ export default {
     error: 'Error',
     warn: 'Warning',
     info: 'Info',
+  },
+
+  // Subscription
+  subscription: {
+    title: 'Subscription',
+    introTitle: 'Continue access with Pro tariff',
+    introSubtitle: 'Choose a suitable plan. Cancel anytime.',
+    features: {
+      aiAnalytics: {
+        title: 'AI Expense Analytics',
+        description: 'Deep analytics, Top categories, daily/weekly dynamics, period comparison, financial health.',
+      },
+      categoryLimits: {
+        title: 'Category Limits',
+        description: 'Category limits and real-time progress.',
+      },
+      unlimitedTransactions: {
+        title: 'Unlimited Transactions',
+        description: 'No weekly limit on entries and receipts.',
+      },
+    },
+    plans: {
+      monthly: {
+        title: 'Monthly plan',
+        subtitle: 'Most flexible',
+        period: 'per month',
+      },
+      quarterly: {
+        title: '3-month plan',
+        subtitle: 'Savings ~8%',
+        period: 'once every 3 months',
+      },
+      annual: {
+        title: 'Annual plan',
+        subtitle: 'Savings ~17%',
+        badge: 'BEST PRICE',
+        bonus: '2 months free',
+        period: 'per year',
+      },
+    },
+    selected: 'Selected',
+    billingInfo: 'Billing occurs immediately. Cancel anytime.',
+    cancelAnytime: 'Cancel anytime',
+    subscribeButton: 'Subscribe for {price}',
   },
 };

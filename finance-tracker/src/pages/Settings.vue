@@ -216,9 +216,9 @@ onMounted(async () => {
 
     &__setting-item {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.6rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
         padding: 1.2rem 0;
 
         @include media-max($mobile) {

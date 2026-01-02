@@ -1,7 +1,9 @@
 <template>
     <div class="main-page">
         <MainHeader />
+
         <MainBalance />
+        <MainSubscriptionBanner />
         <!-- <MainQuickInput /> -->
         <MainChart />
         <MainGrid />
@@ -13,6 +15,7 @@
 import MainChart from '@/components/Main/MainChart.vue';
 import MainHeader from '@/components/Main/MainHeader.vue';
 import MainBalance from '@/components/Main/MainBalance.vue';
+import MainSubscriptionBanner from '@/components/Main/MainSubscriptionBanner.vue';
 // import MainQuickInput from '@/components/Main/MainQuickInput.vue';
 import MainLimits from '@/components/Main/MainLimits.vue';
 import MainGrid from '@/components/Main/MainGrid.vue';

@@ -82,6 +82,10 @@ export default {
     limitsTitle: 'Лимиты',
     limitsRecommendationTitle: 'Контролируйте свои расходы',
     limitsRecommendationText: 'Добавьте лимиты для категорий, чтобы отслеживать свои траты и не превышать бюджет',
+    subscriptionBanner: {
+      title: 'Перейдите на Pro',
+      description: 'Получите доступ к расширенной аналитике, лимитам и безлимитным транзакциям',
+    },
   },
 
   // Настройки
@@ -372,5 +376,49 @@ export default {
     error: 'Ошибка',
     warn: 'Предупреждение',
     info: 'Информация',
+  },
+
+  // Подписка
+  subscription: {
+    title: 'Подписка',
+    introTitle: 'Продолжите доступ с тарифом Pro',
+    introSubtitle: 'Выберите подходящий план. Отмена в любой момент.',
+    features: {
+      aiAnalytics: {
+        title: 'AI Аналитика расходов',
+        description: 'Глубокая аналитика, Топ-категории, динамика по дням/неделям, сравнение периодов, финансовое здоровье.',
+      },
+      categoryLimits: {
+        title: 'Лимиты по категориям',
+        description: 'Лимиты по категориям и прогресс в реальном времени.',
+      },
+      unlimitedTransactions: {
+        title: 'Безлимитные транзакции',
+        description: 'Без недельного лимита на записи и чеки.',
+      },
+    },
+    plans: {
+      monthly: {
+        title: 'Месячный план',
+        subtitle: 'Самый гибкий',
+        period: 'в месяц',
+      },
+      quarterly: {
+        title: 'План на 3 месяца',
+        subtitle: 'Экономия ~8%',
+        period: 'раз в 3 месяца',
+      },
+      annual: {
+        title: 'Годовой план',
+        subtitle: 'Экономия ~17%',
+        badge: 'ЛУЧШАЯ ЦЕНА',
+        bonus: '2 месяца бесплатно',
+        period: 'в год',
+      },
+    },
+    selected: 'Выбрано',
+    billingInfo: 'Списание происходит сразу. Отмена в любой момент.',
+    cancelAnytime: 'Отмена в любой момент',
+    subscribeButton: 'Подписка за {price}',
   },
 };

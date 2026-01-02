@@ -82,6 +82,10 @@ export default {
     limitsTitle: 'Limitlar',
     limitsRecommendationTitle: 'Xarajatlaringizni nazorat qiling',
     limitsRecommendationText: 'Byudjetni oshirmaslik va xarajatlaringizni kuzatish uchun kategoriyalar uchun limitlar qo\'shing',
+    subscriptionBanner: {
+      title: 'Pro versiyaga o\'ting',
+      description: 'Kengaytirilgan tahlil, limitlar va cheksiz tranzaksiyalarga kirish oling',
+    },
   },
 
   // Sozlamalar
@@ -373,5 +377,49 @@ export default {
     error: 'Xatolik',
     warn: 'Ogohlantirish',
     info: 'Ma\'lumot',
+  },
+
+  // Obuna
+  subscription: {
+    title: 'Obuna',
+    introTitle: 'Pro tarif bilan davom eting',
+    introSubtitle: 'Mos rejani tanlang. Har qanday vaqtda bekor qiling.',
+    features: {
+      aiAnalytics: {
+        title: 'AI Xarajatlar tahlili',
+        description: 'Chuqur tahlil, Top kategoriyalar, kunlik/haftalik dinamika, davrlar taqqoslash, moliyaviy salomatlik.',
+      },
+      categoryLimits: {
+        title: 'Kategoriya limitlari',
+        description: 'Kategoriya limitlari va real vaqtda progress.',
+      },
+      unlimitedTransactions: {
+        title: 'Cheksiz tranzaksiyalar',
+        description: 'Yozuvlar va cheklar uchun haftalik limit yo\'q.',
+      },
+    },
+    plans: {
+      monthly: {
+        title: 'Oylik reja',
+        subtitle: 'Eng moslashuvchan',
+        period: 'oyiga',
+      },
+      quarterly: {
+        title: '3 oylik reja',
+        subtitle: 'Tejamkorlik ~8%',
+        period: 'har 3 oyda bir marta',
+      },
+      annual: {
+        title: 'Yillik reja',
+        subtitle: 'Tejamkorlik ~17%',
+        badge: 'ENG YAXSHI NARX',
+        bonus: '2 oy bepul',
+        period: 'yiliga',
+      },
+    },
+    selected: 'Tanlangan',
+    billingInfo: 'To\'lov darhol amalga oshiriladi. Har qanday vaqtda bekor qiling.',
+    cancelAnytime: 'Har qanday vaqtda bekor qiling',
+    subscribeButton: '{price} uchun obuna bo\'lish',
   },
 };
