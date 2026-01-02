@@ -16,7 +16,8 @@ async def check_limit_thresholds(
     user_id: UUID,
     category_id: UUID,
     amount_added: Decimal,
-    transaction_date: date
+    transaction_date: date,
+    language: str = "en"
 ) -> Optional[str]:
     """
     Check if adding 'amount_added' to 'category_id' expenses crosses any limit thresholds.
