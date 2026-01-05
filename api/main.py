@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .database import init_db
-from .routers import auth, transactions, ai, analytics, categories, debts, limits
+from .routers import auth, transactions, ai, analytics, categories, debts, limits, click, subscriptions
 
 # Configure logging
 logging.basicConfig(
@@ -57,6 +57,8 @@ app.include_router(analytics.router)
 app.include_router(ai.router)
 app.include_router(debts.router)
 app.include_router(limits.router)
+app.include_router(click.router)
+app.include_router(subscriptions.router)
 
 
 @app.get("/")

@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     
     # Telegram
     telegram_bot_token: str
+
+    # Click.uz
+    click_secret_key: str = "test_key"
+    click_service_id: str = "test_ems"
+    click_merchant_id: str = "test_id"
     
     # API
     api_host: str = "0.0.0.0"
