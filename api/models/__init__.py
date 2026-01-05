@@ -4,5 +4,6 @@ from .category import Category
 from .transaction import Transaction
 from .debt import Debt
 from .limit import Limit
+from .click_transaction import ClickTransaction
 
-__all__ = ["User", "Category", "Transaction", "Debt", "Limit"]
+__all__ = ["User", "Category", "Transaction", "Debt", "Limit", "ClickTransaction"]
