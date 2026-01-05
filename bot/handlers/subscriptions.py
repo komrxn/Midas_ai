@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler
-from bot.api_client import api_client
+from bot.api_client import BarakaAPIClient
+from bot.config import config
 from bot.i18n import t
 from bot.user_storage import storage
 
@@ -13,8 +14,12 @@ async def activate_trial_callback(update: Update, context: ContextTypes.DEFAULT_
     
     await query.answer()
     
+    token = storage.get_user_token(user_id)
+    api = BarakaAPIClient(config.API_BASE_URL)
+    api.set_token(token)
+    
     try:
-        data = await api_client.activate_trial()
+        data = await api.activate_trial()
         
         expires = data.get("expires_at", "soon")
         text = (
@@ -59,8 +64,12 @@ async def pay_monthly_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     
     await query.answer(t("common.common.loading", lang))
     
+    token = storage.get_user_token(user_id)
+    api = BarakaAPIClient(config.API_BASE_URL)
+    api.set_token(token)
+    
     try:
-        data = await api_client.generate_payment_link(plan_id="monthly")
+        data = await api.generate_payment_link(plan_id="monthly")
         url = data.get("url")
         
         keyboard = [

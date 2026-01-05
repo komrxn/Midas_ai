@@ -1,7 +1,8 @@
 import functools
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from bot.api_client import api_client
+from bot.api_client import BarakaAPIClient
+from bot.config import config
 from bot.i18n import t
 from bot.user_storage import storage
 
@@ -15,11 +16,12 @@ def check_subscription(func):
         if not user:
             return await func(update, context, *args, **kwargs)
 
-        try:
             # We can optimize this by caching status in context.user_data
             # for a short period to avoid API spam, but for now strict check.
-            # actually better to use get_profile or a lightweight status check
-            status = await api_client.get_subscription_status(user.id)
+            token = storage.get_user_token(user.id)
+            api = BarakaAPIClient(config.API_BASE_URL)
+            api.set_token(token)
+            status = await api.get_subscription_status(user.id)
             
             if status.get("is_active"):
                 return await func(update, context, *args, **kwargs)

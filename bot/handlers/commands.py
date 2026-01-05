@@ -21,13 +21,16 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(t('auth.common.auth_required', lang))
         return
 
-    from ..api_client import api_client
+    from ..api_client import BarakaAPIClient
+    from ..config import config
     
     try:
         # Get full profile with subscription info
-        # We can use get_subscription_status which is lighter, or get_me if it has details.
-        # Let's use get_subscription_status for accuracy on sub details.
-        sub_status = await api_client.get_subscription_status(user_id)
+        token = storage.get_user_token(user_id)
+        api = BarakaAPIClient(config.API_BASE_URL)
+        api.set_token(token)
+        
+        sub_status = await api.get_subscription_status(user_id)
         
         is_active = sub_status.get("is_active", False)
         is_premium = sub_status.get("is_premium", False)
