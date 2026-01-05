@@ -1,0 +1,32 @@
+{
+    "access_restricted": "🔒 **Access Restricted**",
+    "feature_locked": "This feature requires an active subscription.\nYou can try it for free for 3 days!",
+    "activate_trial_btn": "💎 Activate Free Trial (3 days)",
+    "buy_subscription_btn": "💳 Buy Subscription",
+    "trial_activated_title": "✅ *Trial Activated!*",
+    "trial_activated_body": "You now have full Pro access until {date}.\nEnjoy all features including AI analysis and unlimited categories!",
+    "trial_already_used": "❌ Trial already used or subscription active.",
+    "trial_error": "❌ Error activating trial. Please try again later.",
+    "select_plan_title": "💳 *Select Subscription Plan*",
+    "select_plan_body": "Unlock all features:\n• Unlimited Categories\n• AI Voice & Image Parsing\n• Advanced Analytics\n• Debt Tracker",
+    "monthly_plan_btn": "Monthly Plan - {price} UZS",
+    "payment_initiated": "⏳ *Payment Initiated*",
+    "payment_instructions": "Click the button below to pay via Click.uz app.\nYour subscription will be activated automatically after payment.",
+    "pay_click_btn": "🚀 Pay via Click",
+    "back_btn": "« Back",
+    "profile": {
+        "title": "👤 *Your Profile*",
+        "id": "🆔 ID",
+        "name": "📛 Name",
+        "language": "🌐 Language",
+        "subscription": "💎 *Subscription:*",
+        "status": "Status",
+        "expires": "Expires",
+        "never": "Never",
+        "free": "Free",
+        "trial": "Trial",
+        "premium": "Premium",
+        "extend_btn": "💎 Extend Subscription",
+        "activate_btn": "💎 Activate Premium"
+    }
+}

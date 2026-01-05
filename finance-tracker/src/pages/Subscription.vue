@@ -92,22 +92,34 @@
             <!-- Кнопка подписки -->
             <div class="subscription-page__button-container">
                 <Button :label="t('subscription.subscribeButton', { price: selectedPlanPrice })" fluid
-                    class="subscription-page__button" @click="handleSubscribe" />
+                    class="subscription-page__button" :loading="loading" @click="handleSubscribe" />
+            </div>
+            
+            <div v-if="!isTrialUsed && !hasActiveSubscription" class="subscription-page__trial-container">
+                 <Button label="Start Free Trial (3 days)" severity="secondary" fluid 
+                 class="subscription-page__trial-button" :loading="loading" @click="handleActivateTrial" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Button } from 'primevue';
 import VIcon from '@/components/UI/VIcon.vue';
 import successIcon from '@/assets/icons/status/success.svg?raw';
 import { arrowLeft } from '@/assets/icons';
 import router from '@/router/router';
+import subscriptionApi from '@/api/subscription';
+import { useToastStore } from '@/store/toastsStore';
 
 const { t } = useI18n();
+const toast = useToastStore();
+
+const loading = ref(false);
+const isTrialUsed = ref(false);
+const hasActiveSubscription = ref(false);
 
 const selectedPlan = ref<string>('annual');
 
@@ -153,10 +165,46 @@ const selectPlan = (planId: string) => {
     selectedPlan.value = planId;
 };
 
-const handleSubscribe = () => {
-    // TODO: Implement subscription logic
-    console.log('Subscribe to plan:', selectedPlan.value);
+const handleSubscribe = async () => {
+    loading.value = true;
+    try {
+        const { data } = await subscriptionApi.generatePaymentLink(selectedPlan.value);
+        if (data.url) {
+            window.location.href = data.url;
+        }
+    } catch (error) {
+        console.error("Subscription error:", error);
+    } finally {
+        loading.value = false;
+    }
 };
+
+const handleActivateTrial = async () => {
+    loading.value = true;
+    try {
+        await subscriptionApi.activateTrial();
+        toast.success(t('subscription.trialActivated'));
+        await checkStatus();
+    } catch (error) {
+        console.error("Trial error:", error);
+    } finally {
+        loading.value = false;
+    }
+}
+
+const checkStatus = async () => {
+    try {
+        const { data } = await subscriptionApi.getStatus();
+        isTrialUsed.value = data.is_trial_used;
+        hasActiveSubscription.value = data.is_active;
+    } catch (e) {
+        console.error("Status check failed", e);
+    }
+}
+
+onMounted(() => {
+    checkStatus();
+});
 </script>
 
 <style scoped lang="scss">
@@ -457,6 +505,24 @@ const handleSubscribe = () => {
         padding: 1.6rem;
         z-index: 100;
         background: var(--card-default);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    &__trial-button {
+        padding: 1.6rem 2rem;
+        font: var(--font-16-b);
+        border: 1px solid var(--border-medium) !important;
+    }
+    
+    &__trial-container {
+        padding: 0 1.6rem 1.6rem 1.6rem;
+        position: fixed;
+        bottom: 8rem; /* Place above the subscribe button area if separate, but better to put locally inside container */
+        left: 0;
+        right: 0;
+        z-index: 99;
     }
 }
 </style>

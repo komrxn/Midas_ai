@@ -306,6 +306,40 @@ class BarakaAPIClient:
             return response.json()
 
     @handle_auth_errors
+    async def get_subscription_status(self, telegram_id: Optional[int] = None) -> Dict[str, Any]:
+        """Get subscription status."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/subscriptions/status",
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def activate_trial(self) -> Dict[str, Any]:
+        """Activate free trial."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/subscriptions/trial",
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
+    async def generate_payment_link(self, plan_id: str = "monthly") -> Dict[str, Any]:
+        """Generate payment link."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/subscriptions/pay",
+                json={"plan_id": plan_id},
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()
+
+    @handle_auth_errors
     async def set_limit(self, category_slug: str, amount: float, period: str = "month") -> Dict[str, Any]:
         """Set limit for a category (Create or Update)."""
         import datetime

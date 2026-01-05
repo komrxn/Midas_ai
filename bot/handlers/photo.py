@@ -10,11 +10,13 @@ from ..config import config
 from .common import with_auth_check, get_main_keyboard, send_typing_action
 from ..confirmation_handlers import show_transaction_confirmation
 from ..i18n import t
+from ..utils.subscription import check_subscription
 
 logger = logging.getLogger(__name__)
 
 
 @send_typing_action
+@check_subscription
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle photo messages (receipt scanning with Vision AI)."""
     user_id = update.effective_user.id

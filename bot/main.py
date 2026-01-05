@@ -15,11 +15,12 @@ from bot.handlers import (
     handle_voice,
     handle_photo
 )
-from bot.handlers.commands import start, help_command, help_callback, language_selector_handler
+from bot.handlers.commands import start, help_command, help_callback, language_selector_handler, profile
 from bot.handlers.balance import get_balance
 from bot.auth_handlers import register_conv, login_conv
 from bot.transaction_actions import transaction_action_handler
 from bot.debt_actions import debt_action_handler
+from bot.handlers.subscriptions import subscription_handlers
 
 # Configure logging
 logging.basicConfig(
@@ -48,6 +49,7 @@ def main():
     
     # Command handlers
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("profile", profile))
     application.add_handler(CommandHandler("balance", get_balance))
     application.add_handler(CommandHandler("help", help_command))
     
@@ -58,6 +60,10 @@ def main():
     # Callback handler for transaction actions (Edit/Delete)
     application.add_handler(transaction_action_handler)
     application.add_handler(debt_action_handler)
+    
+    # Subscription handlers
+    for handler in subscription_handlers:
+        application.add_handler(handler)
     
     # Message handlers
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))

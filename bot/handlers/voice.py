@@ -12,11 +12,13 @@ from ..ai_agent import AIAgent
 from ..transaction_actions import show_transaction_with_actions
 from ..i18n import t
 from .common import get_main_keyboard, send_typing_action
+from ..utils.subscription import check_subscription
 
 logger = logging.getLogger(__name__)
 
 
 @send_typing_action
+@check_subscription
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle voice messages - transcribe and process with AI."""
     user_id = update.effective_user.id

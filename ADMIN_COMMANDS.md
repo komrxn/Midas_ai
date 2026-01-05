@@ -34,7 +34,7 @@ ORDER BY created_at DESC;
 ```bash
 # По telegram_id
 docker compose exec -T db psql -U postgres -d midas_db -c "
-SELECT * FROM users WHERE telegram_id = 867663387;
+SELECT * FROM users WHERE telegram_id = 2040216796;
 "
 
 # По имени
@@ -367,10 +367,7 @@ alias midas-bot-logs='docker compose logs -f bot --tail=50'
 Затем: `source ~/.bashrc` и используй короткие команды!
 
 
-### Добавить категории
-```bash
-docker compose exec api python3 api/seed_categories.py
-```
+
 
 # Проверить количество категорий 
 ```bash

@@ -12,11 +12,13 @@ from .common import with_auth_check, get_main_keyboard, send_typing_action
 from ..i18n import t, translate_category
 
 from ..debt_actions import show_debt_with_actions, handle_edit_debt_message
+from ..utils.subscription import check_subscription
 
 logger = logging.getLogger(__name__)
 
 
 @send_typing_action
+@check_subscription
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages with AI."""
     user_id = update.effective_user.id

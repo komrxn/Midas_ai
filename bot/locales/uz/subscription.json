@@ -1,0 +1,32 @@
+{
+    "access_restricted": "🔒 **Kirish cheklangan**",
+    "feature_locked": "Bu funksiya faol obunani talab qiladi.\nSiz 3 kun davomida bepul sinab ko'rishingiz mumkin!",
+    "activate_trial_btn": "💎 Sinov davri (3 kun)",
+    "buy_subscription_btn": "💳 Obuna sotib olish",
+    "trial_activated_title": "✅ *Sinov davri faollashtirildi!*",
+    "trial_activated_body": "Sizda endi {date} gacha to'liq Pro ruxsat mavjud.\nBarcha funksiyalardan, shu jumladan AI tahlili va cheksiz kategoriyalardan foydalaning!",
+    "trial_already_used": "❌ Sinov davri ishlatilgan yoki obuna faol.",
+    "trial_error": "❌ Faollashtirishda xatolik. Keyinroq urinib ko'ring.",
+    "select_plan_title": "💳 *Tarifni tanlang*",
+    "select_plan_body": "Barcha imkoniyatlarni oching:\n• Cheksiz kategoriyalar\n• Ovoz va cheklarni AI tahlili\n• Kengaytirilgan statistika\n• Qarzlar hisobi",
+    "monthly_plan_btn": "Oyiga - {price} UZS",
+    "payment_initiated": "⏳ *To'lov boshlandi*",
+    "payment_instructions": "Click.uz orqali to'lash uchun quyidagi tugmani bosing.\nObuna to'lovdan so'ng avtomatik faollashadi.",
+    "pay_click_btn": "🚀 Click orqali to'lash",
+    "back_btn": "« Ortga",
+    "profile": {
+        "title": "👤 *Sizning profilingiz*",
+        "id": "🆔 ID",
+        "name": "📛 Ism",
+        "language": "🌐 Til",
+        "subscription": "💎 *Obuna:*",
+        "status": "Holat",
+        "expires": "Tugash vaqti",
+        "never": "Cheksiz",
+        "free": "Bepul",
+        "trial": "Sinov",
+        "premium": "Premium",
+        "extend_btn": "💎 Obunani uzaytirish",
+        "activate_btn": "💎 Premium sotib olish"
+    }
+}

@@ -11,6 +11,58 @@ logger = logging.getLogger(__name__)
 
 
 @send_typing_action
+async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /profile command."""
+    user = update.effective_user
+    user_id = user.id
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    if not storage.is_user_authorized(user_id):
+        await update.message.reply_text(t('auth.common.auth_required', lang))
+        return
+
+    from ..api_client import api_client
+    
+    try:
+        # Get full profile with subscription info
+        # We can use get_subscription_status which is lighter, or get_me if it has details.
+        # Let's use get_subscription_status for accuracy on sub details.
+        sub_status = await api_client.get_subscription_status(user_id)
+        
+        is_active = sub_status.get("is_active", False)
+        is_premium = sub_status.get("is_premium", False)
+        expires_at = sub_status.get("expires_at") or t("subscription.profile.never", lang)
+        
+        status_icon = "✅" if is_active else "❌"
+        status_text = t("subscription.profile.premium", lang) if is_premium else (
+            t("subscription.profile.trial", lang) if is_active else t("subscription.profile.free", lang)
+        )
+        
+        text = (
+            f"{t('subscription.profile.title', lang)}\n\n"
+            f"{t('subscription.profile.id', lang)}: `{user_id}`\n"
+            f"{t('subscription.profile.name', lang)}: {user.full_name}\n"
+            f"{t('subscription.profile.language', lang)}: {lang.upper()}\n\n"
+            f"{t('subscription.profile.subscription', lang)}\n"
+            f"{t('subscription.profile.status', lang)}: {status_icon} {status_text}\n"
+            f"{t('subscription.profile.expires', lang)}: {expires_at}\n"
+        )
+        
+        # Determine button text
+        action_btn_text = t("subscription.profile.extend_btn", lang) if is_active else t("subscription.profile.activate_btn", lang)
+        
+        keyboard = [
+            [InlineKeyboardButton(action_btn_text, callback_data="buy_subscription")],
+            # [InlineKeyboardButton("🌐 Change Language", callback_data="change_language")] # Not implemented yet
+        ]
+        
+        await update.message.reply_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
+        
+    except Exception as e:
+        logger.error(f"Profile error: {e}")
+        await update.message.reply_text(t("common.common.error", lang))
+
+@send_typing_action
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
     user = update.effective_user
