@@ -15,7 +15,7 @@ class ClickTransaction(Base):
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     
     # Click parameters
-    click_trans_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, index=True)
+    click_trans_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=True, index=True)
     service_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     click_paydoc_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     

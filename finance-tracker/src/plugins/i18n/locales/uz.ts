@@ -421,5 +421,6 @@ export default {
     billingInfo: 'To\'lov darhol amalga oshiriladi. Har qanday vaqtda bekor qiling.',
     cancelAnytime: 'Har qanday vaqtda bekor qiling',
     subscribeButton: '{price} uchun obuna bo\'lish',
+    trialActivated: 'Sinov davri faollashtirildi',
   },
 };

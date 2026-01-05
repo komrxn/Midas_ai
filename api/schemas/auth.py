@@ -27,6 +27,10 @@ class UserResponse(BaseModel):
     default_currency: str
     language: str
     created_at: datetime
+    is_premium: bool = False
+    subscription_type: Optional[str] = None
+    subscription_ends_at: Optional[datetime] = None
+    is_trial_used: bool = False
     
     class Config:
         from_attributes = True

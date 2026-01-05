@@ -67,7 +67,7 @@ async def generate_payment_link(
     merchant_trans_id = str(uuid.uuid4())
     
     click_trans = ClickTransaction(
-        click_trans_id=0, # Temporary, will be filled by Prepare
+        click_trans_id=None, # Temporary, will be filled by Prepare
         service_id=int(settings.click_service_id) if settings.click_service_id.isdigit() else 0,
         click_paydoc_id=0,
         merchant_trans_id=merchant_trans_id,

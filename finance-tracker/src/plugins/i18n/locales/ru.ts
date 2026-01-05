@@ -420,5 +420,6 @@ export default {
     billingInfo: 'Списание происходит сразу. Отмена в любой момент.',
     cancelAnytime: 'Отмена в любой момент',
     subscribeButton: 'Подписка за {price}',
+    trialActivated: 'Пробный период активирован',
   },
 };

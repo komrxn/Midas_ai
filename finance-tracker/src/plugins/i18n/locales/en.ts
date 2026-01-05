@@ -421,5 +421,6 @@ export default {
     billingInfo: 'Billing occurs immediately. Cancel anytime.',
     cancelAnytime: 'Cancel anytime',
     subscribeButton: 'Subscribe for {price}',
+    trialActivated: 'Trial period activated',
   },
 };
