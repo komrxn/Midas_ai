@@ -16,6 +16,7 @@ def check_subscription(func):
         if not user:
             return await func(update, context, *args, **kwargs)
 
+        try:
             # We can optimize this by caching status in context.user_data
             # for a short period to avoid API spam, but for now strict check.
             token = storage.get_user_token(user.id)
