@@ -66,6 +66,10 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
         from .commands import help_command
         await help_command(update, context)
         return
+    elif text == "Baraka AI PLUS 🌟":
+        from .commands import profile
+        await profile(update, context)
+        return
     
     # Check if editing transaction
     is_editing = await handle_edit_transaction_message(update, context)
