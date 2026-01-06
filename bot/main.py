@@ -10,6 +10,7 @@ from telegram.ext import (
 )
 
 from bot.config import config
+from bot.handlers import (
     handle_text,
     handle_voice,
     handle_photo
