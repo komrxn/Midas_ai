@@ -63,6 +63,15 @@ async def activate_trial(
     current_user.subscription_ends_at = datetime.now() + timedelta(days=3)
     
     await db.commit()
+    
+    # Send success notification
+    from ..services.notification import send_subscription_success_message
+    try:
+        await send_subscription_success_message(current_user)
+    except Exception as e:
+        # Don't fail request if notification fails
+        pass
+
     return {"message": "Trial activated", "ends_at": current_user.subscription_ends_at}
 
 @router.post("/pay", response_model=PaymentLinkResponse)

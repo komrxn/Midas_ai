@@ -157,7 +157,17 @@ class ClickService:
         
         user.is_premium = True
         
+        user.is_premium = True
+        
         await self.db.commit()
+        
+        # Send success notification
+        from .notification import send_subscription_success_message
+        try:
+             # Reload user to ensure latest state if needed, or pass current object
+            await send_subscription_success_message(user)
+        except Exception as e:
+            logger.error(f"Failed to send success msg: {e}")
         
         return {
             "click_trans_id": data["click_trans_id"],
