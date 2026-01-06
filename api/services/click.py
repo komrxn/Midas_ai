@@ -27,7 +27,7 @@ class ClickService:
         Formula Complete: ... + merchant_prepare_id + amount ...
         """
         # Ensure values are strings for concatenation
-        secret = settings.CLICK_SECRET_KEY
+        secret = settings.click_secret_key
         
         # Prepare string
         sign_str = f"{params['click_trans_id']}{params['service_id']}{secret}{params['merchant_trans_id']}"
@@ -140,20 +140,22 @@ class ClickService:
         user_result = await self.db.execute(select(User).where(User.id == transaction.user_id))
         user = user_result.scalar_one()
         
-        # Determine duration based on amount (simple logic for now)
-        # TODO: Store plan_id in transaction logic
+        # Determine duration based on amount
+        current_end = user.subscription_ends_at
+        if not current_end or current_end < datetime.now():
+            current_end = datetime.now()
+
         if transaction.amount > 150000:
              # Annual (approx 199k)
              user.subscription_type = "annual"
-             # Add 1 year
-             # For MVP: simple date add
-             pass 
+             from dateutil.relativedelta import relativedelta
+             user.subscription_ends_at = current_end + relativedelta(years=1)
         else:
              user.subscription_type = "monthly"
-             # Add 1 month
+             from dateutil.relativedelta import relativedelta
+             user.subscription_ends_at = current_end + relativedelta(months=1)
         
         user.is_premium = True
-        user.subscription_ends_at = datetime.now() # TODO: Add real duration
         
         await self.db.commit()
         
