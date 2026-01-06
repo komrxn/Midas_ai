@@ -138,4 +138,3 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
             t('transactions.voice.error', lang),
             reply_markup=get_main_keyboard(lang)
         )
-```
