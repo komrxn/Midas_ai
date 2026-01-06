@@ -13,7 +13,8 @@ from bot.config import config
 from bot.handlers import (
     handle_text,
     handle_voice,
-    handle_photo
+    handle_photo,
+    handle_button_transitions
 )
 from bot.handlers.commands import start, help_command, help_callback, language_selector_handler, profile
 from bot.handlers.balance import get_balance

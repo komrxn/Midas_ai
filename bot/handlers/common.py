@@ -63,7 +63,10 @@ def get_main_keyboard(lang: str = 'uz'):
             KeyboardButton(t('common.buttons.balance', lang)),
             KeyboardButton(t('common.buttons.statistics', lang))
         ],
-        [KeyboardButton(t('common.buttons.instructions', lang))]
+        [
+            KeyboardButton("Baraka AI PLUS 🌟"),
+            KeyboardButton(t('common.buttons.instructions', lang))
+        ]
     ]
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
