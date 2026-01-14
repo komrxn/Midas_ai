@@ -2,7 +2,7 @@
 name = "midas-api"
 version = "2.0.0"
 description = "AI-powered RESTful API for expense & income tracking with smart transaction parsing"
-authors = ["Ascender Team Komron Khakimov <komronkhakimov17@gmail.com>"]
+authors = ["Ascender Team, Komron Khakimov <komronkhakimov17@gmail.com>"]
 readme = "README.md"
 license = "MIT"
 

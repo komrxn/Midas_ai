@@ -20,6 +20,19 @@ services:
     networks:
       - midas_network
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ========== BACKEND API ==========
   api:
@@ -36,6 +49,7 @@ services:
       CLICK_SERVICE_ID: ${CLICK_SERVICE_ID}
       CLICK_MERCHANT_ID: ${CLICK_MERCHANT_ID}
       CLICK_SECRET_KEY: ${CLICK_SECRET_KEY}
+      UZAI_STT_URL: ${UZAI_STT_URL:-https://api.uzai.uz/v1/stt}
       CORS_ORIGINS: "*" # Разрешаем CORS через nginx
     ports:
       - "8001:8000" # Exposed для nginx на сервере
@@ -50,6 +64,19 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ========== TELEGRAM BOT ==========
   bot:
@@ -62,6 +89,7 @@ services:
       API_BASE_URL: http://api:8000
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       UZAI_API_KEY: ${UZAI_API_KEY}
+      UZAI_STT_URL: ${UZAI_STT_URL:-https://api.uzai.uz/v1/stt}
     volumes:
       - ./bot/data:/app/bot/data
     depends_on:
@@ -70,6 +98,19 @@ services:
     networks:
       - midas_network
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ========== FRONTEND ==========
   frontend:
@@ -77,7 +118,7 @@ services:
       context: ./finance-tracker
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: https://midas-ai.org/midas-api
+        VITE_API_URL: ${VITE_API_URL:-https://midas-ai.org/midas-api}
         BASE_URL: /
     container_name: midas_frontend
     ports:
@@ -85,7 +126,19 @@ services:
     networks:
       - midas_network
     restart: unless-stopped
-  # Nginx контейнер не нужен - используем nginx на сервере
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:

@@ -15,8 +15,9 @@
 5. [Debts](#debts)
 6. [Limits](#limits)
 7. [AI Parsing](#ai-parsing)
-8. [Error Handling](#error-handling)
-9. [Data Models](#data-models)
+8. [Subscriptions](#subscriptions)
+9. [Error Handling](#error-handling)
+10. [Data Models](#data-models)
 
 ---
 
@@ -573,6 +574,144 @@
   "category_id": "uuid",
   "category_name": "Питание",
   "confidence": 0.92
+}
+```
+
+
+---
+
+## Subscriptions
+
+### Get Subscription Status
+**GET** `/subscriptions/status`
+
+**Headers:** `Authorization: Bearer <token>`
+
+```typescript
+// Response (200)
+{
+  "id": "uuid",
+  "telegram_id": 123456789,
+  "phone_number": "998901234567",
+  "name": "John Doe",
+  "default_currency": "uzs",
+  "created_at": "2026-01-05T10:00:00Z",
+  "language": "uz",
+  "is_premium": true,
+  "subscription_type": "trial" | "monthly" | null,
+  "subscription_ends_at": "2026-02-05T10:00:00Z" | null,
+  "is_trial_used": true,
+  "voice_usage_count": 5,  // Freemium limit: 20
+  "photo_usage_count": 3,  // Freemium limit: 10
+  "is_active": true,  // Calculated: is_premium && subscription_ends_at > now
+  "updated_at": "2026-01-05T10:00:00Z"
+}
+```
+
+### Activate Free Trial
+**POST** `/subscriptions/trial`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```typescript
+{
+  "success": true,
+  "subscription_type": "trial",
+  "ends_at": "2026-01-08T10:00:00Z",  // 3 days from activation
+  "message": "Free trial activated"
+}
+```
+
+**Error (400):**
+```typescript
+{
+  "detail": "Trial already used or active subscription exists"
+}
+```
+
+### Prepare Payment Link
+**POST** `/subscriptions/prepare-payment`
+
+**Headers:** `Authorization: Bearer <token>`
+
+```typescript
+// Request
+{
+  "subscription_type": "monthly",  // Currently only "monthly" supported
+  "return_url": "https://yourdomain.com/success"  // Optional
+}
+
+// Response (200)
+{
+  "payment_url": "https://my.click.uz/services/pay?...",
+  "merchant_trans_id": "uuid",  // Track this transaction
+  "amount": 79000  // UZS
+}
+```
+
+### Click.uz Webhook (Internal)
+**POST** `/subscriptions/click-webhook`
+
+> **Note:** This endpoint is called by Click.uz payment system, not by frontend.  
+> Signature validation is performed automatically.
+
+```typescript
+// Click.uz sends (Prepare step):
+{
+  "click_trans_id": "123456789",
+  "merchant_trans_id": "uuid",
+  "amount": "79000.00",
+  "action": "0",  // 0 = prepare, 1 = complete
+  "sign_time": "2026-01-05 10:00:00",
+  "sign_string": "md5_hash"
+}
+
+// Response:
+{
+  "click_trans_id": "123456789",
+  "merchant_trans_id": "uuid",
+  "merchant_prepare_id": 1,
+  "error": 0,  // 0 = success
+  "error_note": "Success"
+}
+
+// Click.uz sends (Complete step):
+{
+  "click_trans_id": "123456789",
+  "merchant_trans_id": "uuid",
+  "amount": "79000.00",
+  "action": "1",  // Complete
+  "error": "0",
+  "sign_time": "2026-01-05 10:01:00",
+  "sign_string": "md5_hash"
+}
+
+// Response:
+{
+  "click_trans_id": "123456789",
+  "merchant_trans_id": "uuid",
+  "merchant_confirm_id": 1,
+  "error": 0,
+  "error_note": "Success"
+}
+```
+
+### Increment Usage Counter (Bot Only)
+**POST** `/auth/usage`
+
+**Headers:** `Authorization: Bearer <token>`
+
+```typescript
+// Request
+{
+  "usage_type": "voice" | "photo"
+}
+
+// Response (200)
+{
+  "voice_usage_count": 6,
+  "photo_usage_count": 3
 }
 ```
 
