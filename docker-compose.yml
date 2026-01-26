@@ -143,8 +143,8 @@ services:
   # ========== ADMIN BACKEND ==========
   admin_backend:
     build:
-      context: .
-      dockerfile: admin_panel/backend/Dockerfile
+      context: ./admin_panel/backend
+      dockerfile: Dockerfile
     container_name: midas_admin_backend
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-midas_db}
