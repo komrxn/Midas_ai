@@ -140,6 +140,47 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ========== ADMIN BACKEND ==========
+  admin_backend:
+    build:
+      context: .
+      dockerfile: admin_panel/backend/Dockerfile
+    container_name: midas_admin_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-midas_db}
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-43200}
+    ports:
+      - "8002:8002"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - midas_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========== ADMIN FRONTEND ==========
+  admin_frontend:
+    build:
+      context: ./admin_panel/frontend
+      dockerfile: Dockerfile
+    container_name: midas_admin_frontend
+    ports:
+      - "3002:80"
+    networks:
+      - midas_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   postgres_data:
     driver: local
