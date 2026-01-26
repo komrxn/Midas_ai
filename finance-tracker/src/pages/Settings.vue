@@ -2,7 +2,7 @@
     <div class="settings-page">
         <div class="settings-page__header">
             <div class="settings-page__header-empty" />
-            <h1 class="gold-text">{{ t('settings.title') }}</h1>
+            <h1 class="">{{ t('settings.title') }}</h1>
             <div class="settings-page__header-empty" />
         </div>
 
@@ -174,18 +174,18 @@ onMounted(async () => {
     }
 
     &__section {
-        background: var(--gold-card-bg);
+        background: var(--card-default);
         padding: 2rem;
         border-radius: 1.6rem;
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
 
         &:hover {
-            border-color: var(--gold-border-hover);
-            box-shadow: var(--gold-shadow-hover);
+            border-color: var(--primary-500);
+            box-shadow: none;
         }
 
         &::before {
@@ -193,7 +193,7 @@ onMounted(async () => {
             position: absolute;
             inset: 0;
             border-radius: 1.6rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 
@@ -251,7 +251,7 @@ onMounted(async () => {
 
     &__divider {
         height: 1px;
-        background: var(--gold-border);
+        background: var(--border-medium);
         margin: 0.8rem 0;
         opacity: 0.5;
     }
@@ -297,7 +297,7 @@ onMounted(async () => {
             flex-direction: column;
             gap: 0.4rem;
             padding-bottom: 1.2rem;
-            border-bottom: 1px solid var(--gold-border);
+            border-bottom: 1px solid var(--border-medium);
 
             &:last-child {
                 border-bottom: none;

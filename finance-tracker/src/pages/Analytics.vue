@@ -4,7 +4,7 @@
         <div class="analytics-page__header">
             <Button :icon="arrowLeft" severity="secondary" @click="router.back()"
                 class="analytics-page__header-button" />
-            <h1 class="gold-text">{{ t('analytics.title') }}</h1>
+            <h1 class="">{{ t('analytics.title') }}</h1>
             <div class="analytics-page__header-empty" />
         </div>
 
@@ -23,7 +23,7 @@
                         <VIcon :icon="arrowUpRight" class="analytics-page__stat-card-icon income" />
                         <span class="analytics-page__stat-card-label">{{ t('analytics.income') }}</span>
                     </div>
-                    <p class="analytics-page__stat-card-value gold-text">{{ formatAmount(stats.income) }} UZS</p>
+                    <p class="analytics-page__stat-card-value ">{{ formatAmount(stats.income) }} UZS</p>
                     <div class="analytics-page__stat-card-change" :class="{ positive: stats.incomeChange > 0 }">
                         <VIcon :icon="stats.incomeChange > 0 ? arrowUpRight : arrowDownLeft"
                             class="analytics-page__stat-card-change-icon" />
@@ -36,7 +36,7 @@
                         <VIcon :icon="arrowDownLeft" class="analytics-page__stat-card-icon expense" />
                         <span class="analytics-page__stat-card-label">{{ t('analytics.expenses') }}</span>
                     </div>
-                    <p class="analytics-page__stat-card-value gold-text">{{ formatAmount(stats.expense) }} UZS</p>
+                    <p class="analytics-page__stat-card-value ">{{ formatAmount(stats.expense) }} UZS</p>
                     <div class="analytics-page__stat-card-change" :class="{ positive: stats.expenseChange < 0 }">
                         <VIcon :icon="stats.expenseChange < 0 ? arrowDownLeft : arrowUpRight"
                             class="analytics-page__stat-card-change-icon" />
@@ -49,7 +49,7 @@
                         <VIcon :icon="dollar" class="analytics-page__stat-card-icon balance" />
                         <span class="analytics-page__stat-card-label">{{ t('analytics.balance') }}</span>
                     </div>
-                    <p class="analytics-page__stat-card-value gold-text">{{ formatAmount(stats.balance) }} UZS</p>
+                    <p class="analytics-page__stat-card-value ">{{ formatAmount(stats.balance) }} UZS</p>
                     <div class="analytics-page__stat-card-change" :class="{ positive: stats.balanceChange > 0 }">
                         <VIcon :icon="stats.balanceChange > 0 ? arrowUpRight : arrowDownLeft"
                             class="analytics-page__stat-card-change-icon" />
@@ -62,7 +62,7 @@
                         <VIcon :icon="analitcs" class="analytics-page__stat-card-icon average" />
                         <span class="analytics-page__stat-card-label">{{ t('analytics.averageExpense') }}</span>
                     </div>
-                    <p class="analytics-page__stat-card-value gold-text">{{ formatAmount(stats.averageExpense) }} UZS
+                    <p class="analytics-page__stat-card-value ">{{ formatAmount(stats.averageExpense) }} UZS
                     </p>
                     <div class="analytics-page__stat-card-change" :class="{ positive: stats.averageChange < 0 }">
                         <VIcon :icon="stats.averageChange < 0 ? arrowDownLeft : arrowUpRight"
@@ -75,7 +75,7 @@
             <div class="analytics-page__content">
                 <div class="analytics-page__chart-card">
                     <div class="analytics-page__chart-card-header">
-                        <h2 class="font-18-b gold-text">{{ t('analytics.dynamics') }}</h2>
+                        <h2 class="font-18-b ">{{ t('analytics.dynamics') }}</h2>
                     </div>
                     <div class="analytics-page__chart-wrapper">
                         <VChart :option="lineChartOption" class="analytics-page__chart" />
@@ -84,7 +84,7 @@
 
                 <div class="analytics-page__chart-card">
                     <div class="analytics-page__chart-card-header">
-                        <h2 class="font-18-b gold-text">{{ t('analytics.averageTrend') }}</h2>
+                        <h2 class="font-18-b ">{{ t('analytics.averageTrend') }}</h2>
                     </div>
                     <div class="analytics-page__chart-wrapper">
                         <VChart :option="trendChartOption" class="analytics-page__chart" />
@@ -93,20 +93,20 @@
 
                 <div class="analytics-page__chart-card">
                     <div class="analytics-page__chart-card-header">
-                        <h2 class="font-18-b gold-text">{{ t('analytics.expensesByCategory') }}</h2>
+                        <h2 class="font-18-b ">{{ t('analytics.expensesByCategory') }}</h2>
                     </div>
                     <div ref="pieChartWrapperRef" class="analytics-page__chart-wrapper pie">
                         <VChart ref="pieChartRef" :option="pieChartOption" class="analytics-page__chart" />
                         <Transition name="fade">
                             <div v-if="selectedCategory" class="analytics-page__chart-center">
                                 <p class="analytics-page__chart-center-label font-14-r">{{ selectedCategory }}</p>
-                                <h2 class="analytics-page__chart-center-value font-30-b gold-text">
+                                <h2 class="analytics-page__chart-center-value font-30-b ">
                                     {{ formatAmount(getCategoryAmount(selectedCategory)) }}
                                 </h2>
                             </div>
                             <div v-else class="analytics-page__chart-center">
                                 <p class="analytics-page__chart-center-label font-14-r">{{ t('main.totalExpenses') }}</p>
-                                <h2 class="analytics-page__chart-center-value font-30-b gold-text">
+                                <h2 class="analytics-page__chart-center-value font-30-b ">
                                     {{ formatAmount(stats.expense) }}
                                 </h2>
                             </div>
@@ -126,7 +126,7 @@
 
                 <div class="analytics-page__top-categories">
                     <div class="analytics-page__top-categories-header">
-                        <h2 class="font-18-b gold-text">{{ t('analytics.topCategories') }}</h2>
+                        <h2 class="font-18-b ">{{ t('analytics.topCategories') }}</h2>
                     </div>
                     <div v-if="topCategories.length === 0" class="analytics-page__empty">
                         <div class="analytics-page__empty-icon">
@@ -268,9 +268,9 @@ onMounted(() => {
     &__stat-card {
         padding: 1.6rem;
         border-radius: 1.6rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
 
@@ -279,7 +279,7 @@ onMounted(() => {
             position: absolute;
             inset: 0;
             border-radius: 1.6rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 
@@ -363,9 +363,9 @@ onMounted(() => {
     &__chart-card {
         padding: 1.6rem;
         border-radius: 1.6rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
 
@@ -374,7 +374,7 @@ onMounted(() => {
             position: absolute;
             inset: 0;
             border-radius: 1.6rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 
@@ -490,9 +490,9 @@ onMounted(() => {
     &__top-categories {
         padding: 1.6rem;
         border-radius: 1.6rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
 
@@ -501,7 +501,7 @@ onMounted(() => {
             position: absolute;
             inset: 0;
             border-radius: 1.6rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 

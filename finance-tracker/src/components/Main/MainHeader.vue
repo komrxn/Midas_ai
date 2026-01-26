@@ -2,8 +2,7 @@
     <div class="main-header">
         <div class="main-header__content">
             <div class="main-header__content-avatar">
-                <img src="https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611765.jpg?semt=ais_hybrid&w=740&q=80"
-                    alt="logo" />
+                {{ firstLetter }}
             </div>
             <div class="main-header__content-info">
                 <h1>
@@ -16,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store/userStore';
@@ -26,6 +25,13 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const { user: userData } = storeToRefs(userStore);
 const { loadUser } = userStore;
+
+const firstLetter = computed(() => {
+    if (userData.value?.name) {
+        return userData.value.name.charAt(0).toUpperCase();
+    }
+    return '?';
+});
 
 onMounted(async () => {
     try {
@@ -55,13 +61,13 @@ onMounted(async () => {
         width: 4rem;
         height: 4rem;
         border-radius: 50%;
-        overflow: hidden;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        background: var(--primary-500);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font: var(--font-18-b);
+        font-weight: 600;
     }
 
     &__content-info {

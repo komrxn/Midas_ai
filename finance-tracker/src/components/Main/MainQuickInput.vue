@@ -52,9 +52,9 @@ const handleTextInput = () => {
     &__card {
         padding: 2rem 1.6rem;
         border-radius: 1.6rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
@@ -66,13 +66,13 @@ const handleTextInput = () => {
             right: 0;
             width: 60%;
             height: 100%;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 
         &:hover {
-            border-color: var(--gold-border-hover);
-            box-shadow: var(--gold-shadow-hover);
+            border-color: var(--primary-500);
+            box-shadow: none;
             transform: translateY(-2px);
         }
 
@@ -115,7 +115,7 @@ const handleTextInput = () => {
         flex: 1;
         min-width: 0;
         padding: 1.2rem 1.6rem;
-        border-color: var(--gold-border);
+        border-color: var(--border-medium);
         font: var(--font-14-r);
         border-radius: 0.8rem;
         transition: all 0.3s ease;

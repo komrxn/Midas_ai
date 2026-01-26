@@ -3,7 +3,7 @@
         <div class="subscription-page__header">
             <Button :icon="arrowLeft" severity="secondary" @click="router.back()"
                 class="subscription-page__header-button" />
-            <h1 class="gold-text">{{ t('subscription.title') }}</h1>
+            <h1 class="">{{ t('subscription.title') }}</h1>
             <div class="subscription-page__header-empty" />
         </div>
 
@@ -253,8 +253,8 @@ onMounted(() => {
         width: 8rem;
         height: 8rem;
         border-radius: 2rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -267,7 +267,7 @@ onMounted(() => {
             position: absolute;
             inset: 0;
             border-radius: 2rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
     }
@@ -322,8 +322,8 @@ onMounted(() => {
         }
 
         &--green {
-            background: var(--gold-card-bg);
-            border: 1px solid var(--gold-border);
+            background: var(--card-default);
+            border: 1px solid var(--border-medium);
         }
     }
 
@@ -372,9 +372,9 @@ onMounted(() => {
         }
 
         &--selected {
-            background: var(--gold-card-bg);
-            border-color: var(--gold-border);
-            box-shadow: var(--gold-shadow);
+            background: var(--card-default);
+            border-color: var(--border-medium);
+            box-shadow: none;
             position: relative;
             overflow: hidden;
 
@@ -383,7 +383,7 @@ onMounted(() => {
                 position: absolute;
                 inset: 0;
                 border-radius: 1.6rem;
-                background: var(--gold-card-radial);
+                background: transparent;
                 pointer-events: none;
             }
         }
@@ -425,14 +425,14 @@ onMounted(() => {
         align-items: center;
         gap: 0.6rem;
         font: var(--font-14-r);
-        color: var(--gold-text-color, rgba(220, 180, 0, 1));
+        color: var(--text-color);
     }
 
     &__plan-check {
         width: 1.6rem;
         height: 1.6rem;
         flex-shrink: 0;
-        color: var(--gold-text-color, rgba(220, 180, 0, 1));
+        color: var(--text-color);
     }
 
     &__plan-price {
@@ -444,7 +444,7 @@ onMounted(() => {
 
     &__plan-amount {
         font: var(--font-24-b);
-        color: var(--gold-text-color, rgba(220, 180, 0, 1));
+        color: var(--text-color);
     }
 
     &__plan-currency {
@@ -486,14 +486,14 @@ onMounted(() => {
         width: 1.6rem;
         height: 1.6rem;
         flex-shrink: 0;
-        color: var(--gold-text-color, rgba(220, 180, 0, 1));
+        color: var(--text-color);
     }
 
     &__button {
         padding: 1.6rem 2rem;
         font: var(--font-16-b);
-        background: linear-gradient(135deg, rgba(220, 180, 0, 0.9) 0%, rgba(200, 160, 0, 0.9) 100%) !important;
-        border-top: 1px solid var(--gold-border) !important;
+        background: var(--primary-500) !important;
+        border-top: 1px solid var(--border-medium) !important;
         color: var(--text-color) !important;
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
     }

@@ -4,7 +4,7 @@
             <VIcon icon="👑" class="main-subscription-banner__icon-svg" />
         </div>
         <div class="main-subscription-banner__content">
-            <h3 class="main-subscription-banner__title gold-text">{{ t('main.subscriptionBanner.title') }}</h3>
+            <h3 class="main-subscription-banner__title">{{ t('main.subscriptionBanner.title') }}</h3>
             <p class="main-subscription-banner__description">{{ t('main.subscriptionBanner.description') }}</p>
         </div>
     </div>
@@ -31,26 +31,15 @@ const handleClick = () => {
     padding: 1.6rem;
     margin-top: 1.2rem;
     border-radius: 1.6rem;
-    background: var(--gold-card-bg);
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    background: var(--card-default);
+    border: 1px solid var(--border-medium);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 1.6rem;
-        background: var(--gold-card-radial);
-        pointer-events: none;
-    }
-
     &:hover {
-        border-color: var(--gold-border-hover);
-        box-shadow: var(--gold-shadow-hover);
+        border-color: var(--primary-500);
         transform: translateY(-2px);
     }
 
@@ -58,8 +47,8 @@ const handleClick = () => {
         width: 4.8rem;
         height: 4.8rem;
         border-radius: 1.2rem;
-        background: linear-gradient(135deg, rgba(220, 180, 0, 0.3) 0%, rgba(220, 180, 0, 0.15) 100%);
-        border: 1px solid var(--gold-border);
+        background: var(--primary-50);
+        border: 1px solid var(--border-medium);
         display: flex;
         align-items: center;
         justify-content: center;

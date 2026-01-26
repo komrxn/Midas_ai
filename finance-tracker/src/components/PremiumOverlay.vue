@@ -4,7 +4,7 @@
             <div class="premium-overlay__icon">
                 <VIcon icon="🔒" class="premium-overlay__icon-svg" />
             </div>
-            <h2 class="premium-overlay__title gold-text">{{ t('premiumOverlay.title') }}</h2>
+            <h2 class="premium-overlay__title">{{ t('premiumOverlay.title') }}</h2>
             <p class="premium-overlay__description">{{ t('premiumOverlay.description') }}</p>
             <div class="premium-overlay__button-container">
                 <Button :label="t('premiumOverlay.activateButton')" class="premium-overlay__button"
@@ -65,21 +65,12 @@ const handleActivate = () => {
         width: 8rem;
         height: 8rem;
         border-radius: 2rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-
-        &::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 2rem;
-            background: var(--gold-card-radial);
-            pointer-events: none;
-        }
     }
 
     &__icon-svg {
@@ -88,13 +79,13 @@ const handleActivate = () => {
 
     &__title {
         font: var(--font-24-b);
-        color: var(--gold-text-color);
+        color: var(--text-color);
         margin: 0;
     }
 
     &__description {
         font: var(--font-16-r);
-        color: var(--gold-text-color);
+        color: var(--text-color-secondary);
         margin: 0;
         line-height: 1.5;
         text-align: center;

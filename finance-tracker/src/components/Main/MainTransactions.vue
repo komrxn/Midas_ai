@@ -65,7 +65,7 @@ onBeforeMount(async () => {
 <template>
     <div class="main-transactions">
         <div class="main-transactions__header">
-            <h1 class="font-20-b gold-text">Транзакции</h1>
+            <h1 class="font-20-b ">Транзакции</h1>
             <Button label="Посмотреть все" text size="small" @click="handleViewAll" />
         </div>
         <div v-if="loading" class="main-transactions__loading">
@@ -90,12 +90,12 @@ onBeforeMount(async () => {
 
 <style scoped lang="scss">
 .main-transactions {
-    background: var(--gold-card-bg);
+    background: var(--card-default);
     padding: 1.2rem;
     border-radius: 1.6rem;
     margin-top: 1.2rem;
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    border: 1px solid var(--border-medium);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
 
@@ -104,7 +104,7 @@ onBeforeMount(async () => {
         position: absolute;
         inset: 0;
         border-radius: 1.6rem;
-        background: var(--gold-card-radial);
+        background: transparent;
         pointer-events: none;
     }
 

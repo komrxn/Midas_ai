@@ -48,7 +48,7 @@ onBeforeMount(async () => {
 <template>
     <div class="main-limits">
         <div class="main-limits__header">
-            <h1 class="font-20-b gold-text">{{ t('main.limitsTitle') }}</h1>
+            <h1 class="font-20-b ">{{ t('main.limitsTitle') }}</h1>
             <Button v-if="criticalLimits.length > 0" label="Посмотреть все" text size="small" @click="handleViewAll" />
         </div>
 
@@ -72,12 +72,12 @@ onBeforeMount(async () => {
 
 <style scoped lang="scss">
 .main-limits {
-    background: var(--gold-card-bg);
+    background: var(--card-default);
     padding: 1.2rem;
     border-radius: 1.6rem;
     margin-top: 1.2rem;
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    border: 1px solid var(--border-medium);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
 
@@ -86,7 +86,7 @@ onBeforeMount(async () => {
         position: absolute;
         inset: 0;
         border-radius: 1.6rem;
-        background: var(--gold-card-radial);
+        background: transparent;
         pointer-events: none;
     }
 

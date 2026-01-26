@@ -71,15 +71,15 @@ const handleClick = () => {
 
 <style scoped lang="scss">
 .transaction-card {
-    background: var(--gold-card-bg);
+    background: var(--card-default);
     border-radius: var(--radius-l);
     padding: 1.2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.2rem;
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    border: 1px solid var(--border-medium);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -90,15 +90,15 @@ const handleClick = () => {
         position: absolute;
         inset: 0;
         border-radius: var(--radius-l);
-        background: var(--gold-card-radial);
+        background: transparent;
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
 
     &:hover {
-        border-color: var(--gold-border-hover);
-        box-shadow: var(--gold-shadow-hover);
+        border-color: var(--primary-500);
+        box-shadow: none;
 
         &::before {
             opacity: 1;

@@ -64,10 +64,10 @@ const lang = computed({
   }
 
   :deep(.p-select-dropdown) {
-    background: var(--gold-card-bg);
-    border: 1px solid var(--gold-border);
+    background: var(--card-default);
+    border: 1px solid var(--border-medium);
     border-radius: 0.8rem;
-    box-shadow: var(--gold-shadow);
+    box-shadow: none;
     color: currentColor;
   }
 

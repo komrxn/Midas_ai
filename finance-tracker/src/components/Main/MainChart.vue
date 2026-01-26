@@ -1,7 +1,7 @@
 <template>
     <div class="main-chart">
         <div class="main-chart__header">
-            <h1 class="font-20-b gold-text">{{ t('main.categories') }}</h1>
+            <h1 class="font-20-b ">{{ t('main.categories') }}</h1>
             <Button :label="t('main.categoriesViewAll')" text size="small" @click="handleViewAll" />
         </div>
         <div ref="chartWrapperRef" class="main-chart__container-wrapper">
@@ -10,7 +10,7 @@
                 <div class="main-chart__center-content">
                     <p class="main-chart__center-label font-14-r">{{ selectedCategory ? centerLabel :
                         t('main.currentBalance') }}</p>
-                    <h2 class="main-chart__center-value font-30-b gold-text">{{ selectedCategory ? formattedCenterValue
+                    <h2 class="main-chart__center-value font-30-b ">{{ selectedCategory ? formattedCenterValue
                         : formattedBalance }}</h2>
                     <Button v-if="selectedCategory" :label="t('main.viewTransactions')" size="small"
                         severity="secondary" class="main-chart__center-button" @click="handleViewTransactions" />
@@ -282,8 +282,8 @@ const chartOption = computed<EChartsOption>(() => ({
     padding: 1.6rem 1.2rem;
     border-radius: 1.6rem;
     background-color: var(--card-default);
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    border: 1px solid var(--border-medium);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
 
@@ -292,7 +292,7 @@ const chartOption = computed<EChartsOption>(() => ({
         position: absolute;
         inset: 0;
         border-radius: 1.6rem;
-        background: var(--gold-card-radial);
+        background: transparent;
         pointer-events: none;
     }
 

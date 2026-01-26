@@ -4,8 +4,8 @@
             <div class="main-balance__total">
                 <div class="main-balance__total-content">
                     <h5 class="font-14-r">{{ t('main.totalBalance') }}</h5>
-                    <p v-if="isVisible" class="gold-text">{{ formatAmount(balance) }} UZS</p>
-                    <p v-else class="gold-text">••••••</p>
+                    <p v-if="isVisible" class="">{{ formatAmount(balance) }} UZS</p>
+                    <p v-else class="">••••••</p>
                 </div>
                 <VIcon :icon="isVisible ? eyeIcon : eyeClosedIcon" class="main-balance__total-icon"
                     color="var(--primary-600)" @click="toggleVisibility" />
@@ -16,16 +16,16 @@
                     <Button :icon="arrowDownLeft" severity="success" outlined class="main-balance__item-button" />
                     <div class="main-balance__item-content">
                         <h5>{{ t('main.income') }}</h5>
-                        <p v-if="isVisible" class="gold-text">{{ formatAmountWithSign(income) }} UZS</p>
-                        <p v-else class="gold-text">••••••</p>
+                        <p v-if="isVisible" class="">{{ formatAmountWithSign(income) }} UZS</p>
+                        <p v-else class="">••••••</p>
                     </div>
                 </div>
                 <div class="main-balance__item">
                     <Button :icon="arrowUpRight" severity="danger" outlined class="main-balance__item-button" />
                     <div class="main-balance__item-content">
                         <h5>{{ t('main.expense') }}</h5>
-                        <p v-if="isVisible" class="gold-text">{{ formatAmountWithSign(-expense) }} UZS</p>
-                        <p v-else class="gold-text">••••••</p>
+                        <p v-if="isVisible" class="">{{ formatAmountWithSign(-expense) }} UZS</p>
+                        <p v-else class="">••••••</p>
                     </div>
                 </div>
             </div>
@@ -84,9 +84,9 @@ onMounted(async () => {
     &__card {
         padding: 2rem 1.6rem;
         border-radius: 1.6rem;
-        background: var(--gold-card-bg);
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        background: var(--card-default);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease;
@@ -98,13 +98,13 @@ onMounted(async () => {
             right: 0;
             width: 60%;
             height: 100%;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 
         &:hover {
-            border-color: var(--gold-border-hover);
-            box-shadow: var(--gold-shadow-hover);
+            border-color: var(--primary-500);
+            box-shadow: none;
             transform: translateY(-2px);
         }
     }
@@ -147,7 +147,7 @@ onMounted(async () => {
 
     &__divider {
         height: 2px;
-        background: var(--gold-border);
+        background: var(--border-medium);
         margin: 1rem 0;
         position: relative;
         z-index: 1;

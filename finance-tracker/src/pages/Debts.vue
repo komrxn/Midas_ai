@@ -3,7 +3,7 @@
         <PremiumOverlay />
         <div class="debts-page__header">
             <Button :icon="arrowLeft" severity="secondary" @click="router.back()" class="debts-page__header-button" />
-            <h1 class="gold-text">{{ t('debts.title') }}</h1>
+            <h1 class="">{{ t('debts.title') }}</h1>
             <Button :icon="filter" severity="secondary" @click="filterDrawerVisible = true"
                 class="debts-page__header-button" />
         </div>
@@ -13,14 +13,14 @@
                 <VIcon :icon="arrowDownLeft" class="debts-page__balance-icon" />
                 <div class="debts-page__balance-content">
                     <h5 class="font-14-r">{{ t('debts.iOwe') }}</h5>
-                    <p class="font-16-r gold-text">{{ formatAmount(totalBorrowed) }} UZS</p>
+                    <p class="font-16-r ">{{ formatAmount(totalBorrowed) }} UZS</p>
                 </div>
             </div>
             <div class="debts-page__balance-item">
                 <VIcon :icon="arrowUpRight" class="debts-page__balance-icon" />
                 <div class="debts-page__balance-content">
                     <h5 class="font-14-r">{{ t('debts.oweMe') }}</h5>
-                    <p class="font-16-r gold-text">{{ formatAmount(totalLent) }} UZS</p>
+                    <p class="font-16-r ">{{ formatAmount(totalLent) }} UZS</p>
                 </div>
             </div>
         </div>
@@ -278,9 +278,9 @@ onBeforeMount(async () => {
             flex: 1;
             padding: 1.6rem;
             border-radius: 1.6rem;
-            background: var(--gold-card-bg);
-            border: 1px solid var(--gold-border);
-            box-shadow: var(--gold-shadow);
+            background: var(--card-default);
+            border: 1px solid var(--border-medium);
+            box-shadow: none;
             display: flex;
             align-items: center;
             gap: 1.2rem;
@@ -292,7 +292,7 @@ onBeforeMount(async () => {
                 position: absolute;
                 inset: 0;
                 border-radius: 1.6rem;
-                background: var(--gold-card-radial);
+                background: transparent;
                 pointer-events: none;
             }
         }
@@ -331,10 +331,10 @@ onBeforeMount(async () => {
         align-items: center;
         justify-content: center;
         padding: 4rem 2rem;
-        background: var(--gold-card-bg);
+        background: var(--card-default);
         border-radius: 1.6rem;
-        border: 1px solid var(--gold-border);
-        box-shadow: var(--gold-shadow);
+        border: 1px solid var(--border-medium);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
 
@@ -343,7 +343,7 @@ onBeforeMount(async () => {
             position: absolute;
             inset: 0;
             border-radius: 1.6rem;
-            background: var(--gold-card-radial);
+            background: transparent;
             pointer-events: none;
         }
 

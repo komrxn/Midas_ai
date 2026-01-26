@@ -3,7 +3,7 @@
         <MainHeader />
 
         <MainBalance />
-        <MainSubscriptionBanner />
+        <MainSubscriptionBanner v-if="!hasSubscription" />
         <!-- <MainQuickInput /> -->
         <MainChart />
         <MainGrid />
@@ -12,6 +12,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import MainChart from '@/components/Main/MainChart.vue';
 import MainHeader from '@/components/Main/MainHeader.vue';
 import MainBalance from '@/components/Main/MainBalance.vue';
@@ -19,6 +21,23 @@ import MainSubscriptionBanner from '@/components/Main/MainSubscriptionBanner.vue
 // import MainQuickInput from '@/components/Main/MainQuickInput.vue';
 import MainLimits from '@/components/Main/MainLimits.vue';
 import MainGrid from '@/components/Main/MainGrid.vue';
+import { useUserStore } from '@/store/userStore';
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+const { loadUser } = userStore;
+
+const hasSubscription = computed(() => {
+    return user.value?.is_active || user.value?.is_premium;
+});
+
+onMounted(async () => {
+    try {
+        await loadUser();
+    } catch (error) {
+        console.error('Failed to load user data:', error);
+    }
+});
 </script>
 
 <style scoped lang="scss">

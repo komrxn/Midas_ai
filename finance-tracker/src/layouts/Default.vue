@@ -72,7 +72,7 @@ const showBottomBar = computed(() => {
     justify-content: space-around;
     align-items: center;
     background: var(--card-default, var(--secondary-50));
-    border-top: 1px solid var(--gold-border);
+    border-top: 1px solid var(--border-medium);
     padding: 1.2rem 1rem;
     padding-bottom: calc(1.2rem + env(safe-area-inset-bottom));
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);

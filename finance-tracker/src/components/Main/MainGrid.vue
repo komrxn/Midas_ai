@@ -62,7 +62,7 @@ const items = computed(() => [
   <div class="main-grid">
     <Button class="main-grid__item" v-for="i in items" :key="i.id" as="router-link" text :to="i.link">
       <VIcon :icon="i.icon" class="main-grid__item-icon" />
-      <h1 class="font-18-r gold-text">{{ i.title }}</h1>
+      <h1 class="font-18-r ">{{ i.title }}</h1>
     </Button>
   </div>
 </template>
@@ -90,9 +90,9 @@ const items = computed(() => [
     min-width: 120px;
     flex-shrink: 0;
     text-decoration: none;
-    background: var(--gold-card-bg);
-    border: 1px solid var(--gold-border);
-    box-shadow: var(--gold-shadow);
+    background: var(--card-default);
+    border: 1px solid var(--border-medium);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -102,7 +102,7 @@ const items = computed(() => [
       position: absolute;
       inset: 0;
       border-radius: 1.6rem;
-      background: var(--gold-card-radial);
+      background: transparent;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s ease, background 0.3s ease;
@@ -111,7 +111,7 @@ const items = computed(() => [
     &:hover {
       &::before {
         opacity: 1;
-        background: var(--gold-card-radial-hover);
+        background: transparent;
       }
     }
   }
