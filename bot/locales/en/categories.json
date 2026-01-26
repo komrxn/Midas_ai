@@ -43,5 +43,6 @@
     "investments_income": "Investments",
     "gift_income": "Gift",
     "other_income": "Other",
-    "other": "Other"
+    "other": "Other",
+    "uncategorized": "Uncategorized"
 }

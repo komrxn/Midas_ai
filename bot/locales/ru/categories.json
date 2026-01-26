@@ -43,5 +43,6 @@
     "investments_income": "Инвестиции",
     "gift_income": "Подарок",
     "other_income": "Другое",
-    "other": "Прочее"
+    "other": "Прочее",
+    "uncategorized": "Без категории"
 }
