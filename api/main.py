@@ -72,12 +72,21 @@ async def log_requests(request: Request, call_next):
         auth_header = request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
-            # Decode without verification just for logging (verification happens in endpoint)
-            # This avoids double verification overhead and expired token errors in logs
             payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm], options={"verify_signature": False})
             user_id = payload.get("sub")
+            user_name = payload.get("name")
+            
             if user_id:
-                user_info = f"User:{user_id}"
+                # If name not in token (old token), fetch from DB
+                if not user_name:
+                    from .database import AsyncSessionLocal
+                    from .models.user import User
+                    from sqlalchemy import select
+                    async with AsyncSessionLocal() as db:
+                        result = await db.execute(select(User.name).where(User.id == user_id))
+                        user_name = result.scalar_one_or_none()
+                
+                user_info = f"User:[{user_id} | {user_name or 'Unknown'}]"
     except Exception:
         pass # Fail silently for logging
 

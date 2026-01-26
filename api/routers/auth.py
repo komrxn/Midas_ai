@@ -79,7 +79,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     
     # Generate JWT token
     access_token = create_access_token(
-        data={"sub": str(new_user.id), "telegram_id": new_user.telegram_id}
+        data={"sub": str(new_user.id), "telegram_id": new_user.telegram_id, "name": new_user.name}
     )
     
     return TokenResponse(
@@ -118,7 +118,7 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     
     # Generate JWT token
     access_token = create_access_token(
-        data={"sub": str(user.id), "telegram_id": user.telegram_id}
+        data={"sub": str(user.id), "telegram_id": user.telegram_id, "name": user.name}
     )
     
     return TokenResponse(
@@ -233,7 +233,8 @@ async def telegram_auth(
         )
     
     # Create access token
-    access_token = create_access_token(data={"sub": str(user.id)})
+    # Create access token
+    access_token = create_access_token(data={"sub": str(user.id), "name": user.name})
     
     return TokenResponse(
         access_token=access_token,
