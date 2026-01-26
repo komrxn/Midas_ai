@@ -21,6 +21,7 @@ class AdminResponse(BaseModel):
 # User Schemas
 class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    id: UUID
     telegram_id: int
     name: str
     phone_number: str
