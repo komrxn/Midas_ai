@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     click_secret_key: str = "test_key"
     click_service_id: str = "test_ems"
     click_merchant_id: str = "test_id"
+
+    # Payme
+    payme_merchant_id: str = "test_merchant"
+    payme_key: str = "test_key"
+
     
     # API
     api_host: str = "0.0.0.0"

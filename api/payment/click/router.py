@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, Form, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
-from ..database import get_db
-from ..services.click import ClickService
-from ..schemas.click import ClickResponse
+from ...database import get_db
+from .services import ClickService
+from .schemas import ClickResponse
 
 router = APIRouter(prefix="/click", tags=["Click.uz"])
 

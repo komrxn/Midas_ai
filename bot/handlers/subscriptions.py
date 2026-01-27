@@ -57,7 +57,7 @@ async def buy_subscription_callback(update: Update, context: ContextTypes.DEFAUL
         parse_mode="Markdown"
     )
 
-async def handle_payment_generation(update: Update, context: ContextTypes.DEFAULT_TYPE, plan_id: str):
+async def handle_payment_generation(update: Update, context: ContextTypes.DEFAULT_TYPE, plan_id: str, provider: str):
     """Helper to generate payment link."""
     query = update.callback_query
     user_id = query.from_user.id
@@ -70,12 +70,14 @@ async def handle_payment_generation(update: Update, context: ContextTypes.DEFAUL
     api.set_token(token)
     
     try:
-        data = await api.generate_payment_link(plan_id=plan_id)
+        data = await api.generate_payment_link(plan_id=plan_id, provider=provider)
         url = data.get("url")
         
+        provider_name = "Click" if provider == "click" else "Payme"
+        
         keyboard = [
-            [InlineKeyboardButton(t("subscription.pay_click_btn", lang), url=url)],
-            [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data="buy_subscription")]
+            [InlineKeyboardButton(f"{t('subscription.pay_btn_prefix', lang)} {provider_name}", url=url)],
+            [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data=f"select_provider_{plan_id}")]
         ]
         
         await query.edit_message_text(
@@ -90,14 +92,65 @@ async def handle_payment_generation(update: Update, context: ContextTypes.DEFAUL
              error_text = "❌ Error: Invalid plan or request."
         await query.edit_message_text(error_text, parse_mode="Markdown")
 
+async def ask_provider(update: Update, context: ContextTypes.DEFAULT_TYPE, plan_id: str):
+    """Ask user to select payment provider."""
+    query = update.callback_query
+    user_id = query.from_user.id
+    lang = storage.get_user_language(user_id) or 'uz' # Default to uz
+    
+    # Title logic (Quick fix if i18n missing)
+    # Ideally should be in i18n files
+    title_map = {
+        'uz': "To'lov tizimini tanlang:",
+        'ru': "Выберите способ оплаты:",
+        'en': "Select payment method:"
+    }
+    title = title_map.get(lang, "To'lov tizimini tanlang:")
+    
+    keyboard = [
+        [
+            InlineKeyboardButton("Click", callback_data=f"choice_{plan_id}_click"),
+            InlineKeyboardButton("Payme", callback_data=f"choice_{plan_id}_payme"),
+        ],
+        [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data="buy_subscription")]
+    ]
+    
+    await query.edit_message_text(
+        text=f"💳 *{title}*",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown"
+    )
+
+async def handle_provider_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle provider selection."""
+    query = update.callback_query
+    data = query.data
+    # format: choice_{plan_id}_{provider}
+    try:
+        _, plan_id, provider = data.split("_")
+        await handle_payment_generation(update, context, plan_id, provider)
+    except ValueError:
+        await query.answer("Error parsing callback data")
+
 async def pay_monthly_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_payment_generation(update, context, "monthly")
+    await ask_provider(update, context, "monthly")
 
 async def pay_quarterly_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_payment_generation(update, context, "quarterly")
+    await ask_provider(update, context, "quarterly")
 
 async def pay_annual_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_payment_generation(update, context, "annual")
+    await ask_provider(update, context, "annual")
+
+async def select_provider_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle back button from payment generation (select_provider_{plan_id})."""
+    query = update.callback_query
+    data = query.data
+    # format: select_provider_{plan_id}
+    try:
+        plan_id = data.split("_", 2)[2]
+        await ask_provider(update, context, plan_id)
+    except Exception:
+        await query.answer("Error")
 
 subscription_handlers = [
     CallbackQueryHandler(activate_trial_callback, pattern="^activate_trial$"),
@@ -105,4 +158,7 @@ subscription_handlers = [
     CallbackQueryHandler(pay_monthly_callback, pattern="^pay_monthly$"),
     CallbackQueryHandler(pay_quarterly_callback, pattern="^pay_quarterly$"),
     CallbackQueryHandler(pay_annual_callback, pattern="^pay_annual$"),
+    CallbackQueryHandler(handle_provider_choice, pattern="^choice_"),
+    CallbackQueryHandler(select_provider_callback, pattern="^select_provider_"),
 ]
+

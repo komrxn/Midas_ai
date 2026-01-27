@@ -6,9 +6,9 @@ from sqlalchemy import select
 from typing import Optional
 import logging
 
-from ..models.click_transaction import ClickTransaction
-from ..models.user import User
-from ..config import get_settings
+from ...models.click_transaction import ClickTransaction
+from ...models.user import User
+from ...config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -167,7 +167,7 @@ class ClickService:
         await self.db.commit()
         
         # Send success notification
-        from .notification import send_subscription_success_message
+        from ...services.notification import send_subscription_success_message
         try:
              # Reload user to ensure latest state if needed, or pass current object
             await send_subscription_success_message(user)

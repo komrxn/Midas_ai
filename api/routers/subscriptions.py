@@ -7,10 +7,12 @@ import uuid
 from ..database import get_db
 from ..models.user import User
 from ..models.click_transaction import ClickTransaction
-from ..schemas.click import PaymentLinkRequest, PaymentLinkResponse
+from ..payment.schemas import PaymentLinkRequest, PaymentLinkResponse
 from ..schemas.auth import UserResponse
-from ..services.click import ClickService
+from ..payment.click.services import ClickService
 from ..config import get_settings
+import base64
+
 
 from ..auth.jwt import get_current_user
 
@@ -112,8 +114,16 @@ async def generate_payment_link(
     await db.commit()
     
     # 3. Generate Link
-    # https://my.click.uz/services/pay?service_id={service_id}&merchant_id={merchant_id}&amount={amount}&transaction_param={merchant_trans_id}
-    
-    url = f"https://my.click.uz/services/pay?service_id={settings.click_service_id}&merchant_id={settings.click_merchant_id}&amount={amount}&transaction_param={merchant_trans_id}"
+    if request.provider == "payme":
+        # Payme Link Generation
+        # Params: m=merchant_id; ac.order_id=user_id; a=amount_tiyin
+        amount_tiyin = int(amount * 100)
+        params_str = f"m={settings.payme_merchant_id};ac.order_id={current_user.id};a={amount_tiyin}"
+        b64_params = base64.b64encode(params_str.encode()).decode()
+        url = f"https://checkout.paycom.uz/{b64_params}"
+    else:
+        # Click Link Generation
+        url = f"https://my.click.uz/services/pay?service_id={settings.click_service_id}&merchant_id={settings.click_merchant_id}&amount={amount}&transaction_param={merchant_trans_id}"
     
     return {"url": url}
+

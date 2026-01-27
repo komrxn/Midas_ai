@@ -328,12 +328,12 @@ class BarakaAPIClient:
             return response.json()
 
     @handle_auth_errors
-    async def generate_payment_link(self, plan_id: str = "monthly") -> Dict[str, Any]:
+    async def generate_payment_link(self, plan_id: str = "monthly", provider: str = "click") -> Dict[str, Any]:
         """Generate payment link."""
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.base_url}/subscriptions/pay",
-                json={"plan_id": plan_id},
+                json={"plan_id": plan_id, "provider": provider},
                 headers=self.headers
             )
             response.raise_for_status()
