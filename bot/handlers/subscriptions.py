@@ -76,7 +76,7 @@ async def handle_payment_generation(update: Update, context: ContextTypes.DEFAUL
         provider_name = "Click" if provider == "click" else "Payme"
         
         keyboard = [
-            [InlineKeyboardButton(f"{t('subscription.pay_btn_prefix', lang)} {provider_name}", url=url)],
+            [InlineKeyboardButton(t('subscription.pay_btn_format', lang, provider=provider_name), url=url)],
             [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data=f"select_provider_{plan_id}")]
         ]
         

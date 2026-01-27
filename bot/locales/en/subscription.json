@@ -13,8 +13,8 @@
     "quarterly_plan_btn": "Quarterly - 56 990 UZS",
     "annual_plan_btn": "Annual - 199 900 UZS",
     "payment_initiated": "⏳ *Payment Initiated*",
-    "payment_instructions": "Click the button below to pay via Click.uz app.\nYour subscription will be activated automatically after payment.",
-    "pay_click_btn": "🚀 Pay via Click",
+    "payment_instructions": "Click the button below to pay.\nYour subscription will be activated automatically after payment.",
+    "pay_btn_format": "🚀 Pay via {provider}",
     "back_btn": "« Back",
     "profile": {
         "title": "👤 *Your Profile*",

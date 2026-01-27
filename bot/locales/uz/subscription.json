@@ -13,8 +13,8 @@
     "quarterly_plan_btn": "3 Oylik - 56 990 UZS",
     "annual_plan_btn": "Yillik - 199 900 UZS",
     "payment_initiated": "⏳ *To'lov boshlandi*",
-    "payment_instructions": "Click.uz orqali to'lash uchun quyidagi tugmani bosing.\nObuna to'lovdan so'ng avtomatik faollashadi.",
-    "pay_click_btn": "🚀 Click orqali to'lash",
+    "payment_instructions": "To'lov qilish uchun quyidagi tugmani bosing.\nObuna to'lovdan so'ng avtomatik faollashadi.",
+    "pay_btn_format": "🚀 {provider} orqali to'lash",
     "back_btn": "« Ortga",
     "profile": {
         "title": "👤 *Sizning profilingiz*",
