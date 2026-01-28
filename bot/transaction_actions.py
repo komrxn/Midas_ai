@@ -136,7 +136,7 @@ async def handle_transaction_action(update: Update, context: ContextTypes.DEFAUL
 
 
 @send_typing_action
-async def handle_edit_transaction_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_edit_transaction_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text_override: str = None):
     """Handle message when user is editing a transaction."""
     tx_id = context.user_data.pop('editing_transaction_id', None)
     if not tx_id:
@@ -144,47 +144,14 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
     
     user_id = update.effective_user.id
     lang = storage.get_user_language(user_id) or 'uz'
-    text = update.message.text
+    text = text_override if text_override is not None else update.message.text
     
     token = storage.get_user_token(user_id)
     api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
     try:
-        # Fetch current transaction to provide context to AI
-        current_tx = {}
-        try:
-            # We need to fetch full details. The listing endpoint gives summary, but let's see if we can get by ID
-            # BarakaAPIClient doesn't have get_transaction_by_id yet, but we can reconstruct from what we have 
-            # or add get_transaction. For now, let's assume we can proceed with partial info or
-            # better: implement get_transaction in api_client.py if needed.
-            # actually we can just pass what we know, or fetch.
-            # Let's try to fetch list and find it (inefficient) or just rely on user input?
-            # AI needs context. "Taxi" -> "Switch to Metro" needs to know it was Taxi.
-            # Let's add get_transaction to api_client first? 
-            # Or just use get_transactions with limit if recently created.
-            pass
-        except:
-            pass
-        
-        # NOTE: We need a way to get the current transaction details!
-        # Since we don't have get_transaction(id), we will try to fetch recent.
-        # But this is inside edit flow.
-        
-        # Let's assume we added get_transaction to api_client.py. If not, I should add it.
-        # Checking api_client.py... it does NOT have get_transaction(id).
-        # purely update_transaction.
-        
-        # I will add get_transaction to api_client first.
-        # But for now, let's assume I will add it in next step.
-        
-        # Wait, I cannot use it if it's not there.
-        # I'll implement the call assuming method exists, then I'll add the method.
-        
-        # Actually, let's look at `show_transaction_with_actions`... it takes `tx_data`.
-        # We don't have `tx_data` stored in context (only ID).
-        # I will add `get_transaction` to `BarakaAPIClient` in `api_client.py` IMMEDIATELY after this tool call.
-        
+        # Fetch current transaction
         current_tx = await api.get_transaction(tx_id)
         
         # Prepare data for AI
@@ -199,50 +166,38 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
         from .ai_agent import AIAgent
         agent = AIAgent(api)
         
+        updates = {}
+        
         if 'editing_field' in context.user_data:
-            field = context.user_data['editing_field']
-            updates = {}
+            field = context.user_data.pop('editing_field') # consumed
+            logger.info(f"Editing specific field '{field}' with text: {text}")
             
+            # Use AI to parse the specific field update
+            # We explicitly tell AI which field is being updated
+            prompt_context = f"Update {field} to: {text}"
+            
+            agent_updates = await agent.edit_transaction(old_data, prompt_context)
+            
+            # Filter updates based on field (optional safety, but AI usually does right thing)
+            # If user said "70k", AI returns {"amount": 70000}.
+            
+            # Map standard fields
             if field == 'amount':
-                # Parse amount
-                import re
-                # simple parser: remove non-numeric except dot
-                clean_text = re.sub(r'[^\d.]', '', text.replace(',', '.'))
-                try:
-                    amount = float(clean_text)
-                    updates = {'amount': amount}
-                except ValueError:
-                    await update.message.reply_text(t('common.common.error', lang))
-                    return True
-                    
+                if 'amount' in agent_updates:
+                    updates['amount'] = agent_updates['amount']
             elif field == 'category':
-                # For category, user types name. We might need slug.
-                # Let's assume API can take slug OR we try to find it.
-                # Actually, API usually expects ID or slug.
-                # Text input for category is tricky without lookup.
-                # Let's pass it as 'category_slug' if it matches known slugs,
-                # or rely on backend/agent to resolve it?
-                # agent.edit_transaction is smart. Let's use it but scoped?
-                # For now simplify: User text -> description? No.
-                # Let's use AI agent to resolve category from text.
-                
-                # We can reuse the Agent for category resolution!
-                agent_updates = await agent.edit_transaction(old_data, f"change category to {text}")
-                
-                if 'category_id' in agent_updates:
-                    updates = {'category_id': agent_updates['category_id']}
-                elif 'category_slug' in agent_updates:
-                    updates = {'category_slug': agent_updates['category_slug']}
-                else:
-                    # Fallback or error
-                    pass
-            
+                 if 'category_id' in agent_updates:
+                    updates['category_id'] = agent_updates['category_id']
+                 elif 'category_slug' in agent_updates:
+                    updates['category_slug'] = agent_updates['category_slug']
             elif field == 'description':
-                updates = {'description': text}
-                
-            # Clear field state
-            del context.user_data['editing_field']
+                 if 'description' in agent_updates:
+                    updates['description'] = agent_updates['description']
             
+            # If primary field missing in update, fallback to using whatever AI returned
+            if not updates:
+                updates = agent_updates
+
         else:
             # Legacy/Fallback: Generic AI edit
             updates = await agent.edit_transaction(old_data, text)

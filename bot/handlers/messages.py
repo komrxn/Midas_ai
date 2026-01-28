@@ -72,7 +72,7 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
         return
     
     # Check if editing transaction
-    is_editing = await handle_edit_transaction_message(update, context)
+    is_editing = await handle_edit_transaction_message(update, context, text_override=text)
     if is_editing:
         return
     
