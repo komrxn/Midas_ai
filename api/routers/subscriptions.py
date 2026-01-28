@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta
 import uuid
+import base64
 
 from ..database import get_db
 from ..models.user import User
@@ -11,9 +12,6 @@ from ..payment.schemas import PaymentLinkRequest, PaymentLinkResponse
 from ..schemas.auth import UserResponse
 from ..payment.click.services import ClickService
 from ..config import get_settings
-import base64
-
-
 from ..auth.jwt import get_current_user
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -25,27 +23,10 @@ async def get_subscription_status(
     db: AsyncSession = Depends(get_db)
 ):
     # Calculate active status
-    is_active = False
-    if current_user.is_premium and current_user.subscription_ends_at:
-        if current_user.subscription_ends_at.timestamp() > datetime.now().timestamp():
-            is_active = True
-            
-    # We can't just return current_user because we need to inject is_active
-    # Pydantic v2 would use computed_field, but compatible way:
-    return UserResponse(
-        id=current_user.id,
-        telegram_id=current_user.telegram_id,
-        phone_number=current_user.phone_number,
-        name=current_user.name,
-        default_currency=current_user.default_currency,
-        language=current_user.language,
-        created_at=current_user.created_at,
-        is_premium=current_user.is_premium,
-        subscription_type=current_user.subscription_type,
-        subscription_ends_at=current_user.subscription_ends_at,
-        is_trial_used=current_user.is_trial_used,
-        is_active=is_active
-    )
+    # is_active represents if the subscription logic considers it valid
+    # But now UserResponse computes it via property, so we might just return user?
+    # Actually, the UserResponse schema handles computation now.
+    return UserResponse.model_validate(current_user)
 
 @router.post("/trial")
 async def activate_trial(
@@ -83,7 +64,7 @@ async def generate_payment_link(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Generate Click.uz payment link.
+    Generate Click.uz or Payme payment link.
     """
     # 1. Determine amount
     if request.plan_id == "monthly":
@@ -126,4 +107,3 @@ async def generate_payment_link(
         url = f"https://my.click.uz/services/pay?service_id={settings.click_service_id}&merchant_id={settings.click_merchant_id}&amount={amount}&transaction_param={merchant_trans_id}"
     
     return {"url": url}
-

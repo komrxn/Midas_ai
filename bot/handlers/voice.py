@@ -51,11 +51,10 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_info = me
         
         # Determine strict 'is_active' status
-        is_premium = user_info.get('is_premium', False)
-        # Also could use 'is_active' field if we migrated API, but let's assume is_premium for now or fetch status
+        is_active = user_info.get('is_active', False)
         
-        # If not premium, check usage
-        if not is_premium:
+        # If not active, check usage
+        if not is_active:
             usage = user_info.get('voice_usage_count', 0)
             if usage >= 20:
                 # Limit reached
@@ -113,20 +112,11 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Process as if it was a text message
         await process_text_message(update, context, transcribed_text, user_id)
         
-        # Increment usage counter if success (and not premium)
-        if not is_premium:
+        # Increment usage counter if success (and not active)
+        if not is_active:
             # We need an endpoint to increment usage?
             # Or the API should do it when processing transaction?
             # Ideally API handles it. But we used external STT here.
-            # Let's call a simple increment endpoint or just leave it for now (MVP: maybe API parses text and doesn't count voice usage on backend unless we tell it).
-            # The prompt says "update bot handlers to enforce limits".
-            # We need to increment.
-            # Let's create a quick utilitarian endpoint check in API or assumes `process_text_message` creates transaction.
-            # Actually, `process_text_message` -> `api.parse_text` -> `api.create_transaction`.
-            # Usage should technically be counted *per voice attempt*.
-            # Let's add a `api.increment_usage(type='voice')` method if we want to be precise, OR just rely on the fact we checked limit.
-            # But we must INCREMENT it.
-            # Since we don't have an endpoint for that yet, I'll add `increment_usage` to API user service and router.
             try:
                 await api.increment_usage('voice')
             except Exception as ex:

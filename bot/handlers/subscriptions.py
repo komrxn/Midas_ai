@@ -98,14 +98,7 @@ async def ask_provider(update: Update, context: ContextTypes.DEFAULT_TYPE, plan_
     user_id = query.from_user.id
     lang = storage.get_user_language(user_id) or 'uz' # Default to uz
     
-    # Title logic (Quick fix if i18n missing)
-    # Ideally should be in i18n files
-    title_map = {
-        'uz': "To'lov tizimini tanlang:",
-        'ru': "Выберите способ оплаты:",
-        'en': "Select payment method:"
-    }
-    title = title_map.get(lang, "To'lov tizimini tanlang:")
+    title = t('subscription.select_payment_method', lang)
     
     keyboard = [
         [

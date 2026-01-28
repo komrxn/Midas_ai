@@ -15,6 +15,7 @@
     "payment_initiated": "⏳ *Payment Initiated*",
     "payment_instructions": "Click the button below to pay.\nYour subscription will be activated automatically after payment.",
     "pay_btn_format": "🚀 Pay via {provider}",
+    "select_payment_method": "Select payment method:",
     "back_btn": "« Back",
     "profile": {
         "title": "👤 *Your Profile*",

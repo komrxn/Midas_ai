@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 class UserCreate(BaseModel):
@@ -32,8 +32,6 @@ class UserResponse(BaseModel):
     subscription_ends_at: Optional[datetime] = None
     is_trial_used: bool = False
     
-    is_active: bool = False
-    
     # Usage Counters
     voice_usage_count: int = 0
     photo_usage_count: int = 0
@@ -41,14 +39,16 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-    @staticmethod
-    def resolve_is_active(user) -> bool:
-        if not user.is_premium:
+    @computed_field
+    @property
+    def is_active(self) -> bool:
+        """Check if subscription is currently active."""
+        if not self.is_premium:
             return False
-        if not user.subscription_ends_at:
+        if not self.subscription_ends_at:
             return False
-        # Naive check, assuming server time is acceptable or user object has been validated
-        return user.subscription_ends_at.timestamp() > datetime.now().timestamp()
+        # Use timestamp to avoid timezone issues
+        return self.subscription_ends_at.timestamp() > datetime.now().timestamp()
 
 
 class TelegramRegister(BaseModel):
