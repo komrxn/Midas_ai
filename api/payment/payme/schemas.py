@@ -13,6 +13,7 @@ class PaymeError(BaseModel):
     data: Optional[str] = None
 
 class JsonRpcResponse(BaseModel):
+    jsonrpc: str = "2.0"
     result: Optional[Any] = None
     error: Optional[PaymeError] = None
     id: Union[int, str, None] = None

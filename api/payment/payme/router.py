@@ -43,27 +43,33 @@ async def payme_rpc_endpoint(
              # Optional Method, often not used or just returns success if logic not needed
              res = {"success": True}
         else:
-            return JsonRpcResponse(
-                id=response_id,
-                error=PaymeError(code=-32504, message="Method not found")
-            )
-        
-        return JsonRpcResponse(
-            id=response_id,
-            result=res
-        )
+        return {
+            "jsonrpc": "2.0",
+            "id": response_id,
+            "result": res
+        }
         
     except PaymeException as pe:
         # Expected Logic Error
-        return JsonRpcResponse(
-            id=response_id,
-            error=PaymeError(code=pe.code, message=pe.message, data=pe.data)
-        )
+        return {
+            "jsonrpc": "2.0",
+            "id": response_id,
+            "error": {
+                "code": pe.code,
+                "message": pe.message,
+                "data": pe.data
+            }
+        }
     except Exception as e:
         # Unexpected System Error
         import traceback
         traceback.print_exc()
-        return JsonRpcResponse(
-            id=response_id,
-            error=PaymeError(code=-32400, message="System Error")
-        )
+        return {
+            "jsonrpc": "2.0",
+            "id": response_id,
+            "error": {
+                "code": -32400,
+                "message": {"ru": "System Error", "uz": "Tizim xatosi", "en": "System Error"},
+                "data": str(e)
+            }
+        }
