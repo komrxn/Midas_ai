@@ -7,19 +7,12 @@ from typing import Optional
 from ...models.payme_transaction import PaymeTransaction
 from ...models.user import User
 from ...services.notification import send_subscription_success_message
-from .schemas import PaymeError
+from .exceptions import PaymeException
 
 class PaymeService:
     def __init__(self, db: AsyncSession):
         self.db = db
         # Amount in Tiyins. 1 UZS = 100 Tiyin.
-        # Monthly: 34,990 UZS -> 3,499,000
-        # Quarterly: ~104,970 -> 10,497,000 ?? User said "Transaction amount > 50000" in Click implementation.
-        # Let's rely on standard logic used in Click but converted.
-        # Actually Click uses UZS directly? 
-        # Click model `amount` is Numeric(18,2).
-        # Payme is Integer (tiyins).
-        # We need to be careful with conversions.
 
     async def _get_user(self, user_id_str: str) -> Optional[User]:
         # 'account[order_id]' could be UUID or int (telegram_id).
@@ -32,8 +25,8 @@ class PaymeService:
         except ValueError:
             return None
 
-    def _make_error(self, code: int, message_ru: str, message_uz: str, message_en: str = None) -> PaymeError:
-        return PaymeError(
+    def _make_error(self, code: int, message_ru: str, message_uz: str, message_en: str = None) -> PaymeException:
+        return PaymeException(
             code=code,
             message={
                 "ru": message_ru,

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...database import get_db
 from .services import PaymeService
 from .schemas import JsonRpcRequest, JsonRpcResponse, PaymeError
+from .exceptions import PaymeException
 from .utils import verify_payme_auth
 
 router = APIRouter(prefix="/payme", tags=["Payme"])
@@ -52,11 +53,11 @@ async def payme_rpc_endpoint(
             result=res
         )
         
-    except PaymeError as pe:
+    except PaymeException as pe:
         # Expected Logic Error
         return JsonRpcResponse(
             id=response_id,
-            error=pe
+            error=PaymeError(code=pe.code, message=pe.message, data=pe.data)
         )
     except Exception as e:
         # Unexpected System Error
