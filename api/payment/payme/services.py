@@ -98,7 +98,7 @@ class PaymeService:
             await self.check_perform_transaction(params)
         except Exception as e:
             # Re-raise error if it's already a defined PaymeError, else wrap
-            if isinstance(e, PaymeError): raise e
+            if isinstance(e, PaymeException): raise e
             raise self._make_error(-31008, "Validation failed", "Tekshiruv xatosi")
 
         # Create
