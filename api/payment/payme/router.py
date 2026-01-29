@@ -43,6 +43,15 @@ async def payme_rpc_endpoint(
              # Optional Method, often not used or just returns success if logic not needed
              res = {"success": True}
         else:
+            return {
+                "jsonrpc": "2.0",
+                "id": response_id,
+                "error": {
+                    "code": -32504,
+                    "message": "Method not found"
+                }
+            }
+        
         return {
             "jsonrpc": "2.0",
             "id": response_id,
