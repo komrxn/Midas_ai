@@ -25,12 +25,14 @@ class PaymeService:
         except ValueError:
             return None
 
-    def _make_error(self, code: int, message: str, data: str = None) -> PaymeException:
-        # JSON-RPC 2.0 requires message to be a String.
-        # -31050 requires data to be the field name.
+    def _make_error(self, code: int, message_ru: str, message_uz: str, message_en: str = None, data: str = None) -> PaymeException:
         return PaymeException(
             code=code,
-            message=message,
+            message={
+                "ru": message_ru,
+                "uz": message_uz,
+                "en": message_en or message_ru
+            },
             data=data
         )
     
@@ -48,16 +50,16 @@ class PaymeService:
 
         if not order_id:
             # -31050 requires 'data' to be the name of the missing/invalid field
-            raise self._make_error(-31050, "Order ID not found", "order_id")
+            raise self._make_error(-31050, "Order ID not found", "Buyurtma ID topilmadi", "Order ID not found", "order_id")
 
         # 1. Validate User
         user = await self._get_user(str(order_id))
         if not user:
-            raise self._make_error(-31050, "User not found", "order_id")
+            raise self._make_error(-31050, "User not found", "Foydalanuvchi topilmadi", "User not found", "order_id")
 
         # 2. Validate Amount
         if amount <= 0:
-            raise self._make_error(-31001, "Invalid amount")
+            raise self._make_error(-31001, "Invalid amount", "Noto'g'ri summa")
 
         return {"allow": True}
 
@@ -77,14 +79,14 @@ class PaymeService:
             # Idempotency check
             # If state != 1 (Waiting) -> Error -31008
             if tx.state != 1:
-                raise self._make_error(-31008, "Transaction already processed")
+                raise self._make_error(-31008, "Transaction already processed", "Tranzaksiya allaqachon bajarilgan")
             
             # Check timeout (12h = 43200000 ms)
             if (int(time.time() * 1000) - tx.create_time) > 43200000:
                 tx.state = -1
                 tx.reason = 4
                 await self.db.commit()
-                raise self._make_error(-31008, "Transaction timed out")
+                raise self._make_error(-31008, "Transaction timed out", "Tranzaksiya vaqti tugadi")
 
             return {
                 "create_time": tx.create_time,
@@ -99,7 +101,7 @@ class PaymeService:
         except Exception as e:
             # Re-raise error if it's already a defined PaymeError, else wrap
             if isinstance(e, PaymeException): raise e
-            raise self._make_error(-31008, "Validation failed")
+            raise self._make_error(-31008, "Validation failed", "Tekshiruv xatosi")
 
         # Create
         new_tx = PaymeTransaction(
@@ -129,7 +131,7 @@ class PaymeService:
         tx = result.scalar_one_or_none()
 
         if not tx:
-            raise self._make_error(-31003, "Transaction not found")
+            raise self._make_error(-31003, "Transaction not found", "Tranzaksiya topilmadi")
         
         if tx.state == 1:
             # Check timeout
@@ -137,7 +139,7 @@ class PaymeService:
                 tx.state = -1
                 tx.reason = 4
                 await self.db.commit()
-                raise self._make_error(-31008, "Transaction timed out")
+                raise self._make_error(-31008, "Transaction timed out", "Tranzaksiya vaqti tugadi")
             
             # Perform
             tx.state = 2
@@ -195,7 +197,7 @@ class PaymeService:
                 "state": tx.state
             }
         else:
-             raise self._make_error(-31008, "Transaction in invalid state")
+             raise self._make_error(-31008, "Transaction in invalid state", "Tranzaksiya holati noto'g'ri")
 
     async def cancel_transaction(self, params: dict) -> dict:
         paycom_id = params.get("id")
@@ -206,7 +208,7 @@ class PaymeService:
         tx = result.scalar_one_or_none()
 
         if not tx:
-             raise self._make_error(-31003, "Transaction not found")
+             raise self._make_error(-31003, "Transaction not found", "Tranzaksiya topilmadi")
 
         if tx.state == 1:
             tx.state = -1

@@ -9,7 +9,7 @@ class JsonRpcRequest(BaseModel):
 
 class PaymeError(BaseModel):
     code: int
-    message: str 
+    message: dict | str 
     data: Optional[str] = None
 
 class JsonRpcResponse(BaseModel):
