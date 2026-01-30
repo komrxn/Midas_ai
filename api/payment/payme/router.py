@@ -19,6 +19,7 @@ async def payme_rpc_endpoint(
     """
     Single entry point for Payme JSON-RPC.
     """
+    print(f"----- PAYME REQUEST -----\n{request}\n-------------------------")
     service = PaymeService(db)
     response_id = request.id
     
