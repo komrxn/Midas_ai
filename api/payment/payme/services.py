@@ -44,6 +44,12 @@ class PaymeService:
         if phone:
             result = await self.db.execute(select(User).where(User.phone_number == str(phone)))
             return result.scalar_one_or_none()
+
+        # 3. Check for 'name' (username/full name)
+        name = account.get("name")
+        if name:
+            result = await self.db.execute(select(User).where(User.name == str(name)))
+            return result.scalar_one_or_none()
             
         return None
 
