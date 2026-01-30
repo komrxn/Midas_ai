@@ -14,44 +14,16 @@ class PaymeService:
         self.db = db
         # Amount in Tiyins. 1 UZS = 100 Tiyin.
 
-    async def _get_user(self, account_or_id: dict | str) -> Optional[User]:
-        # If it's a string, assume it's a direct UUID (legacy/perform call)
-        if isinstance(account_or_id, str):
-             try:
-                from uuid import UUID
-                uid = UUID(account_or_id)
-                result = await self.db.execute(select(User).where(User.id == uid))
-                return result.scalar_one_or_none()
-             except ValueError:
-                return None
-        
-        # If dict, try 'order_id' or 'phone' match
-        account = account_or_id
-        
-        # 1. Check for 'order_id' (UUID)
-        order_id = account.get("order_id")
-        if order_id:
-            try:
-                from uuid import UUID
-                uid = UUID(str(order_id))
-                result = await self.db.execute(select(User).where(User.id == uid))
-                return result.scalar_one_or_none()
-            except ValueError:
-                pass 
-
-        # 2. Check for 'phone' or 'phone_number'
-        phone = account.get("phone") or account.get("phone_number")
-        if phone:
-            result = await self.db.execute(select(User).where(User.phone_number == str(phone)))
+    async def _get_user(self, user_id_str: str) -> Optional[User]:
+        # 'account[order_id]' could be UUID or int (telegram_id).
+        # Assuming UUID string based on `account[order_id]` plan.
+        try:
+            from uuid import UUID
+            uid = UUID(user_id_str)
+            result = await self.db.execute(select(User).where(User.id == uid))
             return result.scalar_one_or_none()
-
-        # 3. Check for 'name' (username/full name)
-        name = account.get("name")
-        if name:
-            result = await self.db.execute(select(User).where(User.name == str(name)))
-            return result.scalar_one_or_none()
-            
-        return None
+        except ValueError:
+            return None
 
     def _make_error(self, code: int, message_ru: str, message_uz: str, message_en: str = None, data: str = None) -> PaymeException:
         return PaymeException(
@@ -72,12 +44,19 @@ class PaymeService:
         amount = params.get("amount")
         account = params.get("account", {})
         
+        # Payme might send "order_id" inside account, or custom field names.
+        # We enforce "order_id".
+        order_id = account.get("order_id")
+
+        if not order_id:
+            # -31050 requires 'data' to be the name of the missing/invalid field
+            # If no order_id found, we can't identify the target.
+            raise self._make_error(-31050, "Order ID not found", "Buyurtma ID topilmadi", "Order ID not found", "order_id")
+
         # 1. Validate User
-        user = await self._get_user(account)
+        user = await self._get_user(str(order_id))
         if not user:
-            missing_field = "order_id"
-            if "phone" in account: missing_field = "phone"
-            raise self._make_error(-31050, "User not found", "Foydalanuvchi topilmadi", "User not found", missing_field)
+            raise self._make_error(-31050, "User not found", "Foydalanuvchi topilmadi", "User not found", "order_id")
 
         # 2. Validate Amount
         if amount <= 0:
@@ -90,16 +69,7 @@ class PaymeService:
         paycom_time = params.get("time")
         amount = params.get("amount")
         account = params.get("account", {})
-        
-        # Resolve 'order_id' (User ID) from account
-        user = await self._get_user(account)
-        if not user:
-             # Should have been caught by check_perform_transaction, but good to be safe
-             missing_field = "order_id"
-             if "phone" in account: missing_field = "phone"
-             raise self._make_error(-31050, "User not found", "Foydalanuvchi topilmadi", "User not found", missing_field)
-        
-        order_id = str(user.id) # Use the resolved User ID
+        order_id = account.get("order_id") # Strictly require order_id
 
         # Check if transaction exists
         stmt = select(PaymeTransaction).where(PaymeTransaction.paycom_transaction_id == paycom_id)
