@@ -59,11 +59,10 @@ async def update_subscription(
         raise HTTPException(status_code=404, detail="User not found")
         
     if action.action == "revoke":
-        user.is_premium = False
-        user.subscription_type = None
+        user.subscription_type = "free"
         user.subscription_ends_at = None
     elif action.action == "grant":
-        user.is_premium = True
+        # user.is_premium is computed property now
         user.subscription_type = action.plan or "manual"
         
         if action.duration_days:

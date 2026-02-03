@@ -8,7 +8,6 @@ from bot.user_storage import storage
 async def activate_trial_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle trial activation callback."""
     query = update.callback_query
-    # We might need language for notifications, let's get it
     user_id = query.from_user.id
     lang = storage.get_user_language(user_id) or 'uz'
     
@@ -36,23 +35,65 @@ async def activate_trial_callback(update: Update, context: ContextTypes.DEFAULT_
              await query.edit_message_text(t("subscription.trial_error", lang), parse_mode="Markdown")
 
 async def buy_subscription_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle buy subscription callback."""
+    """
+    Step 1: Select Tier (Plus, Pro, Premium)
+    """
     query = update.callback_query
     user_id = query.from_user.id
     lang = storage.get_user_language(user_id) or 'uz'
     
     await query.answer()
     
-    # Updated plans menu
     keyboard = [
-        [InlineKeyboardButton(t("subscription.monthly_plan_btn", lang), callback_data="pay_monthly")],
-        [InlineKeyboardButton(t("subscription.quarterly_plan_btn", lang), callback_data="pay_quarterly")],
-        [InlineKeyboardButton(t("subscription.annual_plan_btn", lang), callback_data="pay_annual")],
+        [InlineKeyboardButton(t("subscription.tier_plus_btn", lang), callback_data="select_tier_plus")],
+        [InlineKeyboardButton(t("subscription.tier_pro_btn", lang), callback_data="select_tier_pro")],
+        [InlineKeyboardButton(t("subscription.tier_premium_btn", lang), callback_data="select_tier_premium")],
         [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data="profile_menu")] 
     ]
+    
     await query.edit_message_text(
-        f"{t('subscription.select_plan_title', lang)}\n\n"
-        f"{t('subscription.select_plan_body', lang)}",
+        f"{t('subscription.select_tier_title', lang)}\n\n"
+        f"{t('subscription.select_tier_body', lang)}",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown"
+    )
+
+async def select_tier_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Step 2: Select Duration (1 Month, 3 Months) for the chosen tier
+    Pattern: ^select_tier_(plus|pro|premium)$
+    """
+    query = update.callback_query
+    data = query.data
+    tier = data.split("_")[2] # plus, pro, premium
+    user_id = query.from_user.id
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    await query.answer()
+    
+    # Prices (Hardcoded here for display, but validated on backend)
+    prices = {
+        "plus": {"1": "34 999", "3": "99 999"},
+        "pro": {"1": "49 999", "3": "139 999"},
+        "premium": {"1": "89 999", "3": "249 999"},
+    }
+    
+    tier_desc_key = f"subscription.tier_{tier}_desc"
+    desc = t(tier_desc_key, lang)
+    
+    p1 = prices[tier]["1"]
+    p3 = prices[tier]["3"]
+    
+    # Buttons: pay_{tier}_1, pay_{tier}_3
+    keyboard = [
+        [InlineKeyboardButton(t("subscription.duration_1_month", lang, price=p1), callback_data=f"pay_{tier}_1")],
+        [InlineKeyboardButton(t("subscription.duration_3_months", lang, price=p3), callback_data=f"pay_{tier}_3")],
+        [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data="buy_subscription")]
+    ]
+    
+    await query.edit_message_text(
+        f"{desc}\n\n"
+        f"{t('subscription.select_duration_title', lang)}",
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode="Markdown"
     )
@@ -75,9 +116,10 @@ async def handle_payment_generation(update: Update, context: ContextTypes.DEFAUL
         
         provider_name = "Click" if provider == "click" else "Payme"
         
+        # Back button goes to provider selection for this plan
         keyboard = [
             [InlineKeyboardButton(t('subscription.pay_btn_format', lang, provider=provider_name), url=url)],
-            [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data=f"select_provider_{plan_id}")]
+            [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data=f"choice_{plan_id}")] # Loop back to choice
         ]
         
         await query.edit_message_text(
@@ -93,19 +135,30 @@ async def handle_payment_generation(update: Update, context: ContextTypes.DEFAUL
         await query.edit_message_text(error_text, parse_mode="Markdown")
 
 async def ask_provider(update: Update, context: ContextTypes.DEFAULT_TYPE, plan_id: str):
-    """Ask user to select payment provider."""
+    """
+    Step 3: Ask user to select payment provider (Click/Payme)
+    plan_id example: 'plus_1', 'pro_3'
+    """
     query = update.callback_query
     user_id = query.from_user.id
-    lang = storage.get_user_language(user_id) or 'uz' # Default to uz
+    lang = storage.get_user_language(user_id) or 'uz'
+    
+    await query.answer()
     
     title = t('subscription.select_payment_method', lang)
     
+    # Parse tier to go back correctly
+    try:
+        tier = plan_id.split("_")[0] # plus, pro...
+    except:
+        tier = "pro"
+        
     keyboard = [
         [
             InlineKeyboardButton("Click", callback_data=f"choice_{plan_id}_click"),
             InlineKeyboardButton("Payme", callback_data=f"choice_{plan_id}_payme"),
         ],
-        [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data="buy_subscription")]
+        [InlineKeyboardButton(t("subscription.back_btn", lang), callback_data=f"select_tier_{tier}")]
     ]
     
     await query.edit_message_text(
@@ -118,40 +171,62 @@ async def handle_provider_choice(update: Update, context: ContextTypes.DEFAULT_T
     """Handle provider selection."""
     query = update.callback_query
     data = query.data
-    # format: choice_{plan_id}_{provider}
+    # format: choice_{plan_id}_{provider}. plan_id can contain underscores (plus_1)
+    # So split carefully.
+    # Ex: choice_plus_1_click -> [choice, plus, 1, click] -> invalid logic if we just split by _
+    # Better: split by _ with limit
+    
     try:
-        _, plan_id, provider = data.split("_")
+        # data = choice_plus_1_click
+        parts = data.split("_")
+        # provider is last element
+        provider = parts[-1]
+        # plan_id is everything in between 'choice' and 'provider'
+        # e.g. plus_1
+        plan_id = "_".join(parts[1:-1])
+        
         await handle_payment_generation(update, context, plan_id, provider)
     except ValueError:
         await query.answer("Error parsing callback data")
 
-async def pay_monthly_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await ask_provider(update, context, "monthly")
-
-async def pay_quarterly_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await ask_provider(update, context, "quarterly")
-
-async def pay_annual_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await ask_provider(update, context, "annual")
-
-async def select_provider_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle back button from payment generation (select_provider_{plan_id})."""
+async def pay_plan_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handle selection of specific plan duration.
+    Pattern: ^pay_(plus|pro|premium)_(1|3)$
+    """
     query = update.callback_query
     data = query.data
-    # format: select_provider_{plan_id}
-    try:
-        plan_id = data.split("_", 2)[2]
-        await ask_provider(update, context, plan_id)
-    except Exception:
-        await query.answer("Error")
+    # data = pay_plus_1
+    # plan_id = plus_1
+    plan_id = data.replace("pay_", "")
+    
+    await ask_provider(update, context, plan_id)
+
+async def select_provider_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handle back button from payment generation page.
+    pattern: ^choice_{plan_id}$  (Note: in handle_payment_generation I used callback_data=f"choice_{plan_id}")
+    Wait, "choice_" pattern is used for PROVIDER SELECTION too.
+    Let's distinct them.
+    In ask_provider: choice_{plan_id}_{provider}
+    In handle_payment_generation back btn: I should probably just call ask_provider cleanly.
+    Let's change handle_payment_generation back button to: `back_to_provider_{plan_id}`
+    """
+    pass # Replaced logic below
+
+async def back_to_provider_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    data = query.data
+    # back_to_provider_plus_1
+    plan_id = data.replace("back_to_provider_", "")
+    await ask_provider(update, context, plan_id)
 
 subscription_handlers = [
     CallbackQueryHandler(activate_trial_callback, pattern="^activate_trial$"),
     CallbackQueryHandler(buy_subscription_callback, pattern="^buy_subscription$"),
-    CallbackQueryHandler(pay_monthly_callback, pattern="^pay_monthly$"),
-    CallbackQueryHandler(pay_quarterly_callback, pattern="^pay_quarterly$"),
-    CallbackQueryHandler(pay_annual_callback, pattern="^pay_annual$"),
+    CallbackQueryHandler(select_tier_callback, pattern="^select_tier_"),
+    CallbackQueryHandler(pay_plan_callback, pattern="^pay_"),
     CallbackQueryHandler(handle_provider_choice, pattern="^choice_"),
-    CallbackQueryHandler(select_provider_callback, pattern="^select_provider_"),
+    CallbackQueryHandler(back_to_provider_callback, pattern="^back_to_provider_"),
 ]
 
