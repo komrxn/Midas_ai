@@ -110,6 +110,22 @@ class PaymeService:
                 "state": tx.state
             }
         
+        # Check if there is ANOTHER transaction in state=1 (Waiting) for this SAME order_id
+        # Payme documentation/Sandbox logic: One order can only have one pending transaction at a time.
+        stmt_active = select(PaymeTransaction).where(
+            PaymeTransaction.order_id == str(order_id),
+            PaymeTransaction.state == 1
+        )
+        res_active = await self.db.execute(stmt_active)
+        active_tx = res_active.scalar_one_or_none()
+        
+        if active_tx:
+             # Make sure it hasn't timed out before blocking? (Usually timeouts handled by cron or access)
+             # But for strict check, if it exists and is state 1, order is busy.
+             # Error -31050 is technically "Order not found", but Sandbox expects -31050..-31099 range.
+             # "Order is busy" often maps to this.
+             raise self._make_error(-31050, "Order is busy (pending transaction exists)", "Buyurtma band (kutayotgan to'lov mavjud)", "Order is busy", "order_id")
+
         # New Transaction
         try:
             await self.check_perform_transaction(params)
