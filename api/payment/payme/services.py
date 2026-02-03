@@ -45,8 +45,8 @@ class PaymeService:
         account = params.get("account", {})
         
         # Payme might send "order_id" inside account, or custom field names.
-        # We enforce "order_id".
-        order_id = account.get("order_id")
+        # We enforce "order_id" or the custom field "Baraka_ai" (from screenshot).
+        order_id = account.get("order_id") or account.get("Baraka_ai")
 
         if not order_id:
             # -31050 requires 'data' to be the name of the missing/invalid field
@@ -77,7 +77,7 @@ class PaymeService:
         paycom_time = params.get("time")
         amount = params.get("amount")
         account = params.get("account", {})
-        order_id = account.get("order_id") # Strictly require order_id
+        order_id = account.get("order_id") or account.get("Baraka_ai") # Check both fields
 
         # Check if transaction exists
         stmt = select(PaymeTransaction).where(PaymeTransaction.paycom_transaction_id == paycom_id)
