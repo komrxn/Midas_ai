@@ -44,9 +44,20 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
              expires_at = t("subscription.profile.never", lang)
         
         status_icon = "✅" if is_active else "❌"
-        status_text = t("subscription.profile.premium", lang) if is_premium else (
-            t("subscription.profile.trial", lang) if is_active else t("subscription.profile.free", lang)
-        )
+        
+        # Determine specific status label
+        sub_type = sub_status.get("subscription_type", "free")
+        if sub_type == "premium":
+            status_text = t("subscription.profile.premium", lang)
+        elif sub_type == "pro":
+            status_text = t("subscription.profile.pro", lang)
+        elif sub_type == "plus":
+            status_text = t("subscription.profile.plus", lang)
+        elif sub_type == "trial":
+            status_text = t("subscription.profile.trial", lang)
+        else:
+            # Fallback
+            status_text = t("subscription.profile.free", lang)
         
         text = (
             f"{t('subscription.profile.title', lang)}\n\n"

@@ -65,6 +65,11 @@ class User(Base):
         return "free"
 
     @property
+    def is_premium(self) -> bool:
+        """Alias for is_premium_active for schema compatibility."""
+        return self.is_premium_active
+
+    @property
     def is_premium_active(self) -> bool:
         """Check if premium/paid subscription is active."""
         if self.subscription_type == "free":
