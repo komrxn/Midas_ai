@@ -13,13 +13,30 @@ router = APIRouter(prefix="/payme", tags=["Payme"])
 async def payme_rpc_endpoint(
     request: JsonRpcRequest, 
     raw_request: Request,
-    db: AsyncSession = Depends(get_db),
-    authorized: bool = Depends(verify_payme_auth)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Single entry point for Payme JSON-RPC.
     """
     print(f"----- PAYME REQUEST -----\n{request}\n-------------------------")
+    
+    # 1. Manual Auth Check to return JSON-RPC Error instead of 401
+    authorized = await verify_payme_auth(raw_request)
+    if not authorized:
+        return {
+            "jsonrpc": "2.0",
+            "id": request.id,
+            "error": {
+                "code": -32504,
+                "message": {
+                    "ru": "Insufficient privilege to perform this method.",
+                    "uz": "Sizda ushbu amalni bajarish uchun huquq yo'q.",
+                    "en": "Insufficient privilege to perform this method."
+                },
+                "data": "Invalid Authorization"
+            }
+        }
+
     service = PaymeService(db)
     response_id = request.id
     

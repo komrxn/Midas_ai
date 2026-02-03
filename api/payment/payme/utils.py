@@ -19,13 +19,12 @@ async def verify_payme_auth(request: Request):
     """
     auth_header = request.headers.get("Authorization")
     if not auth_header:
-        raise HTTPException(status_code=401, detail="Missing Authorization header")
+        # raise HTTPException(status_code=401, detail="Missing Authorization header")
+        return False
     
     expected = get_auth_header()
-    # Also support 'test' key if needed, but for now strict check
     if auth_header != expected:
-        # Check against test key if we had separate one, but user said Key.
-        # Let's ensure strict match for security to prevent spoofing.
-        raise HTTPException(status_code=401, detail="Invalid Authorization")
+        # raise HTTPException(status_code=401, detail="Invalid Authorization")
+        return False
     
     return True
