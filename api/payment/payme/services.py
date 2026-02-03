@@ -117,7 +117,7 @@ class PaymeService:
             PaymeTransaction.state == 1
         )
         res_active = await self.db.execute(stmt_active)
-        active_tx = res_active.scalar_one_or_none()
+        active_tx = res_active.scalars().first()
         
         if active_tx:
              # Make sure it hasn't timed out before blocking? (Usually timeouts handled by cron or access)
