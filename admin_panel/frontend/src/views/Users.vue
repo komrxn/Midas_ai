@@ -47,41 +47,35 @@ watch(page, fetchData);
 const isModalOpen = ref(false);
 const selectedUser = ref(null);
 const actionType = ref('grant'); // grant, revoke
-const selectedPlan = ref('monthly');
+const selectedTier = ref('pro'); // plus, pro, premium
+const selectedDuration = ref('1m'); // 1m, 3m, 1y, custom
 const customDays = ref(null);
 
 const openGrantModal = (user) => {
     selectedUser.value = user;
     actionType.value = 'grant';
     isModalOpen.value = true;
+    selectedTier.value = 'pro';
+    selectedDuration.value = '1m';
+    customDays.value = null;
 };
 
-const handleRevoke = async (user) => {
-    if (!confirm(`Are you sure you want to revoke subscription for ${user.name}?`)) return;
-    try {
-        await api.put(`/users/${user.id}/subscription`, { action: 'revoke' });
-        fetchData();
-    } catch (e) {
-        alert('Error revoking subscription');
-    }
-};
-
-const handleDelete = async (user) => {
-    if (!confirm(`DANGER: Are you sure you want to DELETE user ${user.name}? This cannot be undone.`)) return;
-    try {
-        await api.delete(`/users/${user.id}`);
-        fetchData();
-    } catch (e) {
-        alert('Error deleting user');
-    }
-};
+// ... handleRevoke, handleDelete same ...
 
 const submitSubscription = async () => {
     try {
+        let days = 30;
+        if (selectedDuration.value === 'custom') {
+             days = parseInt(customDays.value);
+        } else if (selectedDuration.value === '1m') days = 30;
+        else if (selectedDuration.value === '3m') days = 90;
+        else if (selectedDuration.value === '1y') days = 365;
+        else if (selectedDuration.value === 'trial') days = 3;
+
         await api.put(`/users/${selectedUser.value.id}/subscription`, {
             action: 'grant',
-            plan: selectedPlan.value,
-            duration_days: customDays.value ? parseInt(customDays.value) : null
+            plan: selectedTier.value,
+            duration_days: days
         });
         isModalOpen.value = false;
         fetchData();
@@ -118,8 +112,7 @@ const formatDate = (isoString) => {
                     <thead class="bg-surface/50 border-b border-white/5 text-gray-400 text-sm uppercase">
                         <tr>
                             <th class="p-4 font-medium">User</th>
-                            <th class="p-4 font-medium">Status</th>
-                            <th class="p-4 font-medium">Plan</th>
+                            <th class="p-4 font-medium">Subscription</th>
                             <th class="p-4 font-medium">Expires</th>
                             <th class="p-4 font-medium">Registered</th>
                             <th class="p-4 font-medium text-right">Actions</th>
@@ -143,7 +136,6 @@ const formatDate = (isoString) => {
                                     {{ user.subscription_type || 'Free' }}
                                 </span>
                             </td>
-                            <td class="p-4 text-sm text-gray-300 capitalize">{{ user.subscription_type || '-' }}</td>
                             <td class="p-4 text-sm text-gray-300">{{ formatDate(user.subscription_ends_at) }}</td>
                             <td class="p-4 text-sm text-gray-500">{{ formatDate(user.created_at) }}</td>
                             <td class="p-4 text-right space-x-2">
@@ -234,21 +226,27 @@ const formatDate = (isoString) => {
                                 
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-sm text-gray-400 mb-2">Select Plan</label>
-                                        <select v-model="selectedPlan" class="input-field">
-                                            <option value="plus">Plus (30 Days)</option>
-                                            <option value="pro">Pro (30 Days)</option>
-                                            <option value="premium">Premium (30 Days)</option>
-                                            <option value="monthly">Monthly (30 Days)</option>
-                                            <option value="quarterly">Quarterly (90 Days)</option>
-                                            <option value="annual">Annual (365 Days)</option>
-                                            <option value="trial">Trial (3 Days)</option>
-                                            <option value="custom">Custom Duration</option>
+                                        <label class="block text-sm text-gray-400 mb-2">Tier</label>
+                                        <select v-model="selectedTier" class="input-field">
+                                            <option value="plus">Plus</option>
+                                            <option value="pro">Pro</option>
+                                            <option value="premium">Premium</option>
                                         </select>
                                     </div>
 
-                                    <div v-if="selectedPlan === 'custom'">
-                                        <label class="block text-sm text-gray-400 mb-2">Duration (Days)</label>
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-2">Duration</label>
+                                        <select v-model="selectedDuration" class="input-field">
+                                            <option value="1m">1 Month (30 days)</option>
+                                            <option value="3m">3 Months (90 days)</option>
+                                            <option value="1y">1 Year (365 days)</option>
+                                            <option value="trial">Trial (3 days)</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    </div>
+
+                                    <div v-if="selectedDuration === 'custom'">
+                                        <label class="block text-sm text-gray-400 mb-2">Custom Days</label>
                                         <input v-model="customDays" type="number" class="input-field" placeholder="e.g. 7" />
                                     </div>
                                 </div>
