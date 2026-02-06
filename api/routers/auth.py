@@ -65,8 +65,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
         phone_number=normalized_phone,  # Store without +
         name=user_data.name,
         language=user_data.language,  # Use language from request
-        is_premium=False,
-        subscription_type=None,
+        subscription_type="free", # Default to free
         is_trial_used=False,
     )
     
