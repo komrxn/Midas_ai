@@ -1,10 +1,11 @@
 {
     "access_restricted": "🔒 **Kirish cheklangan**",
-    "feature_locked": "Bu funksiya faol obunani talab qiladi.\nSiz Pro versiyani 3 kun davomida bepul sinab ko'rishingiz mumkin!",
+    "feature_locked": "Bu funksiya faol obunani talab qiladi.\nSiz Premium versiyani 3 kun davomida bepul sinab ko'rishingiz mumkin!",
     "activate_trial_btn": "🚀 Bepul sinab ko'rish (3 kun)",
+    "trial_btn": "🚀 Bepul sinab ko'rish (3 kun)",
     "buy_subscription_btn": "💎 Tarifni tanlash",
     "trial_activated_title": "✅ *Sinov davri faollashtirildi!*",
-    "trial_activated_body": "Sizda endi {date} gacha Pro ruxsat mavjud.\nBarcha funksiyalardan va limitlardan foydalaning!",
+    "trial_activated_body": "Sizda endi {date} gacha Premium ruxsat mavjud.\nBarcha funksiyalardan va limitlardan foydalaning!",
     "trial_already_used": "❌ Sinov davri ishlatib bo'lingan.",
     "trial_error": "❌ Faollashtirishda xatolik. Keyinroq urinib ko'ring.",
     "select_tier_title": "💎 *Obuna darajasini tanlang*",

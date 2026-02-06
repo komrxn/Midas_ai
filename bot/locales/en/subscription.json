@@ -1,10 +1,11 @@
 {
     "access_restricted": "🔒 **Access Restricted**",
-    "feature_locked": "This feature requires an active subscription.\nYou can try Pro version for free (3 days)!",
+    "feature_locked": "This feature requires an active subscription.\nYou can try Premium version for free (3 days)!",
     "activate_trial_btn": "🚀 Try Free (3 days)",
+    "trial_btn": "🚀 Try Free (3 days)",
     "buy_subscription_btn": "💎 Select Plan",
     "trial_activated_title": "✅ *Trial Activated!*",
-    "trial_activated_body": "You now have Pro access until {date}.\nEnjoy features and increased limits!",
+    "trial_activated_body": "You now have Premium access until {date}.\nEnjoy features and increased limits!",
     "trial_already_used": "❌ Trial already used.",
     "trial_error": "❌ Error activating trial. Please try again later.",
     "select_tier_title": "💎 *Select Subscription Tier*",
