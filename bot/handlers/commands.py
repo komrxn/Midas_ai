@@ -59,14 +59,23 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Fallback
             status_text = t("subscription.profile.free", lang)
         
+        # Escape special markdown characters in user name
+        def escape_markdown(text: str) -> str:
+            """Escape markdown special chars."""
+            special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+            for char in special_chars:
+                text = text.replace(char, f'\\{char}')
+            return text
+        
+        safe_name = escape_markdown(user.full_name or user.first_name or "User")
+        
         text = (
             f"{t('subscription.profile.title', lang)}\n\n"
             f"{t('subscription.profile.id', lang)}: `{user_id}`\n"
-            f"{t('subscription.profile.name', lang)}: {user.full_name}\n"
+            f"{t('subscription.profile.name', lang)}: {safe_name}\n"
             f"{t('subscription.profile.language', lang)}: {lang.upper()}\n\n"
-            f"{t('subscription.profile.subscription', lang)}\n"
-            f"{t('subscription.profile.status', lang)}: {status_icon} {status_text}\n"
-            f"{t('subscription.profile.expires', lang)}: {expires_at}\n"
+            f"💎 *{t('subscription.profile.status', lang)}:* {status_icon} {status_text}\n"
+            f"📅 {t('subscription.profile.expires', lang)}: {expires_at}\n"
         )
         
         # Determine button text
