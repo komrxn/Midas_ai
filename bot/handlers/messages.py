@@ -87,6 +87,12 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     api = BarakaAPIClient(config.API_BASE_URL)
     api.set_token(token)
     
+    # Increment text usage
+    try:
+        await api.increment_usage("text")
+    except Exception as e:
+        logger.error(f"Failed to increment usage: {e}")
+    
     # Process with AI
     agent = AIAgent(api)
     result = await agent.process_message(user_id, text)

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import { Users, CreditCard, Activity, TrendingUp, Mic, Camera, Zap } from 'lucide-vue-next';
+import { Users, CreditCard, Activity, TrendingUp, Mic, Camera, Zap, MessageSquare } from 'lucide-vue-next';
 import { Line, Doughnut, Bar } from 'vue-chartjs';
 import {
     Chart as ChartJS,
@@ -47,8 +47,10 @@ const subscriptionData = ref({ plus: 0, pro: 0, premium: 0, trial: 0, free: 0 })
 const usageData = ref({
     total_voice_requests: 0,
     total_photo_requests: 0,
+    total_text_requests: 0,
     voice_today: 0,
     images_today: 0,
+    text_today: 0,
     active_users_7d: 0
 });
 
@@ -191,11 +193,19 @@ const subscriptionChartOptions = {
 };
 
 const usageChartData = computed(() => ({
-    labels: ['Voice Requests', 'Photo Requests'],
+    labels: ['Text Requests', 'Voice Requests', 'Photo Requests'],
     datasets: [{
         label: 'Total Usage',
-        data: [usageData.value.total_voice_requests, usageData.value.total_photo_requests],
-        backgroundColor: ['rgba(139, 92, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
+        data: [
+            usageData.value.total_text_requests,
+            usageData.value.total_voice_requests, 
+            usageData.value.total_photo_requests
+        ],
+        backgroundColor: [
+            'rgba(59, 130, 246, 0.8)', // Blue (Text)
+            'rgba(139, 92, 246, 0.8)', // Purple (Voice)
+            'rgba(236, 72, 153, 0.8)'  // Pink (Photo)
+        ],
         borderRadius: 8,
         borderSkipped: false
     }]
@@ -250,12 +260,12 @@ const statCards = computed(() => [
         change: 'Last 7 days'
     },
     { 
-        name: 'Voice Requests', 
-        value: usageData.value.total_voice_requests.toLocaleString(), 
-        icon: Mic, 
+        name: 'Requests Today', 
+        value: (usageData.value.text_today + usageData.value.voice_today + usageData.value.images_today).toLocaleString(), 
+        icon: MessageSquare, 
         color: 'text-amber-400',
         bg: 'bg-amber-500/10',
-        change: `${usageData.value.voice_today} today`
+        change: `${usageData.value.text_today} text, ${usageData.value.voice_today} voice`
     }
 ]);
 </script>
@@ -337,6 +347,15 @@ const statCards = computed(() => [
                     <div class="space-y-4">
                         <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
                             <div class="flex items-center gap-3">
+                                <div class="p-2 bg-blue-500/20 rounded-lg">
+                                    <MessageSquare class="w-5 h-5 text-blue-400" />
+                                </div>
+                                <span class="text-gray-300">Text Messages Today</span>
+                            </div>
+                            <span class="text-2xl font-bold text-white">{{ usageData.text_today }}</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-3">
                                 <div class="p-2 bg-purple-500/20 rounded-lg">
                                     <Mic class="w-5 h-5 text-purple-400" />
                                 </div>
@@ -352,15 +371,6 @@ const statCards = computed(() => [
                                 <span class="text-gray-300">Photo Analyses Today</span>
                             </div>
                             <span class="text-2xl font-bold text-white">{{ usageData.images_today }}</span>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-green-500/20 rounded-lg">
-                                    <Users class="w-5 h-5 text-green-400" />
-                                </div>
-                                <span class="text-gray-300">Active Users (7 days)</span>
-                            </div>
-                            <span class="text-2xl font-bold text-white">{{ usageData.active_users_7d }}</span>
                         </div>
                     </div>
                 </div>

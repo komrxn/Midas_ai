@@ -138,8 +138,10 @@ async def get_bot_usage(
         select(
             func.sum(User.voice_usage_count).label("total_voice"),
             func.sum(User.photo_usage_count).label("total_photo"),
+            func.sum(User.text_usage_count).label("total_text"),
             func.sum(User.voice_usage_daily).label("voice_today"),
-            func.sum(User.image_usage_daily).label("images_today")
+            func.sum(User.image_usage_daily).label("images_today"),
+            func.sum(User.text_usage_daily).label("text_today")
         )
     )
     
@@ -155,7 +157,9 @@ async def get_bot_usage(
     return {
         "total_voice_requests": row.total_voice or 0,
         "total_photo_requests": row.total_photo or 0,
+        "total_text_requests": row.total_text or 0,
         "voice_today": row.voice_today or 0,
         "images_today": row.images_today or 0,
+        "text_today": row.text_today or 0,
         "active_users_7d": active_users
     }
