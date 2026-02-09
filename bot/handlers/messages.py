@@ -95,6 +95,43 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
     created_transactions = result.get("created_transactions", [])
     created_debts = result.get("created_debts", [])
     settled_debts = result.get("settled_debts", [])
+    premium_upsells = result.get("premium_upsells", [])
+    
+    # Handle premium feature upsells first
+    if premium_upsells:
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        
+        for upsell in premium_upsells:
+            feature = upsell.get("feature", "")
+            original_amount = upsell.get("original_amount")
+            original_currency = upsell.get("original_currency")
+            
+            if feature == "multi_currency":
+                upsell_texts = {
+                    "ru": f"💎 *Мультивалютные транзакции* — премиум функция!\n\n"
+                          f"Вы хотели записать: {original_amount} {original_currency}\n\n"
+                          f"Автоматическая конвертация доступна на тарифах:\n"
+                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
+                          f"Хотите оформить подписку?",
+                    "uz": f"💎 *Ko'p valyutali tranzaksiyalar* — premium funksiya!\n\n"
+                          f"Siz yozmoqchi bo'ldingiz: {original_amount} {original_currency}\n\n"
+                          f"Avtomatik konvertatsiya quyidagi tariflarda mavjud:\n"
+                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
+                          f"Obuna bo'lishni xohlaysizmi?",
+                    "en": f"💎 *Multi-currency transactions* is a premium feature!\n\n"
+                          f"You wanted to record: {original_amount} {original_currency}\n\n"
+                          f"Auto-conversion is available on:\n"
+                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
+                          f"Would you like to subscribe?"
+                }
+                
+                keyboard = [[InlineKeyboardButton(t("subscription.buy_subscription_btn", lang), callback_data="buy_subscription")]]
+                await update.message.reply_text(
+                    upsell_texts.get(lang, upsell_texts["ru"]),
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+        return  # Don't show other responses if upsell was shown
     
     # Show AI response (only if no transactions/debts created or settled)
     if not created_transactions and not created_debts and not settled_debts and response_text:
@@ -137,6 +174,7 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
                 text,
                 reply_markup=get_main_keyboard(lang)
             )
+
 
 
 async def show_statistics(update: Update, api: BarakaAPIClient, lang: str):

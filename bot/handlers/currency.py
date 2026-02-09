@@ -36,11 +36,18 @@ async def currency_rates_handler(update: Update, context: ContextTypes.DEFAULT_T
         sub_status = await api.get_subscription_status(user_id)
         sub_type = sub_status.get("subscription_type", "free")
         
-        # Only for subscribers
+        # Allow: plus, pro, premium, free_trial (trial counts as premium)
+        # Block: free only
         if sub_type == "free":
+            # Show upsell message
+            upsell_texts = {
+                "ru": "💎 *Курс валют* — премиум функция!\n\nДоступно на тарифах:\n✨ Plus\n⚡️ Pro\n👑 Premium\n\nХотите оформить подписку?",
+                "uz": "💎 *Valyuta kursi* — premium funksiya!\n\nQuyidagi tariflarda mavjud:\n✨ Plus\n⚡️ Pro\n👑 Premium\n\nObuna bo'lishni xohlaysizmi?",
+                "en": "💎 *Exchange Rates* is a premium feature!\n\nAvailable on:\n✨ Plus\n⚡️ Pro\n👑 Premium\n\nWould you like to subscribe?"
+            }
             keyboard = [[InlineKeyboardButton(t("subscription.buy_subscription_btn", lang), callback_data="buy_subscription")]]
             await update.message.reply_text(
-                t("currency.premium_only", lang),
+                upsell_texts.get(lang, upsell_texts["ru"]),
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown"
             )
@@ -50,6 +57,7 @@ async def currency_rates_handler(update: Update, context: ContextTypes.DEFAULT_T
         logger.error(f"Error checking subscription: {e}")
         await update.message.reply_text(t("common.common.error", lang))
         return
+
     
     # Fetch and display rates
     try:

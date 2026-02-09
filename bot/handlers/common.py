@@ -64,28 +64,28 @@ async def with_auth_check(update: Update, user_id: int, api_call):
 
 def get_main_keyboard(lang: str = 'uz', subscription_type: str = 'free'):
     """Get main menu keyboard with localized buttons."""
+    # Currency button text
+    currency_texts = {
+        'ru': "💱 Курс валют",
+        'uz': "💱 Valyuta kursi",
+        'en': "💱 Exchange Rates"
+    }
+    currency_btn_text = currency_texts.get(lang, currency_texts['uz'])
+    
     keyboard = [
         [
             KeyboardButton(t('common.buttons.balance', lang)),
             KeyboardButton(t('common.buttons.statistics', lang))
         ],
+        [KeyboardButton(currency_btn_text)],  # Always show currency button
         [
             KeyboardButton("Baraka AI PLUS 🌟"),
             KeyboardButton(t('common.buttons.instructions', lang))
         ]
     ]
     
-    # Add currency button for subscribers (Plus/Pro/Premium)
-    if subscription_type and subscription_type != 'free':
-        currency_texts = {
-            'ru': "💱 Курс валют",
-            'uz': "💱 Valyuta kursi",
-            'en': "💱 Exchange Rates"
-        }
-        currency_btn_text = currency_texts.get(lang, currency_texts['uz'])
-        keyboard.insert(1, [KeyboardButton(currency_btn_text)])
-    
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
 
 
 async def get_keyboard_for_user(user_id: int, lang: str = 'uz'):

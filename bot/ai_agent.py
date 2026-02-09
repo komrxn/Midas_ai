@@ -298,6 +298,7 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                 created_transactions = [] # Initialize list to collect created transactions
                 created_debts = [] # Initialize list to collect created debts
                 settled_debts = [] # Initialize list to collect settled debts
+                premium_upsells = [] # Track premium feature upsells
                 
                 for tool_call in tool_calls:
                     try:
@@ -320,6 +321,10 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                                 created_debts.append(tool_result)
                             elif "settled_debt_id" in tool_result:
                                 settled_debts.append(tool_result)
+                        elif tool_result.get("premium_required"):
+                            # Track premium upsell triggers
+                            premium_upsells.append(tool_result)
+
                             
                     except Exception as e:
                         logger.exception(f"Error executing tool {tool_call.function.name}: {e}")
@@ -369,7 +374,8 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                 "response": final_text or fallback_done,
                 "created_transactions": created_transactions,
                 "created_debts": created_debts,
-                "settled_debts": settled_debts
+                "settled_debts": settled_debts,
+                "premium_upsells": premium_upsells if 'premium_upsells' in dir() else []
             }
             
         except Exception as e:
@@ -407,7 +413,8 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                         sub_status = await self.api_client.get_subscription_status(user_id)
                         sub_tier = sub_status.get("subscription_type", "free")
                         
-                        if sub_tier in ("pro", "premium"):
+                        # free_trial counts as premium, plus/pro/premium can convert
+                        if sub_tier in ("plus", "pro", "premium", "free_trial"):
                             # Import conversion function
                             import httpx
                             try:
@@ -434,8 +441,19 @@ Action: get_balance() -> calculate diff -> create_transaction(category="other_ex
                                         logger.info(f"Converted {original_amount} {original_currency.upper()} → {amount:.0f} UZS")
                             except Exception as e:
                                 logger.error(f"Currency conversion failed: {e}")
+                        else:
+                            # Free user trying multi-currency - return premium_required flag
+                            logger.info(f"Free user {user_id} tried to use {currency.upper()}, showing upsell")
+                            return {
+                                "success": False,
+                                "premium_required": True,
+                                "feature": "multi_currency",
+                                "original_amount": original_amount,
+                                "original_currency": original_currency.upper()
+                            }
                     except Exception as e:
                         logger.error(f"Could not check subscription for currency conversion: {e}")
+
                 
                 # Prepare transaction data
                 tx_data = {
