@@ -107,31 +107,17 @@ async def process_text_message(update: Update, context: ContextTypes.DEFAULT_TYP
             original_currency = upsell.get("original_currency")
             
             if feature == "multi_currency":
-                upsell_texts = {
-                    "ru": f"💎 *Мультивалютные транзакции* — премиум функция!\n\n"
-                          f"Вы хотели записать: {original_amount} {original_currency}\n\n"
-                          f"Автоматическая конвертация доступна на тарифах:\n"
-                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
-                          f"Хотите оформить подписку?",
-                    "uz": f"💎 *Ko'p valyutali tranzaksiyalar* — premium funksiya!\n\n"
-                          f"Siz yozmoqchi bo'ldingiz: {original_amount} {original_currency}\n\n"
-                          f"Avtomatik konvertatsiya quyidagi tariflarda mavjud:\n"
-                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
-                          f"Obuna bo'lishni xohlaysizmi?",
-                    "en": f"💎 *Multi-currency transactions* is a premium feature!\n\n"
-                          f"You wanted to record: {original_amount} {original_currency}\n\n"
-                          f"Auto-conversion is available on:\n"
-                          f"✨ Plus\n⚡️ Pro\n👑 Premium\n\n"
-                          f"Would you like to subscribe?"
-                }
+                # Use localization with placeholders
+                upsell_text = t("currency.multi_currency_upsell", lang, amount=original_amount, currency=original_currency)
                 
                 keyboard = [[InlineKeyboardButton(t("subscription.buy_subscription_btn", lang), callback_data="buy_subscription")]]
                 await update.message.reply_text(
-                    upsell_texts.get(lang, upsell_texts["ru"]),
+                    upsell_text,
                     reply_markup=InlineKeyboardMarkup(keyboard),
                     parse_mode="Markdown"
                 )
         return  # Don't show other responses if upsell was shown
+
     
     # Show AI response (only if no transactions/debts created or settled)
     if not created_transactions and not created_debts and not settled_debts and response_text:
