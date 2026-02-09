@@ -36,7 +36,7 @@ class AIAgent:
                         "type": "object",
                         "properties": {
                             "amount": {"type": "number", "description": "Transaction amount"},
-                            "currency": {"type": "string", "enum": ["uzs", "usd"], "description": "Currency code"},
+                            "currency": {"type": "string", "enum": ["uzs", "usd", "eur", "rub", "gbp", "cny", "kzt", "aed", "try"], "description": "Currency code (uzs, usd, eur, rub, etc.)"},
                             "category_slug": {"type": "string", "description": "Category slug (must be from available list)"},
                             "description": {"type": "string", "description": "Description of the transaction"},
                             "date": {"type": "string", "description": "Date in YYYY-MM-DD format (optional)"},
@@ -240,7 +240,16 @@ RULES:
    - Aggressively guess intent from voice text.
    - "Food 50000" -> Category: groceries/cafes.
 
-5. **Language:**
+6. **CURRENCY RECOGNITION (CRITICAL):**
+   - "dollar" / "долларов" / "dollarga" / "$" -> currency: "usd"
+   - "рубль" / "рублей" / "rubl" / "₽" -> currency: "rub"
+   - "евро" / "euro" / "€" -> currency: "eur"
+   - "тенге" / "tenge" -> currency: "kzt"
+   - "сум" / "so'm" / "sum" -> currency: "uzs"
+   - Default to "uzs" ONLY if no currency mentioned.
+   - IMPORTANT: Listen for currency keywords in ANY language (russian, uzbek, english).
+
+7. **Language:**
    - Reply in the USER'S language (detected from input or context).
 
 EXAMPLES:
