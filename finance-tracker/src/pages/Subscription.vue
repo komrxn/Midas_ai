@@ -98,12 +98,11 @@
                 <h2 class="subscription-page__step-title">{{ t('subscription.selectPaymentMethod') }}</h2>
                 <div class="subscription-page__payment-methods">
                     <div 
-                        class="subscription-page__payment-method"
-                        :class="{ 'subscription-page__payment-method--selected': selectedPaymentMethod === 'payme' }"
-                        @click="selectPaymentMethod('payme')"
+                        class="subscription-page__payment-method subscription-page__payment-method--disabled"
                     >
                         <div class="subscription-page__payment-method-content">
                             <h3 class="subscription-page__payment-method-title">Payme</h3>
+                            <span class="subscription-page__payment-method-badge">Soon</span>
                         </div>
                     </div>
                     <div 
@@ -313,11 +312,15 @@ const goToPlanStep = () => {
 };
 
 const handlePay = async () => {
-    if (!selectedPlan.value) return;
+    if (!selectedPlan.value || !selectedPeriod.value || !selectedPaymentMethod.value) return;
 
     loading.value = true;
     try {
-        const { data } = await subscriptionApi.generatePaymentLink(selectedPlan.value);
+        // Construct plan_id: "plus_1", "plus_3", "pro_1", etc.
+        const duration = selectedPeriod.value === 'month' ? '1' : '3';
+        const planId = `${selectedPlan.value}_${duration}`;
+
+        const { data } = await subscriptionApi.generatePaymentLink(planId, selectedPaymentMethod.value);
         if (data.url) {
             window.location.href = data.url;
         }
@@ -656,7 +659,28 @@ onMounted(() => {
                 pointer-events: none;
             }
         }
+
+        &--disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(1);
+
+            &:hover {
+                border-color: var(--border-light);
+                transform: none;
+            }
+        }
     }
+
+    &__payment-method-badge {
+        font: var(--font-12-b);
+        color: var(--gold-text-color, rgba(220, 180, 0, 1));
+        background: rgba(220, 180, 0, 0.1);
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.8rem;
+        border: 1px solid rgba(220, 180, 0, 0.2);
+    }
+
 
     &__payment-method-content {
         display: flex;
