@@ -3,7 +3,7 @@
         <MainHeader />
 
         <MainBalance />
-        <MainSubscriptionBanner v-if="hasSubscription" />
+        <MainSubscriptionBanner v-if="!hasSubscription" />
         <!-- <MainQuickInput /> -->
         <MainChart />
         <MainGrid />
