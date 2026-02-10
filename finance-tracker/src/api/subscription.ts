@@ -25,7 +25,15 @@ export default {
         return $axios.post('/subscriptions/trial');
     },
 
-    async generatePaymentLink(planId: string = "monthly"): Promise<AxiosResponse<PaymentLinkResponse>> {
-        return $axios.post('/subscriptions/pay', { plan_id: planId });
+    async generatePaymentLink(
+        planId: string, 
+        period: 'month' | 'quarter' = 'month',
+        paymentMethod: 'payme' | 'click' = 'payme'
+    ): Promise<AxiosResponse<PaymentLinkResponse>> {
+        return $axios.post('/subscriptions/pay', { 
+            plan_id: planId,
+            period: period,
+            payment_method: paymentMethod
+        });
     }
 };
