@@ -313,15 +313,11 @@ const goToPlanStep = () => {
 };
 
 const handlePay = async () => {
-    if (!selectedPlan.value || !selectedPeriod.value || !selectedPaymentMethod.value) return;
-    
+    if (!selectedPlan.value) return;
+
     loading.value = true;
     try {
-        const { data } = await subscriptionApi.generatePaymentLink(
-            selectedPlan.value,
-            selectedPeriod.value,
-            selectedPaymentMethod.value
-        );
+        const { data } = await subscriptionApi.generatePaymentLink(selectedPlan.value);
         if (data.url) {
             window.location.href = data.url;
         }
