@@ -84,21 +84,28 @@ async def register_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data.get('registration_language', 'uz')
     
     contact = update.message.contact
+    phone = None
     
-    if not contact:
-        await update.message.reply_text(t('auth.registration.use_button', lang))
-        return PHONE
-    
-    # 1. SECURITY CHECK: Ensure contact belongs to the user
-    if contact.user_id and contact.user_id != user_id:
-        logger.warning(f"Registration security alert: User {user_id} tried to use contact of {contact.user_id}")
-        await update.message.reply_text(
-            "⚠️ Security Alert: You can only register with your own phone number.",
-            reply_markup=ReplyKeyboardRemove()
-        )
-        return ConversationHandler.END
+    if contact:
+        # 1. SECURITY CHECK: Ensure contact belongs to the user
+        if contact.user_id and contact.user_id != user_id:
+            logger.warning(f"Registration security alert: User {user_id} tried to use contact of {contact.user_id}")
+            await update.message.reply_text(
+                "⚠️ Security Alert: You can only register with your own phone number.",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return ConversationHandler.END
+        phone = contact.phone_number
+    else:
+        # Handle text input
+        text = update.message.text.strip()
+        # Basic validation/normalization happens on backend, but let's do a quick check?
+        # No, let backend handle normalization. Just pass it.
+        if not text:
+             await update.message.reply_text(t('auth.registration.use_button', lang))
+             return PHONE
+        phone = text
 
-    phone = contact.phone_number
     context.user_data['register_phone'] = phone
     
     telegram_id = update.effective_user.id
@@ -181,20 +188,26 @@ async def login_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     lang = storage.get_user_language(user_id) or 'uz'
     
-    if not contact:
-        await update.message.reply_text(t('auth.registration.use_button', lang))
-        return LOGIN_PHONE
+    phone = None
     
-    # 1. SECURITY CHECK: Ensure contact belongs to the user
-    if contact.user_id and contact.user_id != user_id:
-        logger.warning(f"Login security alert: User {user_id} tried to use contact of {contact.user_id}")
-        await update.message.reply_text(
-            "⚠️ Security Alert: You can only login with your own phone number.",
-            reply_markup=ReplyKeyboardRemove()
-        )
-        return ConversationHandler.END
+    if contact:
+        # 1. SECURITY CHECK: Ensure contact belongs to the user
+        if contact.user_id and contact.user_id != user_id:
+            logger.warning(f"Login security alert: User {user_id} tried to use contact of {contact.user_id}")
+            await update.message.reply_text(
+                "⚠️ Security Alert: You can only login with your own phone number.",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return ConversationHandler.END
+        phone = contact.phone_number
+    else:
+        # Handle text input
+        text = update.message.text.strip()
+        if not text:
+             await update.message.reply_text(t('auth.registration.use_button', lang))
+             return LOGIN_PHONE
+        phone = text
     
-    phone = contact.phone_number
     telegram_id = update.effective_user.id
     
     api = BarakaAPIClient(config.API_BASE_URL)
@@ -309,7 +322,7 @@ register_conv = ConversationHandler(
     states={
         LANGUAGE: [CallbackQueryHandler(register_language_selected, pattern="^reglang_")],
         NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, register_name)],
-        PHONE: [MessageHandler(filters.CONTACT, register_phone)]
+        PHONE: [MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), register_phone)]
     },
     fallbacks=[CommandHandler('cancel', register_cancel)],
     allow_reentry=True
@@ -325,7 +338,7 @@ login_conv = ConversationHandler(
         )
     ],
     states={
-        LOGIN_PHONE: [MessageHandler(filters.CONTACT, login_phone)]
+        LOGIN_PHONE: [MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), login_phone)]
     },
     fallbacks=[CommandHandler('cancel', login_cancel)],
     allow_reentry=True
