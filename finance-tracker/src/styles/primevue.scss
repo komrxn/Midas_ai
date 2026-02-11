@@ -64,18 +64,18 @@ body {
       max-height: 100%;
       transition: var(--transition-fast);
 
-      &[fill]:not([fill='none']) {
+      &[fill]:not([fill="none"]) {
         fill: currentColor;
       }
     }
 
     &:not(.no-fill) {
       svg {
-        [fill]:not([fill='none']) {
+        [fill]:not([fill="none"]) {
           fill: currentColor;
         }
 
-        [stroke]:not([stroke='none']) {
+        [stroke]:not([stroke="none"]) {
           stroke: currentColor;
         }
       }
@@ -133,5 +133,11 @@ body {
     min-height: 4rem;
     width: 4rem;
     height: 4rem;
+  }
+
+  .p-dialog {
+    .p-button-text.p-button-secondary {
+      --p-button-text-secondary-color: var(--primary-500);
+    }
   }
 }

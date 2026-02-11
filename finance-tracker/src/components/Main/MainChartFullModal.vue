@@ -15,8 +15,9 @@
                             t('main.currentBalance') }}</p>
                         <h2 class="full-chart__center-value font-30-b ">{{ selectedCategory ? formattedCenterValue
                             : formattedBalance }}</h2>
-                        <Button v-if="selectedCategory" :label="t('main.viewTransactions')" size="small" severity="primary"
-                            class="full-chart__center-button" outlined @click="handleViewTransactions" />
+                        <Button v-if="selectedCategory" :label="t('main.viewTransactions')" size="small"
+                            severity="primary" class="full-chart__center-button" outlined
+                            @click="handleViewTransactions" />
                     </div>
                 </div>
             </div>

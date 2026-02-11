@@ -19,8 +19,11 @@
             </div>
         </div>
         <div class="main-chart__categories">
-            <div v-for="category in displayedCategories" :key="category.name" class="main-chart__category"
-                :class="{ 'main-chart__category--active': selectedCategory === category.name }"
+        <div v-for="category in displayedCategories" :key="category.name" class="main-chart__category"
+                :class="{
+                    'main-chart__category--active': selectedCategory === category.name,
+                    'main-chart__category--show-all': category.isOthers
+                }"
                 @click="handleCategoryClick(category)">
                 <div class="main-chart__category-icon" :style="{ backgroundColor: category.color }"></div>
                 <p class="main-chart__category-name font-12-r">{{ category.name }}</p>
@@ -463,6 +466,36 @@ const chartOption = computed<EChartsOption>(() => ({
         &--active {
             background: var(--card-accent);
             border-color: var(--border-medium);
+        }
+
+        &--show-all {
+            background: var(--card-default);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+
+            .main-chart__category-name,
+            .main-chart__category-percent {
+                color: inherit;
+                opacity: 1;
+                font-weight: 600;
+            }
+
+            .main-chart__category-icon {
+                border: 2px solid var(--primary-color);
+                background-color: rgba(0, 0, 0, 0.02);
+            }
+
+            &:hover {
+                background: color-mix(in srgb, var(--primary-color) 10%, var(--card-default));
+                border-color: color-mix(in srgb, var(--primary-color) 80%, #000000);
+                color: border-color;
+
+                .main-chart__category-icon {
+                    border-color: border-color;
+                    background-color: rgba(0, 0, 0, 0.03);
+                }
+            }
         }
     }
 
