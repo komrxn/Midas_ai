@@ -44,8 +44,9 @@ async def send_subscription_success_message(user: User, message_key: str = None)
             
     except Exception as e:
         logger.error(f"Failed to load translations in notification service: {e}")
-        # Fallback to key
-        def get_text(key): return key
+        # Fallback to key, escaped for Markdown
+        def get_text(key): 
+            return key.replace("_", "\\_").replace("*", "\\*")
 
     if message_key:
         message = get_text(message_key)
