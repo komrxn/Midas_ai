@@ -14,12 +14,9 @@ from .handlers.common import send_typing_action
 logger = logging.getLogger(__name__)
 
 
-async def show_transaction_with_actions(
-    update: Update,
-    user_id: int,
-    tx_data: Dict[str, Any]
-) -> None:
-    """Show created transaction with Edit/Delete buttons."""
+
+async def get_transaction_message_data(user_id: int, tx_data: Dict[str, Any]) -> tuple[str, InlineKeyboardMarkup]:
+    """Helper to generate transaction message text and markup."""
     tx_id = tx_data.get('transaction_id')
     lang = storage.get_user_language(user_id) or 'uz'
     
@@ -85,13 +82,60 @@ async def show_transaction_with_actions(
         ]
     ]
     
+    return text, InlineKeyboardMarkup(keyboard)
+
+
+async def show_transaction_with_actions(
+    update: Update,
+    user_id: int,
+    tx_data: Dict[str, Any]
+) -> None:
+    """Show created transaction with Edit/Delete buttons."""
+    text, reply_markup = await get_transaction_message_data(user_id, tx_data)
+    
     await update.message.reply_text(
         text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
+        reply_markup=reply_markup,
         parse_mode='Markdown'
     )
     
-    logger.info(f"Transaction shown: {tx_id}")
+    logger.info(f"Transaction shown: {tx_data.get('transaction_id')}")
+
+
+async def restore_transaction_message(context: ContextTypes.DEFAULT_TYPE, chat_id: int, message_id: int, user_id: int, tx_id: str):
+    """Restore the transaction message content (used when cancelling edit)."""
+    try:
+        # Fetch current transaction data
+        token = storage.get_user_token(user_id)
+        api = BarakaAPIClient(config.API_BASE_URL)
+        api.set_token(token)
+        
+        fresh_tx = await api.get_transaction(tx_id)
+        
+        # Reconstruct tx_data
+        category_data = fresh_tx.get('category', {})
+        category_slug = category_data.get('slug', 'other_expense') if isinstance(category_data, dict) else 'other_expense'
+        
+        tx_data = {
+            'transaction_id': str(fresh_tx['id']),
+            'amount': fresh_tx.get('amount', 0),
+            'description': fresh_tx.get('description', ''),
+            'type': fresh_tx.get('type', 'expense'),
+            'currency': fresh_tx.get('currency', 'uzs'),
+            'category': category_slug
+        }
+        
+        text, reply_markup = await get_transaction_message_data(user_id, tx_data)
+        
+        await context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=text,
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
+        )
+    except Exception as e:
+        logger.error(f"Failed to restore transaction message: {e}")
 
 
 async def handle_transaction_action(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -135,10 +179,11 @@ async def handle_transaction_action(update: Update, context: ContextTypes.DEFAUL
             await query.edit_message_text(f"{t('common.common.error', lang)}: {str(e)}")
 
 
-@send_typing_action
 async def handle_edit_transaction_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text_override: str = None):
     """Handle message when user is editing a transaction."""
     tx_id = context.user_data.pop('editing_transaction_id', None)
+    context.user_data.pop('editing_message_id', None) # Clear stored message ID
+    
     if not tx_id:
         return False
     
@@ -197,7 +242,6 @@ async def handle_edit_transaction_message(update: Update, context: ContextTypes.
             # If primary field missing in update, fallback to using whatever AI returned
             if not updates:
                 updates = agent_updates
-
         else:
             # Legacy/Fallback: Generic AI edit
             updates = await agent.edit_transaction(old_data, text)
@@ -261,6 +305,7 @@ async def handle_edit_field_callback(update: Update, context: ContextTypes.DEFAU
         
         context.user_data['editing_transaction_id'] = tx_id
         context.user_data['editing_field'] = field
+        context.user_data['editing_message_id'] = query.message.message_id # Store message ID
         
         user_id = query.from_user.id
         lang = storage.get_user_language(user_id) or 'uz'

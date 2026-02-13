@@ -48,10 +48,22 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if is_menu_command:
         # Clear editing states if present
-        if context.user_data.get('editing_tx'):
+        if context.user_data.get('editing_tx') or context.user_data.get('editing_transaction_id'):
+             # Try to restore the message if we have the ID and transaction ID
+             edit_msg_id = context.user_data.get('editing_message_id')
+             edit_tx_id = context.user_data.get('editing_transaction_id')
+             
+             if edit_msg_id and edit_tx_id:
+                 from ..transaction_actions import restore_transaction_message
+                 try:
+                     await restore_transaction_message(context, update.effective_chat.id, edit_msg_id, user_id, edit_tx_id)
+                 except Exception as e:
+                     logger.warning(f"Failed to restore message on interrupt: {e}")
+
              context.user_data.pop('editing_tx', None)
              context.user_data.pop('editing_transaction_id', None)
              context.user_data.pop('editing_field', None)
+             context.user_data.pop('editing_message_id', None)
         
         if context.user_data.get('editing_debt_id'):
              context.user_data.pop('editing_debt_id', None)
