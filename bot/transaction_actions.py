@@ -313,14 +313,52 @@ async def handle_edit_field_callback(update: Update, context: ContextTypes.DEFAU
         prompt_key = f"transactions.actions.enter_{field}"
         prompt = t(prompt_key, lang)
         
+        
         logger.info(f"Prompt key: {prompt_key}, translated: {prompt}")
         
-        await query.edit_message_text(prompt)
+        # Add a "Back" button to cancel editing
+        back_text = "🔙 " + t('common.actions.back', lang) # "Back" or "Назад"
+        keyboard = [[InlineKeyboardButton(back_text, callback_data=f"cancel_edit_{tx_id}")]]
+        
+        await query.edit_message_text(
+            prompt,
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
         logger.info("Message edited successfully")
         
     except Exception as e:
         logger.exception(f"Error in handle_edit_field_callback: {e}")
         await query.edit_message_text(f"Error: {str(e)}")
+
+
+async def handle_cancel_edit_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle cancellation of manual edit (Back button)."""
+    query = update.callback_query
+    await query.answer()
+    
+    try:
+        parts = query.data.split('_')
+        # pattern: cancel_edit_{tx_id}
+        if len(parts) < 3:
+            return
+            
+        tx_id = "_".join(parts[2:]) # Rejoin just in case UUID has underscores (unlikely but safe)
+        
+        user_id = query.from_user.id
+        chat_id = update.effective_chat.id
+        message_id = query.message.message_id
+        
+        # Clear editing states
+        context.user_data.pop('editing_transaction_id', None)
+        context.user_data.pop('editing_field', None)
+        context.user_data.pop('editing_message_id', None)
+        
+        # Restore the transaction card
+        await restore_transaction_message(context, chat_id, message_id, user_id, tx_id)
+        
+    except Exception as e:
+        logger.exception(f"Error in handle_cancel_edit_callback: {e}")
+
 
 # Export handler
 transaction_action_handler = CallbackQueryHandler(
@@ -331,4 +369,9 @@ transaction_action_handler = CallbackQueryHandler(
 transaction_edit_field_handler = CallbackQueryHandler(
     handle_edit_field_callback,
     pattern="^edit_field_"
+)
+
+transaction_cancel_edit_handler = CallbackQueryHandler(
+    handle_cancel_edit_callback,
+    pattern="^cancel_edit_"
 )

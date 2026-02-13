@@ -18,7 +18,7 @@ from bot.handlers import (
 from bot.handlers.commands import start, help_command, help_callback, language_selector_handler, profile
 from bot.handlers.balance import get_balance
 from bot.auth_handlers import register_conv, login_conv
-from bot.transaction_actions import transaction_action_handler, transaction_edit_field_handler
+from bot.transaction_actions import transaction_action_handler, transaction_edit_field_handler, transaction_cancel_edit_handler
 from bot.debt_actions import debt_action_handler
 from bot.handlers.subscriptions import subscription_handlers
 from bot.handlers.currency import currency_handlers, currency_rates_handler
@@ -70,6 +70,7 @@ def main():
     # Callback handler for transaction actions (Edit/Delete)
     application.add_handler(transaction_action_handler)
     application.add_handler(transaction_edit_field_handler)
+    application.add_handler(transaction_cancel_edit_handler)
     application.add_handler(debt_action_handler)
     
     # Subscription handlers
