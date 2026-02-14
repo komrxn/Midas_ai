@@ -206,8 +206,8 @@ const handleViewTransactions = async () => {
         type: 'expense',
     });
 
-    // Переходим на страницу транзакций
-    router.push({ name: 'transactions' });
+    // Переходим на страницу транзакций (state.fromChart — не сбрасывать фильтры при входе)
+    router.push({ name: 'transactions', state: { fromChart: true } });
 };
 
 const handleChartClick = (params: any) => {

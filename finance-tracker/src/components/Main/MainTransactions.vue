@@ -2,6 +2,7 @@
 import { computed, onBeforeMount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { Button } from 'primevue';
 import TransactionCard from '@/components/Transactions/TransactionCard.vue';
 import TransactionDetails from '@/components/Transactions/TransactionDetails.vue';
@@ -12,6 +13,7 @@ import { getStartOfDayString, formatDateToAPIDatetime } from '@/utils';
 import type { Transaction } from '@/composables/Transactions/types';
 
 const router = useRouter();
+const { t } = useI18n();
 const transactionsStore = useTransactionsStore();
 const categoriesStore = useCategoriesStore();
 
@@ -65,23 +67,23 @@ onBeforeMount(async () => {
 <template>
     <div class="main-transactions">
         <div class="main-transactions__header">
-            <h1 class="font-20-b ">Транзакции</h1>
-            <Button label="Посмотреть все" text size="small" @click="handleViewAll" />
+            <h1 class="font-20-b ">{{ t('transactions.title') }}</h1>
+            <Button :label="t('main.categoriesViewAll')" text size="small" @click="handleViewAll" />
         </div>
         <div v-if="loading" class="main-transactions__loading">
-            <p class="font-14-r">Загрузка...</p>
+            <p class="font-14-r">{{ t('common.loading') }}</p>
         </div>
         <div v-else-if="todayTransactions && todayTransactions.transactions.length > 0" class="main-transactions__list">
             <TransactionCard v-for="transaction in todayTransactions.transactions.slice(0, 5)" :key="transaction.id"
                 :transaction="transaction" @click="handleTransactionClick" />
         </div>
         <div v-else class="main-transactions__empty">
-            <p class="font-14-r">Нет транзакций за сегодня</p>
+            <p class="font-14-r">{{ t('transactions.noTransactionsToday') }}</p>
         </div>
 
         <VDrawer v-model:visible="detailsDrawerVisible">
             <template #header>
-                <h2 class="transaction-details-drawer__title">Детали транзакции</h2>
+                <h2 class="transaction-details-drawer__title">{{ t('transactions.details') }}</h2>
             </template>
             <TransactionDetails v-if="selectedTransaction" :transaction="selectedTransaction" />
         </VDrawer>

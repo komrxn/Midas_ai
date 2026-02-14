@@ -34,6 +34,7 @@ export default {
   // Umumiy
   common: {
     back: 'Orqaga',
+    backToMainPage: 'Asosiyga',
     save: 'Saqlash',
     cancel: 'Bekor qilish',
     delete: 'O‘chirish',
@@ -53,6 +54,10 @@ export default {
     today: 'Bugun',
     yesterday: 'Kecha',
     noResults: 'Hech narsa topilmadi',
+  },
+
+  errors: {
+    notFound: 'Sahifa topilmadi (404)',
   },
 
   // Asosiy sahifa
@@ -111,6 +116,7 @@ export default {
   transactions: {
     title: 'Tranzaksiyalar',
     noTransactions: 'Tranzaksiyalar yo\'q',
+    noTransactionsToday: 'Bugun tranzaksiyalar yo\'q',
     tryFilters: 'Filtrlarni o‘zgartirishga harakat qiling',
     details: 'Tranzaksiya tafsilotlari',
     amount: 'Summa',
@@ -410,6 +416,9 @@ export default {
     continue: 'Davom etish',
     selectPeriod: 'Davrni tanlang',
     selectPaymentMethod: 'To\'lov usulini tanlang',
+    paymentMethodPayme: 'Payme',
+    paymentMethodClick: 'Click',
+    comingSoon: 'Tez kunda',
     plan: 'Reja',
     period: 'Davr',
     total: 'Jami',

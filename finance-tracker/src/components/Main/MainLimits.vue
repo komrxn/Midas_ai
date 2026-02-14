@@ -49,7 +49,7 @@ onBeforeMount(async () => {
     <div class="main-limits">
         <div class="main-limits__header">
             <h1 class="font-20-b ">{{ t('main.limitsTitle') }}</h1>
-            <Button v-if="criticalLimits.length > 0" label="Посмотреть все" text size="small" @click="handleViewAll" />
+            <Button v-if="criticalLimits.length > 0" :label="t('main.categoriesViewAll')" text size="small" @click="handleViewAll" />
         </div>
 
         <div v-if="loading" class="main-limits__loading">

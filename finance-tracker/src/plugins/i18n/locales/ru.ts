@@ -34,6 +34,7 @@ export default {
   // Общие
   common: {
     back: 'Назад',
+    backToMainPage: 'На главную',
     save: 'Сохранить',
     cancel: 'Отменить',
     delete: 'Удалить',
@@ -53,6 +54,10 @@ export default {
     today: 'Сегодня',
     yesterday: 'Вчера',
     noResults: 'Ничего не найдено',
+  },
+
+  errors: {
+    notFound: 'Страница не найдена (404)',
   },
 
   // Главная страница
@@ -111,6 +116,7 @@ export default {
   transactions: {
     title: 'Транзакции',
     noTransactions: 'Нет транзакций',
+    noTransactionsToday: 'Нет транзакций за сегодня',
     tryFilters: 'Попробуйте изменить фильтры',
     details: 'Детали транзакции',
     amount: 'Сумма',
@@ -458,6 +464,9 @@ export default {
     continue: 'Продолжить',
     selectPeriod: 'Выберите период',
     selectPaymentMethod: 'Выберите способ оплаты',
+    paymentMethodPayme: 'Payme',
+    paymentMethodClick: 'Click',
+    comingSoon: 'Скоро',
     plan: 'Тариф',
     period: 'Период',
     total: 'Итого',

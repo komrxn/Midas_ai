@@ -152,22 +152,14 @@ const handleSubmitTransaction = async (formData: TransactionFormData) => {
 };
 
 onMounted(async () => {
-    // Если фильтры уже установлены (например, при переходе с главной страницы),
-    // используем их, иначе сбрасываем
-    const hasFilters = transactionsStore.currentFilters !== undefined;
-    
-    if (!hasFilters) {
-        transactionsStore.currentFilters = undefined;
-        transactionsStore.isLoaded = false;
-        transactionsStore.transactions = [];
-        transactionsStore.page = 1;
-        transactionsStore.hasMore = true;
-    }
+    await loadCategories();
 
-    await Promise.all([
-        loadCategories(),
-        loadTransactions(transactionsStore.currentFilters || {}, false, true)
-    ]);
+    // При переходе с графика (категория → «Посмотреть транзакции») фильтры не трогаем.
+    // При переходе через bottom bar — сбрасываем фильтры и показываем все транзакции.
+    const fromChart = history.state?.fromChart === true;
+    if (!fromChart) {
+        await resetFilters();
+    }
 });
 
 // onBeforeUnmount(() => {

@@ -9,7 +9,7 @@
             <div class="premium-overlay__button-container">
                 <Button :label="t('premiumOverlay.activateButton')" class="premium-overlay__button"
                     @click="handleActivate" fluid />
-                <Button severity="secondary" label="Назад" @click="router.back()" fluid />
+                <Button severity="secondary" :label="t('common.back')" @click="router.back()" fluid />
             </div>
         </div>
     </div>

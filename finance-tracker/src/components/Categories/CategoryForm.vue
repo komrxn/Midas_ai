@@ -25,7 +25,7 @@
 
                 <!-- <div class="category-form__form-section">
                     <div class="category-form__color-wrapper">
-                        <label class="category-form__form-info-label">Цвет</label>
+                        <label class="category-form__form-info-label">{{ t('categories.color') }}</label>
                         <div class="category-form__color-input-wrapper">
                             <input v-model="formData.color" type="color" class="category-form__color-input" />
                             <VInputText v-model="formData.color" placeholder="#2ECC71" label="" size="small"

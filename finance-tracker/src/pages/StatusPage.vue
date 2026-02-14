@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Button } from 'primevue';
+import { useI18n } from 'vue-i18n';
 import { backArrow } from '@/assets/icons';
 import PageWrapper from '@/components/UI/PageWrapper.vue';
 import VIcon from '@/components/UI/VIcon.vue';
 import { useStatusPage } from '@/composables/useStatusPage';
 
+const { t } = useI18n();
 const { pageTitle, pageDescription, pageIcon, pageType } = useStatusPage();
 </script>
 
@@ -19,7 +21,7 @@ const { pageTitle, pageDescription, pageIcon, pageType } = useStatusPage();
 
       <Button
         v-if="pageType === 'approved'"
-        label="Back to main"
+        :label="t('common.backToMainPage')"
         text
         size="large"
         :icon="backArrow"

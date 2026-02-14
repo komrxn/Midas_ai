@@ -95,15 +95,15 @@
                 <div class="subscription-page__payment-methods">
                     <div class="subscription-page__payment-method subscription-page__payment-method--disabled">
                         <div class="subscription-page__payment-method-content">
-                            <h3 class="subscription-page__payment-method-title">Payme</h3>
-                            <span class="subscription-page__payment-method-badge">Soon</span>
+                            <h3 class="subscription-page__payment-method-title">{{ t('subscription.paymentMethodPayme') }}</h3>
+                            <span class="subscription-page__payment-method-badge">{{ t('subscription.comingSoon') }}</span>
                         </div>
                     </div>
                     <div class="subscription-page__payment-method"
                         :class="{ 'subscription-page__payment-method--selected': selectedPaymentMethod === 'click' }"
                         @click="selectPaymentMethod('click')">
                         <div class="subscription-page__payment-method-content">
-                            <h3 class="subscription-page__payment-method-title">Click</h3>
+                            <h3 class="subscription-page__payment-method-title">{{ t('subscription.paymentMethodClick') }}</h3>
                         </div>
                     </div>
                 </div>

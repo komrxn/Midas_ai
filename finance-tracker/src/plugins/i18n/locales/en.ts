@@ -34,6 +34,7 @@ export default {
   // Common
   common: {
     back: 'Back',
+    backToMainPage: 'Back to main',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -53,6 +54,10 @@ export default {
     today: 'Today',
     yesterday: 'Yesterday',
     noResults: 'No results found',
+  },
+
+  errors: {
+    notFound: 'Not found (404)',
   },
 
   // Main page
@@ -111,6 +116,7 @@ export default {
   transactions: {
     title: 'Transactions',
     noTransactions: 'No transactions',
+    noTransactionsToday: 'No transactions today',
     tryFilters: 'Try changing filters',
     details: 'Transaction details',
     amount: 'Amount',
@@ -410,6 +416,9 @@ export default {
     continue: 'Continue',
     selectPeriod: 'Select Period',
     selectPaymentMethod: 'Select Payment Method',
+    paymentMethodPayme: 'Payme',
+    paymentMethodClick: 'Click',
+    comingSoon: 'Soon',
     plan: 'Plan',
     period: 'Period',
     total: 'Total',
